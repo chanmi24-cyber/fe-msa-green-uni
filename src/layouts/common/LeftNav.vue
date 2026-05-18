@@ -117,7 +117,7 @@ watch(() => route.path, () => {
     </div>
 
     <div class="login-info">
-      <p class="name">{{ authStore.name }}</p>
+      <p class="name">{{ authStore.name }} <span class="role">{{ userRole }}</span></p>
       <div class="login-info-detail">
         <p class="member-code">{{ authStore.memberCode }}</p>
         <p class="major" v-if="authStore.major">{{ authStore.major }}</p>
@@ -177,14 +177,16 @@ watch(() => route.path, () => {
 }
 .login-info {
   padding: 15px; border-radius: 10px; background: linear-gradient(140deg, $green-600 0%, $green-700 100%); color: #fff; position: relative;
-  .name { font-weight: 700;font-size: 1.2em; }
-  &-detail { display: flex; font-size: 0.9em; gap: 2px; flex-wrap: wrap;
+  .name { font-weight: 700;font-size: 1.4em; 
+    .role{font-size:.8em;opacity: .8;font-weight: normal; }
+  }
+  &-detail { display: flex; font-size: 0.9em; gap: 4px; flex-wrap: wrap;
     .member-code { width: 100%;   font-size: .9em; opacity: 0.85; margin-top: 2px;  font-variant-numeric: tabular-nums;    }
     .major {opacity: 0.8;}
     .status {opacity: 1;font-weight: 500;}
   }
 }
-.bell-wrap { position: absolute;top: 10px;right: 10px;
+.bell-wrap { position: absolute;top: 12px;right: 12px;
   .bell-btn { position: relative;  background: none; border: none; font-size: 1.1rem; cursor: pointer; opacity: .6;  padding: 4px;color: #fff; border: 1px solid rgba(255, 255, 255, 0.4); border-radius: 5px;
     &:hover { opacity: 1; }
   }

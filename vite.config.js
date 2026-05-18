@@ -121,6 +121,10 @@ export default defineConfig(({ mode }) => {
         '/api': {
           target: 'http://localhost:8000',
           changeOrigin: true,
+        },
+        '/file': {
+          target: 'http://localhost:8000',
+          changeOrigin: true,
         }
       }
     }
