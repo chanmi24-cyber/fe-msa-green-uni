@@ -72,7 +72,8 @@
         emptyMessage="선택한 날짜에 출석 기록이 없습니다."
       >
         <!-- attendId는 출석 기록 없는 학생이면 null이 될 수 있어 key로 부적합 → studentCode 사용 -->
-        <article v-for="row in roster" :key="row.studentCode" class="tbl-row">
+        <!-- [수정] roster → pagedRoster: 10명씩 페이징 표시 -->
+        <article v-for="row in pagedRoster" :key="row.studentCode" class="tbl-row">
           <div>{{ row.academic_year != null ? row.academic_year + '학년' : '-' }}</div>
           <div>{{ row.major_name ?? '-' }}</div>
           <div>{{ row.memberName }}</div>
@@ -113,6 +114,22 @@
           </div>
         </article>
       </DataTable>
+
+      <!-- [추가] 페이지네이션: 10명 초과 시만 표시 -->
+      <div v-if="totalPages > 1" class="pagination">
+        <button class="page-btn" :disabled="currentPage === 1" @click="currentPage--">&#8249;</button>
+        <button
+          v-for="p in totalPages"
+          :key="p"
+          class="page-btn"
+          :class="{ active: p === currentPage }"
+          @click="currentPage = p"
+        >{{ p }}</button>
+        <button class="page-btn" :disabled="currentPage === totalPages" @click="currentPage++">&#8250;</button>
+      </div>
+      <p v-if="roster.length > 0" class="roster-count">
+        총 {{ roster.length }}명 중 {{ (currentPage - 1) * PAGE_SIZE + 1 }}~{{ Math.min(currentPage * PAGE_SIZE, roster.length) }}명 표시
+      </p>
     </template>
 
   </div>
@@ -146,6 +163,18 @@ const isRosterLoading = ref(false)
 // ── 수정 모드 ─────────────────────────────────────────────────
 const isEditMode = ref(false)
 const isSaving = ref(false)
+
+// ── 페이징 ────────────────────────────────────────────────────
+// [추가] 출석부 10명씩 페이징 처리
+const PAGE_SIZE   = 10
+const currentPage = ref(1)
+
+const totalPages = computed(() => Math.ceil(roster.value.length / PAGE_SIZE))
+
+const pagedRoster = computed(() => {
+  const start = (currentPage.value - 1) * PAGE_SIZE
+  return roster.value.slice(start, start + PAGE_SIZE)
+})
 
 // localStorage 키: 강의+날짜 조합으로 해당 날짜의 임시저장 데이터 식별
 const ATTEND_KEY = computed(() =>
@@ -219,6 +248,8 @@ async function loadRoster() {
   roster.value = []
   isEditMode.value = false
   isRosterLoading.value = true
+  // [추가] 날짜·강의 변경 시 1페이지로 리셋
+  currentPage.value = 1
   try {
     const res = await attendanceService.getAttendanceList(
       selectedLecture.value.lectureId,
@@ -485,5 +516,38 @@ function statusClass(status) {
 .lecture-row {
   cursor: pointer;
   &:hover { background: var(--hover-bg-color); color: #111; z-index: 2; }
+}
+
+/* [추가] 페이지네이션 */
+.pagination {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 4px;
+  margin-top: 16px;
+}
+
+.page-btn {
+  min-width: 36px;
+  height: 36px;
+  padding: 0 10px;
+  border: 1px solid var(--line-color);
+  border-radius: 6px;
+  background: #fff;
+  color: var(--font-color);
+  font-size: var(--text-sm);
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s;
+  &:hover:not(:disabled) { background: var(--hover-bg-color); border-color: var(--main-color); color: var(--main-color); }
+  &:disabled { opacity: 0.35; cursor: not-allowed; }
+  &.active { background: var(--main-color); color: #fff; border-color: var(--main-color); }
+}
+
+.roster-count {
+  text-align: center;
+  margin-top: 8px;
+  font-size: var(--text-xs);
+  color: var(--font-color-light);
 }
 </style>
