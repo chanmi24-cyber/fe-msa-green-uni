@@ -17,6 +17,16 @@ export default defineConfig(({ mode }) => {
     define: { global: 'globalThis' },
     resolve: {
       alias: { '@': path.resolve(__dirname, './src') }
-    }  
+    },
+    css: {
+      preprocessorOptions: {
+        scss: {
+          additionalData: (content, filepath) => {
+            if (filepath.includes('styles.scss')) return content;
+            return `@use "@/assets/styles/variables" as *;\n` + content;
+          }
+        }
+      }
+    }
   }
 })
