@@ -90,6 +90,10 @@ export default defineConfig(({ mode }) => {
         },
       }),
     ],
+    //commit message > feature(noti): 알림구현
+    plugins: [vue()],
+    define: { global: 'globalThis' },
+    
     resolve: {
       alias: { '@': path.resolve(__dirname, './src') }
     },
