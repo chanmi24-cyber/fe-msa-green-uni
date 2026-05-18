@@ -18,7 +18,7 @@ const doLogOut = async () => {
   try {
     await AuthService.logOut();
     authStore.logOut();
-    router.push('/')
+    await router.push(role === 'ADMIN'? '/admin/login' : '/login')
   } catch(e){
     console.error(e)
   }
