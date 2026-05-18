@@ -104,6 +104,18 @@ watch(() => route.path, () => {
 
 <template>
   <div class="left-nav" :class="isAdmin ? 'admin' : 'academic'">
+
+    <div v-if="!isMobile" class="uni-title" @click="router.push(isAdmin? '/admin/members/dashboard' : '/members/dashboard')">
+      <img :src="logo" @click="moveToMain" />
+      <div class="uni-title-name">
+        <h1>그린대학교</h1>
+        <span>{{ isAdmin? '학사 관리 시스템' : '종합 정보 시스템' }}</span>
+      </div>      
+    </div>
+    <div v-if="isMobile">
+      <h1>그린대학교 전자출결 시스템</h1>
+    </div>
+
     <div class="login-info">
       <p class="name">{{ authStore.name }}</p>
       <div class="login-info-detail">
@@ -152,14 +164,22 @@ watch(() => route.path, () => {
 
 <style scoped lang="scss">
 .left-nav {
-  padding: 20px 15px; position: relative;
+  grid-row: 1 / -1; padding: 20px 15px; position: relative;
   &.academic { background: #fff; border-right: 1px solid $line-color; }
+}
+.uni-title{
+  display: flex; align-items:center; cursor: pointer; gap:7px; margin-bottom:20px;
+  img{height: 45px;}
+  &-name{line-height: 1.2;
+    h1{font-size: 1.5em;font-weight: bold;}
+    span{opacity: 0.8;font-size: 0.95em;margin-left: 2px;}
+  }
 }
 .login-info {
   padding: 15px; border-radius: 10px; background: linear-gradient(140deg, $green-600 0%, $green-700 100%); color: #fff; position: relative;
   .name { font-weight: 700;font-size: 1.2em; }
   &-detail { display: flex; font-size: 0.9em; gap: 2px; flex-wrap: wrap;
-    .member-code { width: 100%;   font-size: 12px; opacity: 0.85; margin-top: 2px;  font-variant-numeric: tabular-nums;    }
+    .member-code { width: 100%;   font-size: .9em; opacity: 0.85; margin-top: 2px;  font-variant-numeric: tabular-nums;    }
     .major {opacity: 0.8;}
     .status {opacity: 1;font-weight: 500;}
   }
@@ -198,6 +218,7 @@ nav {
 
 // ---------- 관리자 페이지 디자인  ----------
 .left-nav.admin {background: $admin-default-bg;color: $admin-font-color;
+  .uni-title{color: #fff;}
   .login-info{border: 1px solid $green-700;background: linear-gradient(140deg, $admin-default-bg 0%, $admin-default-bg2 100%);color: $admin-font-color;
     .name{color: #fff;}
   }

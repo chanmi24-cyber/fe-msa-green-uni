@@ -97,6 +97,17 @@ export default defineConfig(({ mode }) => {
     resolve: {
       alias: { '@': path.resolve(__dirname, './src') }
     },
+    css: {
+      preprocessorOptions: {
+        scss: {
+          loadPaths: [path.resolve(__dirname, 'src/assets/styles')],
+          additionalData: (content, filepath) => {
+            if (filepath.includes('styles.scss')) return content
+            return `@use "variables" as *;\n` + content
+          }
+        }
+      }
+    },
     server: {
       // [추가] 모든 네트워크 인터페이스 수신 → 같은 WiFi의 모바일에서 PC IP로 접근 가능
       host: '0.0.0.0',

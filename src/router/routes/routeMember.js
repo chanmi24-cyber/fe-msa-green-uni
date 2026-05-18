@@ -5,10 +5,8 @@ export const memberRoutes = [
     path: `${url}/dashboard`,
     component: () => import('@/views/common/member/MemberDashboard.vue'),
     meta: {
-      title: '대시보드',
       showInNav: false,
-      groupTitle: '내 정보 관리',
-      auth: ['STUDENT', 'PROFESSOR','ADMIN'],
+      auth: ['STUDENT', 'PROFESSOR'],
     },
   },
   {
@@ -56,10 +54,8 @@ export const adminMemberRoutes = [
     path: `${url}/dashboard`,
     component: () => import('@/views/common/member/MemberDashboard.vue'),
     meta: {
-      title: '대시보드',
       showInNav: false,
-      groupTitle: '내 정보 관리',
-      auth: ['STUDENT', 'PROFESSOR','ADMIN'],
+      auth: ['ADMIN'],
     },
   },
   {
