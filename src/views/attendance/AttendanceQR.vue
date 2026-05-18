@@ -354,6 +354,15 @@ async function handleEndSession() {
 
 // ── 휴강 처리 ────────────────────────────────────────────────────
 async function handleCancelClass() {
+  // [추가] 출석 시작과 동일하게 오늘이 수업 요일인지 먼저 검증
+  const days = ['일', '월', '화', '수', '목', '금', '토']
+  const todayKor = days[new Date().getDay()]
+  const hasTodaySchedule = lecture.value.schedules?.some(sch => sch.dayOfWeek === todayKor)
+  if (!hasTodaySchedule) {
+    await modal.showAlert('오늘은 수업일자가 아닙니다.', 'warning')
+    return
+  }
+
   const confirmed = await modal.showConfirm(
     `오늘(${today.value}) 수업을 휴강 처리하시겠습니까?\n수강 학생 전원이 휴강으로 등록됩니다.`,
     'warning',
@@ -400,10 +409,11 @@ async function handleStartMakeupSession() {
 
   isLoading.value = true
   try {
+    // [수정] 백엔드 LocalDate 파싱을 위해 'T00:00:00' 접미어 제거
     const res = await attendanceService.createMakeupSession(
       lectureId,
-      today.value + 'T00:00:00',
-      selectedCancelDate.value + 'T00:00:00',
+      today.value,
+      selectedCancelDate.value,
     )
     const data = res.data
     sessionId.value          = data.sessionId
