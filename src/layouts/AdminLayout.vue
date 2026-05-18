@@ -1,15 +1,12 @@
 <script setup>
-import { ref, computed } from 'vue'
 import { RouterView, useRouter, useRoute } from 'vue-router'
 import { useAuthStore } from '@/stores/authentication';
 import LeftNav from '@/layouts/common/LeftNav.vue';
-import TopHeader from '@/layouts/common/TopHeader.vue';
+import TopLocation from '@/layouts/common/TopLocation.vue';
+import PageTitle from '@/layouts/common/PageTitle.vue';
 import BaseModal from '@/components/common/BaseModal.vue';
 import NotificationList from '@/views/academic/notification/NotificationList.vue';
 import NotificationService from '@/services/notificationService';
-
-const router = useRouter()
-const route = useRoute()
 const authStore = useAuthStore()
 </script>
 <template>
@@ -22,12 +19,16 @@ const authStore = useAuthStore()
       </div>
     </section>
     <!-- 로그인 후 화면-->
-    <TopHeader v-if="authStore.isLogin" />
     <LeftNav v-if="authStore.isLogin" />
+    <TopLocation v-if="authStore.isLogin" />
     <main :class="authStore.isLogin ? 'container' : 'intro-panel'">
+      <PageTitle  v-if="authStore.isLogin" />
       <RouterView />
     </main>
   </div>
+
+  <!-- 모달 -->
+  <BaseModal />
   <Teleport to="body">
     <div v-if="NotificationService.isPanelOpen.value" class="noti-backdrop"
       @click.self="NotificationService.isPanelOpen.value = false">
