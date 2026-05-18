@@ -63,21 +63,79 @@ const login = async () => {
 </template>
 
 <style scoped lang="scss">
-.intro-box { 
-  max-width:500px; width: 100%;padding: 3em; display: flex; flex-direction: column; gap: 28px;  overflow-y: auto; color:$admin-font-color;
-  .top {display: flex;justify-content: space-between;align-items: center;}
-}
-.intro-header {display: flex; align-items: center;  gap: 14px;
-  &-logo {width: 54px; height: 54px; object-fit: contain; }
-  &-text { display: flex; flex-direction: column; line-height: 1.2; }
-  &-sub { font-size:.9em; color: $main-color;  font-weight: 600;  letter-spacing: .04em; }
-  &-name { font-size: 1.8em; font-weight:500; letter-spacing: -0.01em;  }
+.intro-box {
+  max-width: 500px;
+  width: 100%;
+  padding: 3em;
+  display: flex;
+  flex-direction: column;
+  gap: 28px;
+  overflow-y: auto;
+  color: $admin-font-color;
+
+  .top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
 }
 
-.role-tabs { display: inline-flex; padding: 4px; background:#eee; border-radius:50px; width: fit-content;gap: 2px;
-  .tab { padding:10px 20px; font-weight: 600; border-radius: 50px; transition: all .18s ease; border: 1px solid #ddd; background:$default-bg; color: #888;
-    &:hover { color:$main-color; }
-    &.is-active { color:$main-color; border-color:$main-color;}
+.intro-header {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+
+  &-logo {
+    width: 54px;
+    height: 54px;
+    object-fit: contain;
+  }
+
+  &-text {
+    display: flex;
+    flex-direction: column;
+    line-height: 1.2;
+  }
+
+  &-sub {
+    font-size: .9em;
+    color: $green-600;
+    font-weight: 600;
+    letter-spacing: .04em;
+  }
+
+  &-name {
+    font-size: 1.8em;
+    font-weight: 500;
+    letter-spacing: -0.01em;
+  }
+}
+
+.role-tabs {
+  display: inline-flex;
+  padding: 4px;
+  background: #eee;
+  border-radius: 50px;
+  width: fit-content;
+  gap: 2px;
+
+  .tab {
+    padding: 10px 20px;
+    font-weight: 600;
+    border-radius: 50px;
+    transition: all .18s ease;
+    border: 1px solid #ddd;
+    background: $default-bg;
+    color: #888;
+
+    &:hover {
+      color: $green-600;
+    }
+
+    &.is-active {
+      color: $green-600;
+      border-color: $green-600;
+    }
   }
 }
 </style>
