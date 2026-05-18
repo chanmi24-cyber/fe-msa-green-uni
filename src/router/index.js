@@ -26,8 +26,8 @@ router.beforeEach(async (to, _from, next) => {
       next(isAdminRole ? '/admin/members/dashboard' : '/members/dashboard')
       return
     }
-    // ADMIN이 일반 경로 접근 시 관리자 홈으로 리다이렉트
-    if (isAdminRole && !isAdminPath) {
+    // ADMIN이 일반 경로 접근 시 관리자 홈으로 리다이렉트 (비밀번호 변경 제외)
+    if (isAdminRole && !isAdminPath && to.path !== '/members/my/password') {
       next('/admin/members/dashboard')
       return
     }

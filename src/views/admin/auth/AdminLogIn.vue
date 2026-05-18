@@ -24,19 +24,16 @@
     try {
       const res = await AuthService.adminLogIn(state.form);
 
+      // profile fetch 후 logIn — isLogin이 true가 되는 시점을 router 이동 직전으로 맞춤
+      const profile = await MemberService.findProfile();
+      authStore.logIn(res.data);
+      authStore.setProfile(profile.data);
+
       if(res.data.isFirstLogin){
         await modal.showAlert('최초 로그인 입니다. 비밀번호를 변경해주세요', 'warning')
-        authStore.logIn(res.data);
-        const profile = await MemberService.findProfile();
-        authStore.setProfile(profile.data);
-
         await router.push('/members/my/password')
         return
       }
-
-      authStore.logIn(res.data);
-      const profile = await MemberService.findProfile();
-      authStore.setProfile(profile.data);
 
       router.push('/admin/members/dashboard')
 
