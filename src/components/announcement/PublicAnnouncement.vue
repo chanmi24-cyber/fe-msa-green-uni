@@ -1,5 +1,4 @@
 <script setup>
-
 </script>
 
 <template>
@@ -33,7 +32,6 @@ a { color: inherit; text-decoration: none; }
       margin: 0;
       font-size: 15px;
       font-weight: 700;
-      color: #0e1a14;
       &::before {
         content: "";
         display: inline-block;
@@ -66,20 +64,18 @@ a { color: inherit; text-decoration: none; }
         display: inline-flex;
         align-items: center;
         gap: 10px;
-        color: #2b3a33;
         min-width: 0;
         flex: 1;
         overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
 
-        &:hover { color: #2b3a33; }
+        &:hover {}
       }
       .dot {
         width: 5px; height: 5px; border-radius: 50%;
-        background: #2b3a33; flex: 0 0 auto;
+        flex: 0 0 auto;
       }
       time {
         font-size: 12.5px;
-        color: #2b3a33;
         flex: 0 0 auto;
       }
     }

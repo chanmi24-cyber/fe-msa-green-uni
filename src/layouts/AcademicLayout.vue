@@ -28,7 +28,6 @@ const authStore = useAuthStore()
     </main>
   </div>
   <BaseModal/>
-
   <!-- 알림 사이드 패널 -->
   <Teleport to="body">
     <div
@@ -44,11 +43,6 @@ const authStore = useAuthStore()
 </template>
 
 <style scoped lang="scss">
-.all-wrap {
-  .container {
-    background: #fff;
-  }
-}
 // ---------- Layout ----------
 .intro {
   min-height: 100vh; display: grid; grid-template-columns: 1fr 1.5fr; 
@@ -69,6 +63,7 @@ const authStore = useAuthStore()
 }
 // ---------- RIGHT : Panel ----------
 .intro-panel{background: $default-bg;display: flex;align-items: center;justify-content: center;}
+// ---------- noti ----------
 .noti-backdrop {
   position: fixed;
   inset: 0;

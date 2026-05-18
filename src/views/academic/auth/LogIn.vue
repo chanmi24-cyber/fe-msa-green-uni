@@ -20,15 +20,15 @@
     },
     role: 'STUDENT'
   })
-  
+
   watch(() => state.role, (role) => {
     if (role === 'STUDENT') {
       state.form.memberCode = '20221001'
       state.form.password = '1234'
     } else if (role === 'PROFESSOR') {
-      state.form.memberCode = '20152001' 
+      state.form.memberCode = '20152001'
       state.form.password = '1234'
-    } 
+    }
   })
 
   const login = async () => {
@@ -38,11 +38,11 @@
       authStore.logIn(res.data);
       authStore.setProfile(profile.data);
 
-      if(res.data.isFirstLogin){
+      if (res.data.isFirstLogin) {
         await modal.showAlert('최초 로그인 입니다. 비밀번호를 변경해주세요', 'warning')
-        if(res.data.deviceId === 'mobile'){
+        if (res.data.deviceId === 'mobile') {
           router.push('/attend/my/password')
-        } else{
+        } else {
           await router.push('/members/my/password')
         }
         return
@@ -58,44 +58,41 @@
       console.error(e)
     }
   }
-  </script>
+</script>
 
 <template>
-      <!-- 오른쪽 로그인 + 공지사항 -->
-        <div class="intro-box">
-          <div class="top">
-            <header class="intro-header">
-              <img :src="logo" alt="그린대학교" class="intro-header-logo" />
-              <div class="intro-header-text">
-                <span class="intro-header-sub">너와 나의 꿈을 그린</span>
-                <span class="intro-header-name">그린대학교</span>
-              </div>
-            </header>
-            <!-- 로그인 유형 탭 -->
-            <nav class="role-tabs" role="tablist">
-              <button @click="router.push('/login')" class="tab is-active" role="tab" aria-selected="true">교수 · 학생</button>
-              <button @click="router.push('/admin/login')" class="tab" role="tab" aria-selected="false">관리자</button>
-            </nav>
-          </div>
-          
-        <div class="sample-data">
-          <div class="input-content radio-group radio-tab">
-            <label class="radio-label">
-              <input type="radio" name="role" value="STUDENT" v-model="state.role">
-              <span>학생</span>
-            </label>
-            <label class="radio-label">
-              <input type="radio" name="role" value="PROFESSOR" v-model="state.role">
-              <span>교수</span>
-            </label>
-          </div>
+  <!-- 오른쪽 로그인 + 공지사항 -->
+  <div class="intro-box">
+    <div class="top">
+      <header class="intro-header">
+        <img :src="logo" alt="그린대학교" class="intro-header-logo" />
+        <div class="intro-header-text">
+          <span class="intro-header-sub">너와 나의 꿈을 그린</span>
+          <span class="intro-header-name">그린대학교</span>
         </div>
-          <LoginForm
-              :form="state.form"
-              @login="login"
-          />
-          <PublicAnnouncement />
-        </div>
+      </header>
+      <!-- 로그인 유형 탭 -->
+      <nav class="role-tabs" role="tablist">
+        <button @click="router.push('/login')" class="tab is-active" role="tab" aria-selected="true">교수 · 학생</button>
+        <button @click="router.push('/admin/login')" class="tab" role="tab" aria-selected="false">관리자</button>
+      </nav>
+    </div>
+
+    <div class="sample-data">
+      <div class="input-content radio-group radio-tab">
+        <label class="radio-label">
+          <input type="radio" name="role" value="STUDENT" v-model="state.role">
+          <span>학생</span>
+        </label>
+        <label class="radio-label">
+          <input type="radio" name="role" value="PROFESSOR" v-model="state.role">
+          <span>교수</span>
+        </label>
+      </div>
+    </div>
+    <LoginForm :form="state.form" variant="academic" @login="login" />
+    <PublicAnnouncement />
+  </div>
 </template>
 
 <style scoped lang="scss">
@@ -111,10 +108,9 @@
 }
 
 .role-tabs { display: inline-flex; padding: 4px; background:#eee; border-radius:50px; width: fit-content;gap: 2px;
-  .tab { padding:10px 20px; font-weight: 600; border-radius: 50px; transition: all .18s ease; border: 1px solid #ddd; background:$default-bg;
+  .tab { padding:10px 20px; font-weight: 600; border-radius: 50px; transition: all .18s ease; border: 1px solid #ddd;  background:$default-bg;
     &:hover { color:$main-color; }
     &.is-active { color:$main-color; border-color:$main-color; ;}
   }
 }
-
 </style>
