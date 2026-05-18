@@ -23,8 +23,6 @@
   const login = async () => {
     try {
       const res = await AuthService.adminLogIn(state.form);
-
-      // profile fetch 후 logIn — isLogin이 true가 되는 시점을 router 이동 직전으로 맞춤
       const profile = await MemberService.findProfile();
       authStore.logIn(res.data);
       authStore.setProfile(profile.data);

@@ -7,19 +7,23 @@ import TopHeader from '@/layouts/common/TopHeader.vue';
 import BaseModal from '@/components/common/BaseModal.vue';
 import NotificationList from '@/views/academic/notification/NotificationList.vue';
 import NotificationService from '@/services/notificationService';
-
 const router = useRouter()
 const route = useRoute()
 const authStore = useAuthStore()
-
 </script>
-
-
 <template>
-  <div :class="authStore.isLogin ? 'all-wrap' : 'log-in'">
+  <div :class="authStore.isLogin ? 'all-wrap' : 'intro'">
+    <!-- 로그인 전 화면-->
+    <section class="intro-banner" aria-hidden="true" v-if="!authStore.isLogin">
+        <div class="intro-banner-content">
+          <p class="sub">GREEN UNIVERSITY · 통합 학사시스템</p>
+          <h1>너와 나의 꿈을<br/>그린(GREEN) 캠퍼스</h1>
+        </div>
+    </section>
+    <!-- 로그인 후 화면-->
     <TopHeader v-if="authStore.isLogin" />
     <LeftNav v-if="authStore.isLogin" />
-    <main class="container">
+    <main :class="authStore.isLogin ? 'container' : 'intro-panel'">
       <RouterView />
     </main>
   </div>
@@ -45,9 +49,26 @@ const authStore = useAuthStore()
     background: #fff;
   }
 }
-</style>
-
-<style lang="scss">
+// ---------- Layout ----------
+.intro {
+  min-height: 100vh; display: grid; grid-template-columns: 1fr 1.5fr; 
+  @media (max-width: 960px) {
+    grid-template-columns: 1fr;
+  }
+}
+// ---------- LEFT : Banner ----------
+.intro-banner {
+  position: relative; overflow: hidden;  background:
+    linear-gradient(120deg, rgba($main-color, 0.25),rgba($main-color,.85)),
+    url(https://images.unsplash.com/photo-1568792923760-d70635a89fdc?q=80&w=1740&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D) center/cover no-repeat;  color: #fff;  min-height: 300px;
+  &-content {
+    position: relative; padding:8%; height: 100%;  display: flex;  flex-direction: column;  justify-content: flex-end;  gap: 14px;
+    .sub {font-size: .9em; letter-spacing: .18em;  text-transform: uppercase;  opacity: .85;  margin: 0; }
+    h1 {font-size: 4em; line-height: 1.15; font-weight: 800;  margin: 0;   letter-spacing: -0.02em; }
+  }
+}
+// ---------- RIGHT : Panel ----------
+.intro-panel{background: $default-bg;display: flex;align-items: center;justify-content: center;}
 .noti-backdrop {
   position: fixed;
   inset: 0;

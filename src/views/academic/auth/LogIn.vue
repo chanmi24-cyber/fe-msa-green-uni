@@ -1,12 +1,13 @@
   <script setup>
   import logo from '@/assets/logo.png';
   import { reactive, watch } from 'vue';
-  import { useRouter } from 'vue-router';
+  import { useRouter, useRoute } from 'vue-router';
   import { useAuthStore } from '@/stores/authentication';
   import { useModalStore } from '@/stores/modal'
   import AuthService from '@/services/authService';
   import MemberService from '@/services/memberService';
   import LoginForm from '@/components/auth/LoginForm.vue';
+  import PublicAnnouncement from '@/components/announcement/PublicAnnouncement.vue';
 
   const authStore = useAuthStore()
   const modal = useModalStore()
@@ -33,9 +34,6 @@
   const login = async () => {
     try {
       const res = await AuthService.logIn(state.form);
-      // console.log(res)
-
-      // profile fetch 후 logIn — isLogin이 true가 되는 시점을 router 이동 직전으로 맞춤
       const profile = await MemberService.findProfile();
       authStore.logIn(res.data);
       authStore.setProfile(profile.data);
@@ -62,18 +60,25 @@
   }
   </script>
 
-  <template>
-    <section class="d-flex ai-center jc-center h100vh">
-      <div class="login-wrap">
-        <div  class="d-flex ai-center jc-center">
-          <button @click="router.push('/admin/login')">관리자 로그인 페이지로</button>
-        </div>
-        <div class="d-flex ai-center jc-center">
-          <img :src="logo" />
-        </div>
-
-
-        <div class="sample-data d-grid g10">
+<template>
+      <!-- 오른쪽 로그인 + 공지사항 -->
+        <div class="intro-box">
+          <div class="top">
+            <header class="intro-header">
+              <img :src="logo" alt="그린대학교" class="intro-header-logo" />
+              <div class="intro-header-text">
+                <span class="intro-header-sub">너와 나의 꿈을 그린</span>
+                <span class="intro-header-name">그린대학교</span>
+              </div>
+            </header>
+            <!-- 로그인 유형 탭 -->
+            <nav class="role-tabs" role="tablist">
+              <button @click="router.push('/login')" class="tab is-active" role="tab" aria-selected="true">교수 · 학생</button>
+              <button @click="router.push('/admin/login')" class="tab" role="tab" aria-selected="false">관리자</button>
+            </nav>
+          </div>
+          
+        <div class="sample-data">
           <div class="input-content radio-group radio-tab">
             <label class="radio-label">
               <input type="radio" name="role" value="STUDENT" v-model="state.role">
@@ -85,24 +90,31 @@
             </label>
           </div>
         </div>
+          <LoginForm
+              :form="state.form"
+              @login="login"
+          />
+          <PublicAnnouncement />
+        </div>
+</template>
 
-        <LoginForm
-          :form="state.form"
-          @login="login"
-        />
-      </div>
-    </section>
-  </template>
-
-  <style scoped lang="scss">
-  .login-wrap{max-width:350px; width: 100%;display: grid;gap: 20px;}
-
-.radio-group{font-size: 1rem;gap: 2px;}
-.radio-tab .radio-label{
-  &:before,&:after{display: none!important;}
-  &:nth-of-type(1){border-radius: 15px 2px 2px 15px;}
-  &:nth-of-type(2){border-radius: 2px;}
-  &:nth-of-type(3){border-radius: 2px 15px 15px 2px;}
-  &:has(input[type='radio']:checked){background: #fff;color: var(--main-color);font-weight: bold;}
+<style scoped lang="scss">
+.intro-box { 
+  max-width:500px; width: 100%;padding: 3em; display: flex; flex-direction: column; gap: 28px;  overflow-y: auto; color:$font-color;
+  .top {display: flex;justify-content: space-between;align-items: center;}
 }
-  </style>
+.intro-header {display: flex; align-items: center;  gap: 14px;
+  &-logo {width: 54px; height: 54px; object-fit: contain; }
+  &-text { display: flex; flex-direction: column; line-height: 1.2; }
+  &-sub { font-size:.9em; color: $main-color;  font-weight: 600;  letter-spacing: .04em; }
+  &-name { font-size: 1.8em; font-weight:500; letter-spacing: -0.01em;  }
+}
+
+.role-tabs { display: inline-flex; padding: 4px; background:#eee; border-radius:50px; width: fit-content;gap: 2px;
+  .tab { padding:10px 20px; font-weight: 600; border-radius: 50px; transition: all .18s ease; border: 1px solid #ddd; background:$default-bg;
+    &:hover { color:$main-color; }
+    &.is-active { color:$main-color; border-color:$main-color; ;}
+  }
+}
+
+</style>
