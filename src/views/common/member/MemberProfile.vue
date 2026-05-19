@@ -30,6 +30,7 @@ const getUserData = async () => {
         const res = isAdminMode.value ? await MemberService.getMemberProfile(memberCode)
                                     : await MemberService.findProfile();
         state.profileInfo = res.data; 
+        console.log(res.data)
     } catch (e) {
         console.error(e)
     }
@@ -137,6 +138,14 @@ onMounted(async () => {
                         <dt>상태</dt>
                         <dd>{{ STATUS_LABEL[role]?.[state.profileInfo.status] ?? '-' }}</dd>
                     </dl>
+                    <dl v-if="state.profileInfo.isMultiChild || state.profileInfo.isTransfer || state.profileInfo.isVeteran">
+                        <dt>특이사항</dt>
+                        <dd>
+                            <template v-if="state.profileInfo.isMultiChild">다자녀</template>
+                            <template v-if="state.profileInfo.isTransfer">편입</template>
+                            <template v-if="state.profileInfo.isVeteran">보훈자녀</template>
+                        </dd>
+                    </dl>
                     <dl>
                         <dt>
                         <template v-if="role == 'STUDENT'">입학시기</template>
@@ -198,7 +207,7 @@ onMounted(async () => {
             <StatusList :role="role" :list="state.statusList" :isLoading="state.isLoading"  />
         </div>
         <div v-if="isAdminMode" class="btn-row g10">
-            <button class="btn btn-default" @click="router.go(-1)">
+            <button class="btn btn-default" @click="router.push(role === 'PROFESSOR' ? '/admin/members/professors' : role === 'ADMIN' ? '/admin/members/admins' : '/admin/members/students')">
                 <font-awesome-icon icon="fa-solid fa-arrow-left" /> 돌아가기
             </button>
         </div>

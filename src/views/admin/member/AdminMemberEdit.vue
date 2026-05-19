@@ -95,20 +95,13 @@ const statusForm = reactive({
 
 const original = ref({})
 
-const EMAIL_RE = /^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$/
 const DATE_RE  = /^\d{4}-\d{2}-\d{2}$/
-const TEL_RE   = /^0\d{9,10}$/
 
 const validateProfile = () => {
   const errors = []
-  if (!common.email) errors.push('이메일을 입력해주세요.')
-  else if (!EMAIL_RE.test(common.email)) errors.push('이메일 형식이 올바르지 않습니다.')
   if (!common.name) errors.push('이름을 입력해주세요.')
   if (!common.birth) errors.push('생년월일을 입력해주세요.')
   else if (!DATE_RE.test(common.birth)) errors.push('생년월일 형식이 올바르지 않습니다. (YYYY-MM-DD)')
-  if (!common.tel) errors.push('전화번호를 입력해주세요.')
-  else if (!TEL_RE.test(common.tel)) errors.push('전화번호 형식이 올바르지 않습니다. (숫자 10~11자리)')
-  if (common.emergencyTel && !TEL_RE.test(common.emergencyTel)) errors.push('비상연락처 형식이 올바르지 않습니다. (숫자 10~11자리)')
   if (errors.length > 0) { modal.showAlert(errors.join('\n'), 'warning'); return false }
   return true
 }
@@ -162,7 +155,7 @@ const profileSubmit = async () => {
 
     original.value = {}
     await modal.showAlert(res.message, 'success')
-    router.push('/admin/members')
+    router.push(`/admin/members/${route.params.memberCode}`)
   } finally {
     isLoading.value = false
   }
@@ -348,7 +341,7 @@ onMounted(async () => {
   </div>
 
   <div class="btn-row g10">
-    <button class="btn btn-default" @click="router.go(-1)">
+    <button class="btn btn-default" @click="router.push(`/admin/members/${route.params.memberCode}`)">
       <font-awesome-icon icon="fa-solid fa-arrow-left" /> 돌아가기
     </button>
     <button @click="profileSubmit" class="btn btn-submit" :disabled="isLoading">
@@ -457,7 +450,7 @@ onMounted(async () => {
   </div>
   <div>
     <div class="btn-row g10">
-      <button class="btn btn-default" @click="router.go(-1)">
+      <button class="btn btn-default" @click="router.push(`/admin/members/${route.params.memberCode}`)">
       <font-awesome-icon icon="fa-solid fa-arrow-left" /> 돌아가기
     </button>
       <button @click="statusSubmit" class="btn btn-submit" :disabled="isLoading">
