@@ -45,9 +45,12 @@
             class="detail-row"
           >
             <span class="detail-date">{{ d.attendDate }}</span>
-            <span :class="['status-badge', statusClass(d.status)]">
+            <!-- [수정] status가 null인 CANCEL(휴강) 세션은 뱃지 미표시 -->
+            <span v-if="d.status" :class="['status-badge', statusClass(d.status)]">
               {{ statusLabel(d.status) }}
             </span>
+            <!-- [추가] QR 스캔 시각 — ATTEND·LATE 만 표시 -->
+            <span v-if="d.attendedAt" class="detail-time">{{ d.attendedAt }}</span>
             <span v-if="d.reason" class="detail-reason">{{ d.reason }}</span>
           </div>
         </div>
@@ -237,7 +240,16 @@ function statusClass(code) {
 .detail-date {
   font-size: var(--text-sm);
   color: var(--font-color);
-  min-width: 130px;
+  /* [수정] (휴강)·(보강) 레이블 포함 시 더 길어지므로 min-width 확장 */
+  min-width: 175px;
+}
+
+/* [추가] QR 스캔 시각 표시 */
+.detail-time {
+  font-size: var(--text-xs);
+  color: var(--main-color);
+  font-weight: 600;
+  white-space: nowrap;
 }
 
 .detail-reason {
