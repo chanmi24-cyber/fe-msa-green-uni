@@ -29,8 +29,7 @@ const getUserData = async () => {
     try {
         const res = isAdminMode.value ? await MemberService.getMemberProfile(memberCode)
                                     : await MemberService.findProfile();
-        state.profileInfo = res.data; 
-        console.log(res.data)
+        state.profileInfo = res.data;
     } catch (e) {
         console.error(e)
     }
