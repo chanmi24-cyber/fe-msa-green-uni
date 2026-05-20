@@ -12,7 +12,6 @@
   const authStore = useAuthStore()
   const modal = useModalStore()
   const router = useRouter();
-  const isMobileUA = /Android|iPhone|iPad|iPod|Mobile/i.test(navigator.userAgent)
   const isLoading = ref(false)
 
   const state = reactive({
@@ -43,13 +42,8 @@
       authStore.setProfile(profile.data);
 
       if (res.data.isFirstLogin) {
-        if (res.data.deviceId === 'mobile' || isMobileUA) {
-          await modal.showAlert('최초 로그인입니다. PC에서 비밀번호를 변경해 주세요.', 'warning')
-          router.push('/student/attendances/home')
-        } else {
-          await modal.showAlert('최초 로그인 입니다. 비밀번호를 변경해주세요', 'warning')
-          await router.push('/members/my/password')
-        }
+        await modal.showAlert('최초 로그인 입니다. 비밀번호를 변경해주세요', 'warning')
+        await router.push('/members/my/password')
         return
       }
 
@@ -60,10 +54,6 @@
         return
       }
 
-      if (res.data.role === 'STUDENT' && (res.data.deviceId === 'mobile' || isMobileUA)) {
-        router.push('/student/attendances/home')
-        return
-      }
       router.push('/members/dashboard')
 
     } catch (e) {
@@ -81,17 +71,17 @@
         <img :src="logo" alt="그린대학교" class="intro-header-logo" />
         <div class="intro-header-text">
           <span class="intro-header-sub">너와 나의 꿈을 그린</span>
-          <span class="intro-header-name">그린대학교 <template v-if="isMobileUA" >전자 출결 시스템</template></span>
+          <span class="intro-header-name">그린대학교</span>
         </div>
       </header>
       <!-- 로그인 유형 탭 -->
-      <nav class="role-tabs" role="tablist" v-if="!isMobileUA" >
+      <nav class="role-tabs" role="tablist">
         <button @click="router.push('/login')" class="tab is-active pointer" role="tab" aria-selected="true">교수 · 학생</button>
         <button @click="router.push('/admin/login')" class="tab pointer" role="tab" aria-selected="false">관리자</button>
       </nav>
     </div>
 
-    <div class="sample-data" v-if="!isMobileUA" >
+    <div class="sample-data">
       <div class="input-content radio-group radio-tab">
         <label class="radio-label">
           <input type="radio" name="role" value="STUDENT" v-model="state.role">
@@ -104,7 +94,7 @@
       </div>
     </div>
     <LoginForm :form="state.form" variant="academic" :isLoading="isLoading" @login="login" />
-    <PublicAnnouncement v-if="!isMobileUA" />
+    <PublicAnnouncement />
   </div>
 </template>
 
@@ -185,7 +175,6 @@
     &.is-active {
       color: $green-600;
       border-color: $green-600;
-      ;
     }
   }
 }
