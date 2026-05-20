@@ -28,6 +28,14 @@ const login = async () => {
       router.push('/student/attendances/home')
       return
     }
+
+    const redirect = sessionStorage.getItem('redirectAfterLogin')
+    if (redirect) {
+      sessionStorage.removeItem('redirectAfterLogin')
+      router.push(redirect)
+      return
+    }
+
     router.push('/student/attendances/home')
   } catch (e) {
     console.error(e)
@@ -53,8 +61,7 @@ const login = async () => {
     </header>
 
     <div class="form-card">
-      <p class="form-card__title">로그인</p>
-      <LoginForm :form="form" variant="academic" :isLoading="isLoading" @login="login" />
+      <LoginForm :form="form" variant="academic" :mobile="true" :isLoading="isLoading" @login="login" />
     </div>
 
   </div>

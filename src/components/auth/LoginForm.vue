@@ -15,6 +15,10 @@ defineProps({
     type: Boolean,
     default: false,
   },
+  mobile: {
+    type: Boolean,
+    default: false,
+  },
 })
 const emit = defineEmits(['login'])
 const pwView = () => { modeShowPw.value = !modeShowPw.value }
@@ -23,7 +27,7 @@ const pwView = () => { modeShowPw.value = !modeShowPw.value }
 <template>
   <div class="login-form" :class="`login-form-${variant}`" @keyup.enter="emit('login')">
     <label class="field">
-      <span class="field__label">{{ variant == 'admin' ? '사번' : '학번/교번' }}</span>
+      <span class="field__label">{{ variant == 'admin' ? '사번' : mobile ? '학번' : '학번/교번' }}</span>
       <input type="text" placeholder="학번/교번/사번" v-model="form.memberCode" required>
     </label>
     <label class="field">

@@ -47,13 +47,6 @@
         return
       }
 
-      const redirect = sessionStorage.getItem('redirectAfterLogin')
-      if (redirect) {
-        sessionStorage.removeItem('redirectAfterLogin')
-        router.push(redirect)
-        return
-      }
-
       router.push('/members/dashboard')
 
     } catch (e) {
