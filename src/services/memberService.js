@@ -54,6 +54,27 @@ class MemberService {
     const res = await axios.delete(`${this.#path}/student/requests/major/${requestId}`)
     return res.data;
   }
+  async downloadMajorRequestFile(requestId) {
+    const res = await axios.get(
+      `${this.#path}/student/requests/major/${requestId}/file`,
+        { responseType: 'blob' } 
+    );                                                                                                                                                                    
+    const disposition = res.headers['content-disposition'];
+    let fileName = 'download.pdf';
+    if (disposition) {
+        const match = disposition.match(/filename\*=UTF-8''(.+)/i);
+        if (match) fileName = decodeURIComponent(match[1]);
+    }
+    const url = window.URL.createObjectURL(new Blob([res.data]));
+    const link = document.createElement('a');
+    link.href = url;
+    link.setAttribute('download', fileName);
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+    window.URL.revokeObjectURL(url);
+}
+
 
   //////////////////////// 관리자 ////////////////////////
 
