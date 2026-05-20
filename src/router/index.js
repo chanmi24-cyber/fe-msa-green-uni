@@ -21,8 +21,8 @@ router.beforeEach(async (to, _from, next) => {
     return
   }
   if (isLogin) {
-    // 로그인 상태에서 로그인 페이지 접근 시 역할에 맞는 홈으로 리다이렉트
-    if (to.path === '/login' || to.path === '/admin/login') {
+    // 로그인 상태에서 루트·로그인 페이지 접근 시 역할에 맞는 홈으로 리다이렉트
+    if (to.path === '/' || to.path === '/login' || to.path === '/admin/login') {
       next(isAdminRole ? '/admin/members/dashboard' : '/members/dashboard')
       return
     }
@@ -36,6 +36,17 @@ router.beforeEach(async (to, _from, next) => {
       next('/login')
       return
     }
+
+    // [추가] meta.auth가 있는 라우트는 해당 Role만 접근 허용
+    // Role 불일치 시 역할 구분 없이 /members/my(내 정보 조회)로 리다이렉트
+    const requiredRoles = to.meta.auth
+    if (isLogin && Array.isArray(requiredRoles) && requiredRoles.length > 0) {
+      if (!requiredRoles.includes(authStore.role)) {
+        next('/members/my')
+        return
+      }
+    }
+
 
     // meta.auth 기반 접근 제한
     if (to.meta.auth && !to.meta.auth.map(r => r.toUpperCase()).includes(role)) {
