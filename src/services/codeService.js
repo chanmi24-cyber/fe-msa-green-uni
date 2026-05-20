@@ -40,6 +40,11 @@ class codeListService {
     const res = await axios.get(`${this.#path}building`)
     return res.data;
   }
+  // 승인여부 목록 조회
+  async getApprovalStatus() {
+    const res = await axios.get(`${this.#path}approvalStatus`)
+    return res.data;
+  }
 
 
 }

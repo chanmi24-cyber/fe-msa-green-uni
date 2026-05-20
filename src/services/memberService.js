@@ -32,6 +32,29 @@ class MemberService {
     return res.data;    
   }
 
+  //////////////////////// 학생 //////////////////////////
+  
+  // 내 전공변경 신청 조회
+  async findAllMyMajorRequest() {
+    const res = await axios.get(`${this.#path}/student/requests/major`)
+    return res.data;    
+  }
+  // 내 전공변경 신청 상세 페이지 조회
+  async findMyMajorRequest(requestId) {
+    const res = await axios.get(`${this.#path}/student/requests/major/${requestId}`)
+    return res.data;    
+  }
+  // 전공 변경 신청서 제출
+  async sendMajorRequest(formData) {
+    const res = await axios.post(`${this.#path}/student/requests/major`, formData)
+    return res.data;    
+  }
+  // 전공 변경 신청 취소
+  async cancelMajorRequest(requestId) {
+    const res = await axios.delete(`${this.#path}/student/requests/major/${requestId}`)
+    return res.data;
+  }
+
   //////////////////////// 관리자 ////////////////////////
 
   // 학생 목록 조회
