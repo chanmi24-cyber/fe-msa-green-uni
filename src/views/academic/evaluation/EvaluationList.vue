@@ -110,6 +110,8 @@ const submitEval = async () => {
   }
 };
 
+const formatDate = (dt) => dt ? dt.slice(0, 10) : '-';
+
 const starText = (score) => {
   if (!score) return '';
   return '★'.repeat(score) + '☆'.repeat(5 - score);
@@ -252,20 +254,19 @@ onMounted(fetchList);
       <div class="eval-detail" v-else-if="role !== 'STUDENT' && selectedItem && selectedDetail">
         <div class="detail-row"><span class="label">강의명</span><span>{{ selectedDetail.lectureName }}</span></div>
         <div class="detail-row"><span class="label">교수명</span><span>{{ selectedDetail.proName }}</span></div>
-        <div class="detail-row"><span class="label">평가기간</span><b>{{ selectedDetail.startDate }}~{{ selectedDetail.endDate }}</b></div>
-        <div class="detail-row"><span class="label">강의 만족도</span><span>{{ selectedDetail.score?.toFixed(1) ?? '-' }} / 5.0</span></div>
-        <div class="detail-row"><span class="label">평가참여인원</span><span>{{ selectedDetail.responseCount }} / {{ selectedDetail.totalStudents }}</span></div>
-        <div class="detail-row"><span class="label">수강평가</span></div>
-        <div v-for="(c, i) in selectedDetail.comments" :key="i" class="comment-box">{{ c }}</div>
-        <p v-if="!selectedDetail.comments?.length" class="empty-text">작성된 수강평가가 없습니다.</p>
-        <div class="sub-list">
-          <div v-for="item in state.list.filter(i => i.lectureId !== selectedItem?.lectureId)" :key="item.lectureId" class="eval-card" @click="selectItem(item)">
-            <div class="card-left">
-              <span class="lecture-name">{{ item.lectureName }}</span>
-            </div>
-            <div class="card-right"><span :class="['badge', getBadge(item).cls]">{{ getBadge(item).label }}</span></div>
-          </div>
-        </div>
+        <div class="detail-row"><span class="label">평가기간</span><span>{{ formatDate(selectedDetail.startDate) }} ~ {{ formatDate(selectedDetail.endDate) }}</span></div>
+        <!-- active: 결과 숨김 -->
+        <template v-if="getEvalStatus(selectedItem) === 'active'">
+          <p class="empty-text">강의평가가 완료된 후 확인할 수 있습니다.</p>
+        </template>
+        <!-- done: 결과 공개 -->
+        <template v-else>
+          <div class="detail-row"><span class="label">강의 만족도</span><span>{{ selectedDetail.score?.toFixed(1) ?? '-' }} / 5.0</span></div>
+          <div class="detail-row"><span class="label">평가참여인원</span><span>{{ selectedDetail.responseCount }} / {{ selectedDetail.totalStudents }}</span></div>
+          <div class="detail-row"><span class="label">수강평가</span></div>
+          <div v-for="(c, i) in selectedDetail.comments" :key="i" class="comment-box">{{ c }}</div>
+          <p v-if="!selectedDetail.comments?.length" class="empty-text">작성된 수강평가가 없습니다.</p>
+        </template>
       </div>
     </div>
   </div>
