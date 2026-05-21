@@ -59,11 +59,14 @@ const loadDraft = () => {
 const resetForm = async () => {
     const confirmed = await modal.showConfirm('입력한 내용이 모두 초기화됩니다. 계속하시겠습니까?', 'warning');
     if (!confirmed) return;
+    isReady.value = false;
     Object.assign(form, { type: '', targetMajorId: '', reason: '' });
     file.value = null;
     if (fileInput.value) fileInput.value.value = '';
     localStorage.removeItem(DRAFT_KEY);
     pageState.setContent(false);
+    await nextTick();
+    isReady.value = true;
     modal.showAlert('내용이 모두 초기화되었습니다.', 'info');
 };
 
@@ -132,9 +135,9 @@ onBeforeRouteLeave(async (_to, _from, next) => {
     }
 });
 
-watch(() => ({ ...form }), () => {
+watch([() => ({ ...form }), file], () => {
     if (isReady.value) pageState.setContent(true);
-}, { deep: true });
+});
 
 // ── 초기 데이터 ───────────────────────────────────────
 onMounted(async () => {
@@ -228,7 +231,7 @@ onMounted(async () => {
         </div>
 
         <div class="btn-row g10">
-            <button class="btn btn-default" @click="router.go(-1)">
+            <button class="btn btn-default" @click="router.go('/members/major-request')">
                 <font-awesome-icon icon="fa-solid fa-arrow-left" /> 뒤로가기
             </button>
             <button class="btn btn-default" @click="resetForm">

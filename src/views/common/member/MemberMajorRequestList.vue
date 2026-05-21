@@ -94,7 +94,7 @@ const downloadFile = async () => {
 
 const goToNew = () => router.push('/members/major-request/new');
 
-onMounted(() => { fetchPeriodStatus(); fetchList(); });
+onMounted(() => Promise.all([fetchPeriodStatus(), fetchList()]));
 </script>
 
 <template>
@@ -169,7 +169,7 @@ onMounted(() => { fetchPeriodStatus(); fetchList(); });
                             <p class="reject-label">반려 사유</p>
                             <p class="reject-reason">{{ detail.data.rejectReason }}</p>
                         </div>
-                        <div class="btn-row g10">
+                        <div class="btn-row g10" v-if="isInPeriod">
                             <button class="btn btn-submit" @click="goToNew">재신청</button>
                         </div>
                     </template>
