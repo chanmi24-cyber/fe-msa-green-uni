@@ -88,26 +88,10 @@ const selectItem = async (item) => {
   }
 };
 
-const isWriting = ref(false);
-const showPeriodModal = ref(false);
-
 const form = reactive({
   score: 0,
   comment: '',
 });
-
-const moveToWrite = () => {
-  const status = getEvalStatus(selectedItem.value);
-  if (status !== 'active') {
-    showPeriodModal.value = true;
-    return;
-  }
-  isWriting.value = true;
-};
-
-const cancelWrite = () => {
-  isWriting.value = false;
-};
 
 const submitEval = async () => {
   if (!form.score) return alert('별점을 선택해주세요.');
@@ -120,7 +104,6 @@ const submitEval = async () => {
       comment: form.comment,
     });
     alert('강의평가가 등록되었습니다.');
-    isWriting.value = false;
     fetchList();
   } catch (e) {
     console.error(e);
@@ -223,104 +206,67 @@ onMounted(fetchList);
         </div>
       </div>
 
-      <!-- 오른쪽: 상세 (선택 + 데이터 있을 때) -->
-      <div class="eval-detail" v-if="selectedItem && selectedDetail">
-
-        <!-- 학생 상세 -->
-        <template v-if="role === 'STUDENT'">
-          <div class="detail-row"><span class="label">강의명</span><span>{{ selectedDetail.lectureName }}</span></div>
-          <div class="detail-row"><span class="label">교수명</span><span>{{ selectedDetail.proName }}</span></div>
-          <div class="detail-row"><span class="label">평가기간</span><b>{{ selectedDetail.startDate }}~{{ selectedDetail.endDate }}</b></div>
-          <div class="detail-row"><span class="label">강의 만족도</span><span>{{ selectedDetail.score }}.0 / 5.0</span></div>
-          <div class="detail-row"><span class="label">수강평가</span></div>
-          <div class="comment-box">{{ selectedDetail.comment }}</div>
+      <!-- 학생 패널 -->
+      <div class="eval-detail" v-if="role === 'STUDENT' && selectedItem && selectedDetail != null">
+        <!-- active + 성적 미입력 -->
+        <template v-if="getEvalStatus(selectedItem) === 'active' && !selectedItem.hasGrade">
+          <p class="empty-text">교수님이 성적을 입력한 후 강의평가가 가능합니다.</p>
         </template>
-
-        <!-- 교수 상세 -->
-        <template v-else>
-          <div class="detail-row"><span class="label">강의명</span><span>{{ selectedDetail.lectureName }}</span></div>
-          <div class="detail-row"><span class="label">교수명</span><span>{{ selectedDetail.proName }}</span></div>
-          <div class="detail-row"><span class="label">평가기간</span><b>{{ selectedDetail.startDate }}~{{ selectedDetail.endDate }}</b></div>
-          <div class="detail-row"><span class="label">강의 만족도</span><span>{{ selectedDetail.score?.toFixed(1) ?? '-' }} / 5.0</span></div>
-          <div class="detail-row"><span class="label">평가참여인원</span><span>{{ selectedDetail.responseCount }} / {{ selectedDetail.totalStudents }}</span></div>
-          <div class="detail-row"><span class="label">수강평가</span></div>
-          <div v-for="(c, i) in selectedDetail.comments" :key="i" class="comment-box">{{ c }}</div>
-          <p v-if="!selectedDetail.comments?.length" class="empty-text">작성된 수강평가가 없습니다.</p>
-        </template>
-
-        <!-- 아래 나머지 카드 목록 -->
-        <div class="sub-list">
-          <div
-            v-for="item in state.list.filter(i => i.lectureId !== selectedItem?.lectureId)"
-            :key="item.lectureId"
-            class="eval-card"
-            @click="selectItem(item)"
-          >
-            <div class="card-left">
-              <span class="lecture-name">{{ item.lectureName }}</span>
-              <span class="pro-name" v-if="role === 'STUDENT'">{{ item.proName }}</span>
-            </div>
-            <div class="card-right">
-              <span :class="['badge', getBadge(item).cls]">{{ getBadge(item).label }}</span>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- 선택했는데 상세 없는 경우 (미완료 학생) -->
-      <div class="eval-detail" v-else-if="selectedItem && !selectedDetail">
-        <!-- 작성 모드 -->
-        <template v-if="isWriting">
+        <!-- active + 성적 있음 + 미작성: 바로 작성 폼 -->
+        <template v-else-if="getEvalStatus(selectedItem) === 'active' && selectedItem.hasGrade && selectedDetail.score == null">
           <div class="detail-row"><span class="label">강의명</span><span>{{ selectedItem.lectureName }}</span></div>
           <div class="detail-row"><span class="label">교수명</span><span>{{ selectedItem.proName }}</span></div>
-          
           <div class="form-row">
             <span class="label">강의 만족도</span>
             <div class="star-wrap">
-              <span
-                v-for="n in 5" :key="n"
-                class="star" :class="{ active: n <= form.score }"
-                @click="form.score = n"
-              >★</span>
+              <span v-for="n in 5" :key="n" class="star" :class="{ active: n <= form.score }" @click="form.score = n">★</span>
               <span class="score-text">{{ form.score }}.0 / 5.0</span>
             </div>
           </div>
-
           <div class="form-row column">
             <span class="label">수강평가</span>
-            <textarea
-              v-model="form.comment"
-              class="textarea"
-              placeholder="10자 이상 작성해주세요."
-              rows="5"
-            />
+            <textarea v-model="form.comment" class="textarea" placeholder="10자 이상 작성해주세요." rows="5"/>
             <span class="char-count">{{ form.comment.length }}자</span>
           </div>
-
           <div class="btn-wrap">
-            <button class="btn-cancel" @click="cancelWrite">취소</button>
             <button class="btn-primary" @click="submitEval">제출</button>
           </div>
         </template>
-
-        <!-- 미작성 안내 -->
+        <!-- active + 성적 있음 + 완료: 본인 평가 조회 -->
+        <template v-else-if="getEvalStatus(selectedItem) === 'active' && selectedItem.hasGrade && selectedDetail.score != null">
+          <div class="detail-row"><span class="label">강의 만족도</span><span>{{ starText(selectedDetail.score) }} {{ selectedDetail.score }}.0 / 5.0</span></div>
+          <div class="detail-row"><span class="label">수강평가</span></div>
+          <div class="comment-box">{{ selectedDetail.comment }}</div>
+        </template>
+        <!-- before: 한 줄 메시지 -->
+        <template v-else-if="getEvalStatus(selectedItem) === 'before'">
+          <p class="empty-text">진행중인 강의입니다.</p>
+        </template>
+        <!-- done: 한 줄 메시지 -->
         <template v-else>
-          <p class="empty-text">아직 작성된 평가가 없습니다.</p>
-          <button
-            v-if="getEvalStatus(selectedItem) === 'active'"
-            class="btn-primary"
-            @click="moveToWrite"
-          >평가 작성하기</button>
+          <p class="empty-text">강의평가 기간이 아닙니다.</p>
         </template>
       </div>
-    </div>
-  </div>
 
-  <!-- 강의평가 기간 아닐 때 모달 -->
-  <div class="modal-overlay" v-if="showPeriodModal" @click.self="showPeriodModal = false">
-    <div class="modal-box">
-      <p class="modal-msg">강의평가 기간이 아닙니다.</p>
-      <button class="btn-primary" @click="showPeriodModal = false">확인</button>
+      <!-- 교수: 상세 -->
+      <div class="eval-detail" v-else-if="role !== 'STUDENT' && selectedItem && selectedDetail">
+        <div class="detail-row"><span class="label">강의명</span><span>{{ selectedDetail.lectureName }}</span></div>
+        <div class="detail-row"><span class="label">교수명</span><span>{{ selectedDetail.proName }}</span></div>
+        <div class="detail-row"><span class="label">평가기간</span><b>{{ selectedDetail.startDate }}~{{ selectedDetail.endDate }}</b></div>
+        <div class="detail-row"><span class="label">강의 만족도</span><span>{{ selectedDetail.score?.toFixed(1) ?? '-' }} / 5.0</span></div>
+        <div class="detail-row"><span class="label">평가참여인원</span><span>{{ selectedDetail.responseCount }} / {{ selectedDetail.totalStudents }}</span></div>
+        <div class="detail-row"><span class="label">수강평가</span></div>
+        <div v-for="(c, i) in selectedDetail.comments" :key="i" class="comment-box">{{ c }}</div>
+        <p v-if="!selectedDetail.comments?.length" class="empty-text">작성된 수강평가가 없습니다.</p>
+        <div class="sub-list">
+          <div v-for="item in state.list.filter(i => i.lectureId !== selectedItem?.lectureId)" :key="item.lectureId" class="eval-card" @click="selectItem(item)">
+            <div class="card-left">
+              <span class="lecture-name">{{ item.lectureName }}</span>
+            </div>
+            <div class="card-right"><span :class="['badge', getBadge(item).cls]">{{ getBadge(item).label }}</span></div>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
 </template>
