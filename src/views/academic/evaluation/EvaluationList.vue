@@ -2,10 +2,12 @@
 import { reactive, onMounted, computed, ref } from 'vue';
 import { useRouter } from 'vue-router';
 import { useAuthStore } from '@/stores/authentication';
+import { useModalStore } from '@/stores/modal';
 import evaluationService from '@/services/evaluationService';
 
 const router = useRouter();
 const authStore = useAuthStore();
+const modal = useModalStore();
 const role = computed(() => authStore.role);
 
 const PAGE_SIZE = 10;
@@ -94,17 +96,20 @@ const form = reactive({
 });
 
 const submitEval = async () => {
-  if (!form.score) return alert('별점을 선택해주세요.');
-  if (form.comment.length < 50) return alert('10자 이상 작성해주세요.');
+  if (!form.score) { await modal.showAlert('별점을 선택해주세요.', 'warning'); return; }
+  if (form.comment.length < 10) { await modal.showAlert('수강평가를 10자 이상 작성해주세요.', 'warning'); return; }
   
   try {
-    await evaluationService.createEvaluation(selectedItem.value.lectureId, {
-      lectureId: Number(selectedItem.value.lectureId),
+    const lectureId = selectedItem.value.lectureId;
+    await evaluationService.createEvaluation(lectureId, {
+      lectureId,
       score: form.score,
       comment: form.comment,
     });
-    alert('강의평가가 등록되었습니다.');
-    fetchList();
+    await modal.showAlert('강의평가가 등록되었습니다.', 'success');
+    await fetchList();
+    const item = state.list.find(i => i.lectureId === lectureId);
+    if (item) await selectItem(item);
   } catch (e) {
     console.error(e);
   }
@@ -319,7 +324,4 @@ onMounted(fetchList);
 .char-count { font-size: 12px; color: #999; align-self: flex-end; }
 .btn-wrap { display: flex; justify-content: flex-end; gap: 8px; }
 .btn-cancel { padding: 8px 20px; background: #fff; border: 1px solid #ddd; border-radius: 6px; cursor: pointer; font-size: 14px; }
-.modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.4); display: flex; align-items: center; justify-content: center; z-index: 100; }
-.modal-box { background: #fff; border-radius: 10px; padding: 32px 40px; display: flex; flex-direction: column; align-items: center; gap: 20px; min-width: 280px; }
-.modal-msg { font-size: 15px; color: #333; font-weight: 500; }
 </style>
