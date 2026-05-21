@@ -38,6 +38,12 @@ class GradeService {
         return res.data.data
     }
 
+    // 학생 이의신청 내역 조회
+    async getStudentAppealList() {
+        const res = await axios.get(`${this.#studentPath}/appeals/my`)
+        return res.data.data
+    }
+
     // API-GPA-07: 이의신청 폼 사전 조회
     async getAppealInfo(gradeId) {
         const res = await axios.get(`${this.#studentPath}/${gradeId}/appeal`)
