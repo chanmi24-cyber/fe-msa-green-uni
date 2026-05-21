@@ -8,21 +8,24 @@ import BaseModal from '@/components/common/BaseModal.vue';
 import PageTitle from '@/layouts/common/PageTitle.vue';
 import NotificationList from '@/views/academic/notification/NotificationList.vue';
 import NotificationService from '@/services/notificationService';
+import LoadingSpinner from '@/components/common/LoadingSpinner.vue';
 
 const authStore = useAuthStore()
 const route = useRoute()
 
-// [유지] 모바일에서 공개 페이지(/login 등) 접근 시 사이드바·헤더 숨김
-// 이전 세션이 남아 isLogin=true인 상태로 /login 접근하면 사이드바가 뜨는 문제 방지
 const publicRoutes = ['/login', '/admin/login', '/auth/password']
 const isMobileDevice = /Android|iPhone|iPad|iPod|Mobile/i.test(navigator.userAgent)
 const showLayout = computed(() =>
   authStore.isLogin && !(isMobileDevice && publicRoutes.includes(route.path))
 )
+const isTransitioning = computed(() =>
+  (authStore.isLogin && publicRoutes.includes(route.path)) ||
+  (!authStore.isLogin && !publicRoutes.includes(route.path))
+)
 </script>
 <template>
   <div :class="showLayout ? 'all-wrap' : 'intro'">
-    <!-- [팀원 추가] 로그인 전 왼쪽 배너 -->
+    <!-- 로그인 전 왼쪽 배너 -->
     <section class="intro-banner" aria-hidden="true" v-if="!showLayout">
       <div class="intro-banner-content">
         <p class="sub">GREEN UNIVERSITY · 통합 학사시스템</p>
@@ -37,6 +40,13 @@ const showLayout = computed(() =>
       <RouterView />
     </main>
   </div>
+
+  <!-- 로그인·로그아웃 전환 오버레이 -->
+  <Teleport to="body">
+    <div v-if="isTransitioning" class="transition-overlay">
+      <LoadingSpinner size="lg" message="잠시만 기다려주세요..." />
+    </div>
+  </Teleport>
 
   <!-- 모달 -->
   <BaseModal />
@@ -56,6 +66,7 @@ const showLayout = computed(() =>
 // ---------- Layout ----------
 .intro {
   min-height: 100vh;
+  min-height: 100dvh; // 모던 브라우저: 주소창 높이 제외한 실제 화면 높이
   display: grid;
   grid-template-columns: 1fr 1.5fr;
 
@@ -73,6 +84,11 @@ const showLayout = computed(() =>
     url(https://images.unsplash.com/photo-1568792923760-d70635a89fdc?q=80&w=1740&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D) center/cover no-repeat;
   color: #fff;
   min-height: 300px;
+
+  // 모바일: 배너 숨김 → 로그인 패널이 전체 화면을 차지
+  @media (max-width: 960px) {
+    display: none;
+  }
 
   &-content {
     position: relative;
@@ -107,16 +123,39 @@ const showLayout = computed(() =>
   display: flex;
   align-items: center;
   justify-content: center;
+
+  @media (max-width: 960px) {
+    // 배너가 없으므로 전체 화면 차지
+    min-height: 100vh;       // 구형 Android fallback
+    min-height: 100dvh;      // 모던 브라우저: 주소창 포함 실제 가용 높이
+    // 콘텐츠가 화면보다 길면 위에서부터 표시
+    align-items: flex-start;
+    // iOS 노치(상단) · 홈바(하단) safe area 여백 — Android는 값이 0이라 무해
+    padding-top: env(safe-area-inset-top);
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+}
+
+// ---------- transition overlay ----------
+.transition-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  background: $default-bg;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 // ---------- noti ----------
 .noti-backdrop {
   position: fixed;
   inset: 0;
+  left: 220px; // 사이드바 제외하고 시작
   z-index: 900;
   background: rgba(0, 0, 0, 0.3);
   display: flex;
-  justify-content: flex-end;
+  justify-content: flex-start;
 }
 
 .noti-panel {
@@ -124,7 +163,7 @@ const showLayout = computed(() =>
   min-width: 320px;
   height: 100vh;
   background: #fff;
-  box-shadow: -4px 0 20px rgba(0, 0, 0, 0.15);
+  box-shadow: 4px 0 20px rgba(0, 0, 0, 0.15);
   overflow-y: auto;
   display: flex;
   flex-direction: column;
