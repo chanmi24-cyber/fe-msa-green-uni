@@ -55,7 +55,7 @@ export const memberRoutes = [
   // ------------------ 전공 변경 신청 및 조회 ---------------
   {
     path: `${url}/major-request`,
-    component: () => import('@/views/common/member/MemberMajorRequestList.vue'),
+    component: () => import('@/views/academic/member/StudentMajorRequestList.vue'),
     meta: {
       title: '전공 변경 신청',
       groupTitle: '나의 정보 관리',
@@ -64,7 +64,7 @@ export const memberRoutes = [
   },
   {
     path: `${url}/major-request/new`,
-    component: () => import('@/views/academic/member/MemberMajorRequest.vue'),
+    component: () => import('@/views/academic/member/StudentMajorRequestCreate.vue'),
     meta: {
       title: '전과/복수전공 신청서 제출',
       groupTitle: '나의 정보 관리',

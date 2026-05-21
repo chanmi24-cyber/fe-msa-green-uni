@@ -139,9 +139,18 @@ watch([() => ({ ...form }), file], () => {
     if (isReady.value) pageState.setContent(true);
 });
 
+const ALLOWED_STATUSES = ['ENROLLED', 'ABSENCE']
+
 // ── 초기 데이터 ───────────────────────────────────────
 onMounted(async () => {
     pageState.setContent(false)
+
+    if (!ALLOWED_STATUSES.includes(authStore.status)) {
+        await modal.showAlert('현재 학적 상태로는 신청할 수 없습니다.', 'warning');
+        router.push('/members/major-request');
+        return;
+    }
+
     try {
         await fetchPeriodStatus();
         const [majors, types] = await Promise.all([
@@ -169,10 +178,11 @@ onMounted(async () => {
     <div class="form-wrap" style="position: relative;">
         <LoadingSpinner v-if="isLoading" :overlay="true" size="md" />
 
-        <div v-if="!isInPeriod" class="period-notice">
-            현재 전공 변경 신청 기간이 아닙니다. 신청서 작성은 전공 변경 신청 기간에만 가능합니다.
+        <div v-if="isReady && !isInPeriod" class="not-in-period">
+            <p>현재 전공 변경 신청 기간이 아닙니다.</p>
         </div>
 
+        <template v-else-if="isReady && isInPeriod">
         <div class="form-grid" style="--grid-cols: 1fr 1fr 1fr;">
             <!-- 이름 / 학번 -->
             <div class="input-wrap">
@@ -231,7 +241,7 @@ onMounted(async () => {
         </div>
 
         <div class="btn-row g10">
-            <button class="btn btn-default" @click="router.go('/members/major-request')">
+            <button class="btn btn-default" @click="router.push('/members/major-request')">
                 <font-awesome-icon icon="fa-solid fa-arrow-left" /> 뒤로가기
             </button>
             <button class="btn btn-default" @click="resetForm">
@@ -240,22 +250,22 @@ onMounted(async () => {
             <button class="btn btn-line point" @click="handleTempSave">
                 <font-awesome-icon icon="fa-regular fa-floppy-disk" /> 임시저장
             </button>
-            <button class="btn btn-submit" @click="submit" :disabled="isLoading || !isInPeriod">
+            <button class="btn btn-submit" @click="submit" :disabled="isLoading">
                 <font-awesome-icon icon="fa-solid fa-circle-check" /> {{ isLoading ? '신청 중...' : '신청' }}
             </button>
         </div>
+        </template>
     </div>
 </template>
 
 <style scoped lang="scss">
-.period-notice {
-    background: #fff8e1;
-    border: 1px solid #ffe082;
-    border-radius: 6px;
-    padding: 10px 16px;
-    color: #795548;
-    font-size: 0.9em;
-    margin-bottom: 16px;
+.not-in-period {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 200px;
+    color: #aaa;
+    font-size: 1rem;
 }
 
 .file-row {

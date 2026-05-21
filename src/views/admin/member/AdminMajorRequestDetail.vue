@@ -35,7 +35,7 @@ const approve = async () => {
   if (!confirmed) return;
   try {
     await MemberService.processMajorRequest(requestId, { status: 'APPROVED' });
-    request.value.status = 'APPROVED';
+    await fetchRequest();
     modal.showAlert('승인되었습니다.', 'success');
   } catch (err) {
     console.error('승인 실패:', err);
@@ -55,8 +55,7 @@ const reject = async () => {
       status: 'REJECTED',
       rejectReason: rejectReason.value,
     });
-    request.value.status = 'REJECTED';
-    request.value.rejectReason = rejectReason.value;
+    await fetchRequest();
     closeRejectBox();
     modal.showAlert('반려 처리되었습니다.', 'success');
   } catch (err) {
@@ -80,18 +79,19 @@ const goBack = () => {
 };
 
 // ── 데이터 로드 ────────────────────────────────────
-onMounted(async () => {
+const fetchRequest = async () => {
   isLoading.value = true;
   try {
     const res = await MemberService.findMajorRequest(requestId);
     request.value = res.data ?? res;
-    console.log(res.data)
   } catch (err) {
     console.error('신청서 로드 실패:', err);
   } finally {
     isLoading.value = false;
   }
-});
+};
+
+onMounted(fetchRequest);
 </script>
 
 <template>

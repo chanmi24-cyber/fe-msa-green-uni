@@ -17,7 +17,7 @@ const router = useRouter();
 const {
   filter, searchQuery, searchInput, currentPage, pageSize, pageSizeOptions,
   onFilterChange, onSearch, resetFilter, goToPage, onPageSizeChange, paginate,
-} = useListFilter({ status: '', type:'' })
+} = useListFilter({ status: '' })
 
 // ── 반응형 상태 ──────────────────────────────────
 const state = reactive({ list: [], isLoading: false })
@@ -38,7 +38,6 @@ const statusTabs = computed(() => {
 const filteredList = computed(() =>
   state.list.filter(item => {
     if (filter.status && item.status !== filter.status) return false;
-    if (filter.type && item.type !== filter.type) return false;
     if (searchInput.value && !item.studentName?.includes(searchInput.value)) return false;
     return true;
   })
@@ -51,7 +50,6 @@ const fetchList = async () => {
   try {
     const res = await MemberService.findAllMajorRequests();
       state.list = res.data ?? [];
-    console.log(res.data)
   } catch (err) {
     console.error('신청서 목록 로드 실패:', err);
   } finally {

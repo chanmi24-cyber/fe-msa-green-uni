@@ -1,12 +1,14 @@
 <script setup>
-import { reactive, ref, onMounted } from 'vue';
+import { reactive, ref, computed, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
 import MemberService from '@/services/memberService';
 import ScheduleService from '@/services/scheduleService';
 import CardListDetail from '@/components/common/CardListDetail.vue';
+import MajorRequestDetail from '@/components/member/MajorRequestDetail.vue';
+import FilterBar from '@/components/common/FilterBar.vue';
 import LoadingSpinner from '@/components/common/LoadingSpinner.vue';
 import { useModalStore } from '@/stores/modal';
-import { APPROVAL_STATUS } from '@/utils/constants';
+import { APPROVAL_STATUS, MAJOR_REQUEST_TYPE } from '@/utils/constants';
 import { formatDateTime } from '@/utils/dateNumber';
 
 const router = useRouter();
@@ -16,6 +18,9 @@ const state = reactive({ list: [], isLoading: false });
 const selectedId = ref(null);
 const detail = reactive({ data: null, isLoading: false });
 const isInPeriod = ref(false);
+const selectedYear = ref('');
+const searchQuery = ref('');
+const searchInput = ref('');
 
 const STATUS_CLASS = {
     PENDING:   'badge-pending',
@@ -24,6 +29,27 @@ const STATUS_CLASS = {
     CANCELLED: 'badge-cancelled',
 };
 
+// ── 연도 필터 ──────────────────────────────────────
+const yearOf = (item) => item.createdAt?.slice(0, 4);
+
+const yearOptions = computed(() =>
+    [...new Set(state.list.map(yearOf).filter(Boolean))].sort().reverse()
+);
+
+const hasSearchFilter = computed(() => !!searchInput.value || !!selectedYear.value);
+
+const filteredList = computed(() =>
+    state.list.filter(i => {
+        if (selectedYear.value && yearOf(i) !== selectedYear.value) return false;
+        if (searchInput.value && !i.targetMajorName?.includes(searchInput.value)) return false;
+        return true;
+    })
+);
+
+const onSearch = () => { searchInput.value = searchQuery.value; };
+const resetFilter = () => { searchQuery.value = ''; searchInput.value = ''; selectedYear.value = ''; };
+
+// ── API ────────────────────────────────────────────
 const fetchPeriodStatus = async () => {
     try {
         const res = await ScheduleService.getActiveSchedules();
@@ -57,7 +83,7 @@ const selectItem = async (item) => {
     detail.isLoading = true;
     try {
         const res = await MemberService.findMyMajorRequest(item.requestId);
-        detail.data = res.data;
+        detail.data = res.data ?? res;
     } catch (err) {
         console.error('상세 로드 실패:', err);
         selectedId.value = null;
@@ -66,6 +92,7 @@ const selectItem = async (item) => {
     }
 };
 
+// ── 액션 ───────────────────────────────────────────
 const cancelRequest = async () => {
     const confirmed = await modal.showConfirm('신청을 취소하시겠습니까?', 'warning');
     if (!confirmed) return;
@@ -73,15 +100,15 @@ const cancelRequest = async () => {
         await MemberService.cancelMajorRequest(detail.data.requestId);
         selectedId.value = null;
         detail.data = null;
-        await fetchList();
         modal.showAlert('신청이 취소되었습니다.', 'success');
+        await fetchList();
     } catch (err) {
         console.error('신청 취소 실패:', err);
     }
 };
 
 const downloadFile = async () => {
-    if (detail.data.status === 'CANCELLED') {
+    if (detail.data?.status === 'CANCELLED') {
         modal.showAlert('취소된 신청서의 첨부 파일은 다운로드할 수 없습니다.', 'warning');
         return;
     }
@@ -101,12 +128,21 @@ onMounted(() => Promise.all([fetchPeriodStatus(), fetchList()]));
     <div style="position: relative;">
         <LoadingSpinner v-if="state.isLoading" :overlay="true" size="md" />
 
-        <div v-if="!isInPeriod" class="period-notice">
-            현재 전공 변경 신청 기간이 아닙니다. 신청서 작성은 전공 변경 신청 기간에만 가능합니다.
-        </div>
+        <FilterBar v-model:searchQuery="searchQuery" :hasFilter="hasSearchFilter"
+            placeholder="신청 학과 검색" @search="onSearch" @reset="resetFilter">
+            <div class="filter-item">
+                <div class="input-label">신청 연도</div>
+                <div class="input-content">
+                    <select v-model="selectedYear">
+                        <option value="">전체</option>
+                        <option v-for="y in yearOptions" :key="y" :value="y">{{ y }}년</option>
+                    </select>
+                </div>
+            </div>
+        </FilterBar>
 
         <CardListDetail
-            :items="state.list"
+            :items="filteredList"
             :is-loading="state.isLoading"
             item-key="requestId"
             :selected-key="selectedId"
@@ -116,7 +152,10 @@ onMounted(() => Promise.all([fetchPeriodStatus(), fetchList()]));
             <template #card="{ item }">
                 <div class="card-left">
                     <span class="card-sub">{{ formatDateTime(item.createdAt) }}</span>
-                    <span class="major-name"><small>[{{ item.type }}]</small>  {{ item.targetMajorName }}</span>
+                    <span class="major-name">
+                        <small>[{{ MAJOR_REQUEST_TYPE[item.type] ?? item.type }}]</small>
+                        {{ item.targetMajorName }}
+                    </span>
                 </div>
                 <span :class="['badge', STATUS_CLASS[item.status]]">
                     {{ APPROVAL_STATUS[item.status] ?? item.status }}
@@ -124,91 +163,48 @@ onMounted(() => Promise.all([fetchPeriodStatus(), fetchList()]));
             </template>
 
             <template #list-footer>
-                <button class="btn btn-submit" @click="goToNew" :disabled="!isInPeriod">
+                <button v-if="isInPeriod" class="btn btn-submit" @click="goToNew">
                     <font-awesome-icon icon="fa-solid fa-plus" /> 신청서 작성
                 </button>
             </template>
 
             <template #detail>
                 <LoadingSpinner v-if="detail.isLoading" :overlay="true" size="sm" />
-                <template v-if="detail.data && !detail.isLoading">
-                    <div class="detail-status">
-                        <span :class="['badge', STATUS_CLASS[detail.data.status]]">
-                            {{ APPROVAL_STATUS[detail.data.status] ?? detail.data.status }}
-                        </span>
-                    </div>
-
-                    <div class="detail-section">
-                        <dl><dt>신청일</dt><dd>{{ formatDateTime(detail.data.createdAt) }}</dd></dl>
-                        <dl><dt>유형</dt><dd>{{ detail.data.type }}</dd></dl>
-                        <dl><dt>희망 학과</dt><dd>{{ detail.data.targetMajorName }}</dd></dl>
-                    </div>
-
-                    <div class="detail-section">
-                        <dl class="full">
-                            <dt>신청 사유</dt>
-                            <dd class="reason-text">{{ detail.data.reason }}</dd>
-                        </dl>
-                    </div>
-
-                    <div class="detail-section">
-                        <dl>
-                            <dt>첨부 파일</dt>
-                            <dd>
-                                <span v-if="detail.data.file" class="file-link" @click="downloadFile">
-                                    {{ detail.data.originalFileName ?? '파일 다운로드' }}
-                                </span>
-                                <span v-else>-</span>
-                            </dd>
-                        </dl>
-                    </div>
-
-                    <!-- 반려: 반려 사유 + 재신청 -->
-                    <template v-if="detail.data.status === 'REJECTED'">
-                        <div class="reject-box">
-                            <p class="reject-label">반려 사유</p>
-                            <p class="reject-reason">{{ detail.data.rejectReason }}</p>
-                        </div>
-                        <div class="btn-row g10" v-if="isInPeriod">
-                            <button class="btn btn-submit" @click="goToNew">재신청</button>
-                        </div>
+                <MajorRequestDetail
+                    v-if="detail.data && !detail.isLoading"
+                    :request="detail.data"
+                    :onDownload="downloadFile"
+                    :adminView="false"
+                >
+                    <template #actions>
+                        <button
+                            v-if="detail.data.status === 'PENDING'"
+                            class="btn btn-register-del"
+                            @click="cancelRequest"
+                        >신청 취소</button>
+                        <button
+                            v-if="detail.data.status === 'REJECTED' && isInPeriod"
+                            class="btn btn-submit"
+                            @click="goToNew"
+                        >재신청</button>
                     </template>
-
-                    <!-- 대기: 신청 취소 -->
-                    <template v-else-if="detail.data.status === 'PENDING'">
-                        <div class="btn-row g10">
-                            <button class="btn btn-register-del" @click="cancelRequest">신청 취소</button>
-                        </div>
-                    </template>
-                </template>
+                </MajorRequestDetail>
             </template>
         </CardListDetail>
     </div>
 </template>
 
-<style scoped lang="scss">
-.period-notice {
-    background: #fff8e1;
-    border: 1px solid #ffe082;
-    border-radius: 6px;
-    padding: 10px 16px;
-    color: #795548;
-    font-size: 0.9em;
-    margin-bottom: 10px;
-}
-
+<style scoped>
 /* 카드 내부 */
 .card-left {
     display: flex;
     flex-direction: column;
     gap: 4px;
 }
-
 .major-name {
     font-weight: 600;
     font-size: 15px;
 }
-
 .card-sub {
     font-size: 13px;
     color: #777;
@@ -223,68 +219,7 @@ onMounted(() => Promise.all([fetchPeriodStatus(), fetchList()]));
     white-space: nowrap;
 }
 .badge-pending   { background: #fff3e0; color: #ef6c00; }
-.badge-approved  { background: #e8f4f0; color: var(--main-color, #3e9e7e); }
+.badge-approved  { background: #e8f4f0; color: var(--main-color); }
 .badge-rejected  { background: #fdecea; color: #d32f2f; }
 .badge-cancelled { background: #f0f0f0; color: #888; }
-
-/* 상세 패널 */
-.detail-status {
-    display: flex;
-    justify-content: flex-end;
-}
-
-.detail-section {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 24px;
-
-    dl {
-        display: flex;
-        flex-direction: column;
-        gap: 4px;
-
-        &.full { width: 100%; }
-    }
-
-    dt {
-        font-size: 13px;
-        font-weight: 600;
-        color: #555;
-    }
-
-    dd { font-size: 14px; }
-}
-
-.reason-text {
-    line-height: 1.6;
-    white-space: pre-wrap;
-}
-
-.file-link {
-    color: var(--main-color);
-    text-decoration: underline;
-    cursor: pointer;
-}
-
-.reject-box {
-    padding: 14px 16px;
-    background: var(--error-bg);
-    border: 1px solid #f5c6c6;
-    border-radius: 6px;
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-}
-
-.reject-label {
-    font-weight: bold;
-    font-size: var(--text-sm);
-    color: var(--error);
-}
-
-.reject-reason {
-    font-size: 14px;
-    color: #555;
-    line-height: 1.6;
-}
 </style>

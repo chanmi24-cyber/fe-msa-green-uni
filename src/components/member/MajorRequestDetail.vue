@@ -6,6 +6,7 @@ import { formatDateTime } from '@/utils/dateNumber';
 const props = defineProps({
   request: { type: Object, required: true },
   onDownload: { type: Function, default: null },
+  adminView: { type: Boolean, default: true },
 });
 
 const statusBadgeClass = computed(() => ({
@@ -26,8 +27,8 @@ const statusBadgeClass = computed(() => ({
 
     <div class="info-container g20">
 
-      <!-- 좌측: 신청자 정보 -->
-      <div class="content-wrap info-wrap info-card g20" style="--flex-width: 260px;">
+      <!-- 좌측: 신청자 정보 (관리자만) -->
+      <div v-if="adminView" class="content-wrap info-wrap info-card g20" style="--flex-width: 260px;">
         <div class="info-title">
           <h2>{{ request.studentName }}</h2>
           <span class="info-detail">{{ request.memberCode }}</span>
@@ -46,18 +47,6 @@ const statusBadgeClass = computed(() => ({
             <dt>학점</dt>
             <dd>{{ request.gpa }}</dd>
           </dl>
-          <dl class="info-row">
-            <dt>신청일</dt>
-            <dd>{{ formatDateTime(request.createdAt) }}</dd>
-          </dl>
-          <dl class="info-row" v-if="request.updaterName">
-            <dt>처리자</dt>
-            <dd>{{ request.updaterName }}</dd>
-          </dl>
-          <dl class="info-row" v-if="request.status !== 'PENDING' && request.updatedAt">
-            <dt>처리일</dt>
-            <dd>{{ formatDateTime(request.updatedAt) }}</dd>
-          </dl>
         </div>
       </div>
 
@@ -71,6 +60,10 @@ const statusBadgeClass = computed(() => ({
         </div>
 
         <div class="info-list">
+          <dl class="info-row">
+            <dt>신청일</dt>
+            <dd>{{ formatDateTime(request.createdAt) }}</dd>
+          </dl>
           <dl class="info-row">
             <dt>신청 유형</dt>
             <dd>{{ MAJOR_REQUEST_TYPE[request.type] ?? request.type }}</dd>
@@ -97,6 +90,14 @@ const statusBadgeClass = computed(() => ({
               </span>
               <span v-else class="empty-text">첨부 파일 없음</span>
             </dd>
+          </dl>
+          <dl class="info-row" v-if="request.updaterName">
+            <dt>처리자</dt>
+            <dd>{{ request.updaterName }}</dd>
+          </dl>
+          <dl class="info-row" v-if="request.status !== 'PENDING' && request.updatedAt">
+            <dt>처리일</dt>
+            <dd>{{ formatDateTime(request.updatedAt) }}</dd>
           </dl>
         </div>
 
