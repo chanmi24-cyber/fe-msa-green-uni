@@ -109,6 +109,7 @@ onMounted(async () => {
                                     <th>등급</th>
                                     <th>평점</th>
                                     <th>강의 석차</th>
+                                    <th>이의신청</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -140,6 +141,26 @@ onMounted(async () => {
                                             {{ g.myRank }} / {{ g.totalCount }}명
                                         </span>
                                         <span v-else class="no-data">-</span>
+                                    </td>
+                                    <td>
+                                        <!-- 성적 미입력: 버튼 없음 -->
+                                        <span v-if="!g.lectureGrade" class="no-data">-</span>
+                                        <!-- 승인됨: 비활성 -->
+                                        <span v-else-if="g.appealStatus === 'APPROVED'" class="appeal-badge approved">승인</span>
+                                        <!-- 검토 중: 비활성 -->
+                                        <span v-else-if="g.appealStatus === 'PENDING'" class="appeal-badge pending">검토 중</span>
+                                        <!-- 반려: 재신청 버튼 -->
+                                        <button v-else-if="g.appealStatus === 'REJECTED'"
+                                                class="btn-appeal rejected"
+                                                @click="router.push(`/grades/${g.courseId}/appeal`)">
+                                            재신청
+                                        </button>
+                                        <!-- 미신청: 신청하기 버튼 -->
+                                        <button v-else
+                                                class="btn-appeal"
+                                                @click="router.push(`/grades/${g.courseId}/appeal`)">
+                                            신청하기
+                                        </button>
                                     </td>
                                 </tr>
                             </tbody>
@@ -325,4 +346,32 @@ onMounted(async () => {
 .s-value { font-size: 1.25rem; font-weight: 700; color: var(--main-color); }
 .s-unit  { font-size: 12px; font-weight: 400; color: var(--font-color-light); }
 .rank-val strong { font-size: 1.5rem; }
+
+/* 이의신청 버튼 */
+.btn-appeal {
+    padding: 4px 10px;
+    border: 1px solid var(--main-color);
+    border-radius: 4px;
+    background: #fff;
+    color: var(--main-color);
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    white-space: nowrap;
+    &:hover { background: var(--main-color); color: #fff; }
+}
+.btn-appeal.rejected {
+    border-color: #c62828;
+    color: #c62828;
+    &:hover { background: #c62828; color: #fff; }
+}
+.appeal-badge {
+    display: inline-block;
+    padding: 3px 8px;
+    border-radius: 4px;
+    font-size: 12px;
+    font-weight: 600;
+}
+.appeal-badge.pending  { background: #fff9c4; color: #e65100; }
+.appeal-badge.approved { background: #c8e6c9; color: #1b5e20; }
 </style>

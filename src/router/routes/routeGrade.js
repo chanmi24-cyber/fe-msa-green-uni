@@ -53,4 +53,17 @@ export const gradeRoutes = [
             activeMenu: url,
         },
     },
+    {
+        // 성적 이의신청
+        // 브라우저: /grades/:gradeId/appeal
+        path: `${url}/:gradeId/appeal`,
+        component: () => import('@/views/academic/grade/GradeAppeal.vue'),
+        meta: {
+            title: '성적 이의신청',
+            groupTitle: '성적',
+            auth: ['STUDENT'],
+            showInNav: false,
+            activeMenu: url,
+        },
+    },
 ]

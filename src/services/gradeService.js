@@ -37,6 +37,18 @@ class GradeService {
         const res = await axios.get(`${this.#studentPath}/my/detail`)
         return res.data.data
     }
+
+    // API-GPA-07: 이의신청 폼 사전 조회
+    async getAppealInfo(gradeId) {
+        const res = await axios.get(`${this.#studentPath}/${gradeId}/appeal`)
+        return res.data.data
+    }
+
+    // API-GPA-07: 이의신청 제출
+    async submitAppeal(gradeId, reason) {
+        const res = await axios.post(`${this.#studentPath}/${gradeId}/appeal`, { reason })
+        return res.data
+    }
 }
 
 export default new GradeService();
