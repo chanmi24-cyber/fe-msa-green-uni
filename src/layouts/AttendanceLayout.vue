@@ -14,7 +14,7 @@ onUnmounted(() => document.body.classList.remove('pwa-view'))
 <template>
   <div class="pwa-wrap">
     <!-- [수정] 홈 화면(/home)은 자체 헤더를 가지므로 TopHeader 숨김 -->
-    <TopHeader v-if="!route.path.endsWith('/home')" :mobile="true" />
+    <TopHeader v-if="!route.path.endsWith('/home') && route.path !== '/student/login'" :mobile="true" />
     <main class="container">
       <RouterView />
     </main>
@@ -23,10 +23,14 @@ onUnmounted(() => document.body.classList.remove('pwa-view'))
 
 <style scoped lang="scss">
 .pwa-wrap {
-  min-height: 100dvh;
+  min-height: 100vh;      // 구형 Android fallback
+  min-height: 100dvh;     // 모던 브라우저
   display: flex;
   flex-direction: column;
   background: var(--default-bg);
+  // iOS 노치 safe area
+  padding-top: env(safe-area-inset-top);
+  padding-bottom: env(safe-area-inset-bottom);
 }
 .container {
   flex: 1;

@@ -15,18 +15,6 @@ export const authRoutes = [
       title: '비밀번호 변경',
     },
   },
-  {
-    path: 'members/my/password',
-    component: () => import('@/views/common/auth/PasswordChange.vue'),
-    meta: {
-      title: '비밀번호 변경',
-      groupTitle: '내 정보 관리',
-      showInNav: false,
-      activeMenu: '/member/my',
-      auth: ['STUDENT', 'PROFESSOR', 'ADMIN'],
-    },
-  },
-
 ]
 
 export const adminAuthRoutes = [
@@ -38,20 +26,23 @@ export const adminAuthRoutes = [
     },
   },
   {
-    path: 'members/my/password',
-    component: () => import('@/views/common/auth/PasswordChange.vue'),
+    path: `${url}/password`,
+    component: () => import('@/views/common/auth/PasswordReset.vue'),
     meta: {
       title: '비밀번호 변경',
-      groupTitle: '내 정보 관리',
-      showInNav: false,
-      activeMenu: '/member/my',
-      auth: ['ADMIN'],
     },
   },
 ]
 
 
 export const mobileAuthRoutes = [
+  {
+    path: 'login',
+    component: () => import('@/views/attendance/StudentLogIn.vue'),
+    meta: {
+      title: '로그인',
+    },
+  },
   {
     path: 'my/password',
     component: () => import('@/views/common/auth/PasswordChange.vue'),

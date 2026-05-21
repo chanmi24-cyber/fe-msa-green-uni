@@ -98,7 +98,7 @@ const form = reactive({
 
 const moveToWrite = () => {
   const status = getEvalStatus(selectedItem.value);
-  if (status !== 'pending') {
+  if (status !== 'active') {
     showPeriodModal.value = true;
     return;
   }
@@ -137,23 +137,29 @@ const getEvalStatus = (item) => {
   const start = item.startDate ? new Date(item.startDate) : null;
   const end = item.endDate ? new Date(item.endDate) : null;
 
-  if (!start || !end) return 'pending';
-  if (today < start) return 'before';   // 평가기간 전
-  if (today > end) return 'done';       // 평가기간 후
-  return 'pending';                      // 진행중
+  if (!start || !end || today < start) return 'before';
+  if (today > end) return 'done';
+  return 'active';
 };
 
-const STATUS_LABEL = {
-  before: '대기',
-  pending: '진행중',
-  done: '완료',
+const getStudentBadge = (item) => {
+  const status = getEvalStatus(item);
+  if (status === 'before') return { label: '강의진행중', cls: 'before' };
+  if (status === 'active') return item.isEvaluated
+    ? { label: '완료', cls: 'done' }
+    : { label: '미작성', cls: 'pending' };
+  return { label: '완료', cls: 'done' };
 };
 
-const STATUS_CLASS = {
-  before: 'before',
-  pending: 'pending',
-  done: 'done',
+const getProfessorBadge = (item) => {
+  const status = getEvalStatus(item);
+  if (status === 'before') return { label: '강의진행중', cls: 'before' };
+  if (status === 'active') return { label: '진행중', cls: 'pending' };
+  return { label: '평가완료', cls: 'done' };
 };
+
+const getBadge = (item) =>
+  role.value === 'STUDENT' ? getStudentBadge(item) : getProfessorBadge(item);
 
 onMounted(fetchList);
 </script>
@@ -203,22 +209,7 @@ onMounted(fetchList);
             <span class="pro-name" v-if="role === 'STUDENT'">{{ item.proName }}</span>
           </div>
           <div class="card-right">
-            <template v-if="role === 'STUDENT'">
-              <span
-                v-if="selectedDetail?.score && selectedItem?.lectureId === item.lectureId"
-                class="star-score"
-              >
-                {{ starText(selectedDetail.score) }} {{ selectedDetail.score }}.0 / 5.0
-              </span>
-              <span v-else :class="['badge', STATUS_CLASS[getEvalStatus(item)]]">
-                {{ STATUS_LABEL[getEvalStatus(item)] }}
-              </span>
-            </template>
-            <template v-else>
-                  <span :class="['badge', STATUS_CLASS[getEvalStatus(item)]]">
-                    {{ STATUS_LABEL[getEvalStatus(item)] }}
-                  </span>
-            </template>
+            <span :class="['badge', getBadge(item).cls]">{{ getBadge(item).label }}</span>
           </div>
         </div>
 
@@ -270,9 +261,7 @@ onMounted(fetchList);
               <span class="pro-name" v-if="role === 'STUDENT'">{{ item.proName }}</span>
             </div>
             <div class="card-right">
-              <span :class="['badge', STATUS_CLASS[getEvalStatus(item)]]">
-                {{ STATUS_LABEL[getEvalStatus(item)] }}
-              </span>
+              <span :class="['badge', getBadge(item).cls]">{{ getBadge(item).label }}</span>
             </div>
           </div>
         </div>
@@ -317,7 +306,11 @@ onMounted(fetchList);
         <!-- 미작성 안내 -->
         <template v-else>
           <p class="empty-text">아직 작성된 평가가 없습니다.</p>
-          <button class="btn-primary" @click="moveToWrite">평가 작성하기</button>
+          <button
+            v-if="getEvalStatus(selectedItem) === 'active'"
+            class="btn-primary"
+            @click="moveToWrite"
+          >평가 작성하기</button>
         </template>
       </div>
     </div>
