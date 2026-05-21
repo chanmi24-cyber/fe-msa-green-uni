@@ -86,7 +86,7 @@ const downloadFile = async () => {
         return;
     }
     try {
-        await MemberService.downloadMajorRequestFile(detail.data.requestId);
+        await MemberService.downloadMyMajorRequestFile(detail.data.requestId);
     } catch (err) {
         console.error('파일 다운로드 실패:', err);
     }

@@ -216,10 +216,22 @@ export const adminMemberRoutes = [
   // ------------------ 전공 변경 신청 조회 처리 ---------------
   {
     path: `${url}/major-request`,
-    component: () => import('@/views/common/BlankPage.vue'),
+    component: () => import('@/views/admin/member/AdminMajorRequestList.vue'),
     meta: {
       title: '전공 변경 신청 조회',
       groupTitle: '회원 정보 관리',
+      auth: ['ADMIN'],
+    },
+  },
+  {
+    path: `${url}/major-request/:requestId`,
+    component: () => import('@/views/admin/member/AdminMajorRequestDetail.vue'),
+    meta: {
+      title: '전공 변경 신청 상세 조회',
+      subTitle: '전공 변경 신청 조회',
+      groupTitle: '회원 정보 관리',
+      showInNav: false,
+      activeMenu:`${url}/major-request`,
       auth: ['ADMIN'],
     },
   },
