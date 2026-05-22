@@ -18,11 +18,9 @@ const fetchPendingLectures = async () => {
     // 2. 관리자용 강의 목록 API 호출
     const response = await lectureService.getAdminLectures(params);
     
-    // 3. 컨트롤러가 Map을 반환하는 구조에 맞춰 가공
-    // (백엔드 API가 response.data 내부에 직접 map을 주는지, .data.data 구조인지 확인 후 필요시 수정)
     if (response) {
-      lectures.value = response.lectures || [];
-      totalCount.value = response.totalCount || 0;
+      lectures.value = response.data || [];
+      totalCount.value = response.data?.[0]?.totalCount ?? 0;
     }
   } catch (error) {
     console.error("대시보드 강의 승인 대기 목록 로드 실패:", error);
