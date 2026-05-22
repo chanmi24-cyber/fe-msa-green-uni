@@ -19,19 +19,9 @@ const today = new Date().toISOString().slice(0, 10);
 
 const isReady = ref(false);
 const isLoading = ref(false);
-const isInPeriod = ref(false);
+const isPeriod = ref(true);
 const majorList = ref([]);
 const typeOptions = ref([]);
-
-const fetchPeriodStatus = async () => {
-    try {
-        const res = await ScheduleService.getActiveSchedules();
-        const active = res.data?.data ?? {};
-        isInPeriod.value = !!(active.MAJOR_CHANGE || active['전공변경신청']);
-    } catch {
-        isInPeriod.value = false;
-    }
-};
 
 const form = reactive({ type: '', targetMajorId: '', reason: '' });
 const file = ref(null);
@@ -151,6 +141,10 @@ onMounted(async () => {
         return;
     }
 
+    const res = await ScheduleService.getActiveSchedules();
+    isPeriod.value = !!res.data?.data?.MAJOR_CHANGE;
+    if (!isPeriod.value) return;
+
     try {
         const listRes = await MemberService.findAllMyMajorRequest();
         const hasPending = (listRes.data ?? []).some(r => r.status === 'PENDING');
@@ -164,7 +158,6 @@ onMounted(async () => {
     }
 
     try {
-        await fetchPeriodStatus();
         const [majors, types] = await Promise.all([
             MemberService.getMajorList(),
             codeListService.getMajorRequestType(),
@@ -187,14 +180,11 @@ onMounted(async () => {
 </script>
 
 <template>
-    <div class="form-wrap" style="position: relative;">
-        <LoadingSpinner v-if="isLoading" :overlay="true" size="md" />
+    <div v-if="!isPeriod" class="empty-period">전공 변경 기간이 아닙니다.</div>
+    <div class="form-wrap" v-else style="position: relative;">
+        <LoadingSpinner v-if="isLoading || !isReady" :overlay="true" size="md" />
 
-        <div v-if="isReady && !isInPeriod" class="not-in-period">
-            <p>현재 전공 변경 신청 기간이 아닙니다.</p>
-        </div>
-
-        <template v-else-if="isReady && isInPeriod">
+        <template v-if="isReady">
         <div class="form-grid" style="--grid-cols: 1fr 1fr 1fr;">
             <!-- 이름 / 학번 -->
             <div class="input-wrap">
@@ -271,13 +261,13 @@ onMounted(async () => {
 </template>
 
 <style scoped lang="scss">
-.not-in-period {
+.empty-period {
     display: flex;
     justify-content: center;
     align-items: center;
-    min-height: 200px;
-    color: #aaa;
-    font-size: 1rem;
+    height: 60vh;
+    font-size: 18px;
+    color: #999;
 }
 
 .file-row {
