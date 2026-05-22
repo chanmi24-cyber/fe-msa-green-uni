@@ -11,11 +11,11 @@ const authStore = useAuthStore()
 
 <template>
 <h3>대시보드</h3>
-<ActiveScheduleBanner />
-<TimetableWidget />
+<ActiveScheduleBanner v-if="authStore.role === 'PROFESSOR' || authStore.role === 'STUDENT'" />
+<TimetableWidget v-if="authStore.role === 'PROFESSOR' || authStore.role === 'STUDENT'" />
 <TodayLectureWidget v-if="authStore.role === 'PROFESSOR'" />
 <MonthlyScheduleWidget />
-<TuitionStatus />
+<TuitionStatus v-if="authStore.role === 'ADMIN'" />/>
 </template>
 
 <style scoped>
