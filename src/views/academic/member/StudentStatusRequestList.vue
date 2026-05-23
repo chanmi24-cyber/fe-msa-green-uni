@@ -7,7 +7,7 @@ import StatusRequestDetail from '@/components/member/StatusRequestDetail.vue';
 import FilterBar from '@/components/common/FilterBar.vue';
 import LoadingSpinner from '@/components/common/LoadingSpinner.vue';
 import { useModalStore } from '@/stores/modal';
-import { APPROVAL_STATUS, STATUS_REQUEST_TYPE, APPROVAL_STATUS_CLASS } from '@/utils/constants';
+import { APPROVAL_STATUS, STATUS_REQUEST_TYPE, TEXT_CLASS } from '@/utils/constants';
 import { formatDateTime } from '@/utils/dateNumber';
 
 const router = useRouter();
@@ -132,7 +132,7 @@ onMounted(fetchList);
                         {{ item.academicYear }}학년 {{ item.semester }}학기
                     </span>
                 </div>
-                <span :class="['status-badge', APPROVAL_STATUS_CLASS[item.status]]">
+                <span :class="TEXT_CLASS[item.status]">
                     {{ APPROVAL_STATUS[item.status] ?? item.status }}
                 </span>
             </template>

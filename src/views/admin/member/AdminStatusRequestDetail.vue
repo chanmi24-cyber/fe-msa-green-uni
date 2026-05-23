@@ -16,15 +16,19 @@ const isLoading = ref(false);
 
 const isPending = computed(() => request.value?.status === 'PENDING');
 
-const showRejectBox = ref(false);
+// 'approve' | 'reject' | null
+const actionMode = ref(null);
+const note = ref('');
 const rejectReason = ref('');
 
-const openRejectBox = () => {
-  showRejectBox.value = true;
+const openAction = (mode) => {
+  actionMode.value = mode;
+  note.value = '';
   rejectReason.value = '';
 };
-const closeRejectBox = () => {
-  showRejectBox.value = false;
+const closeAction = () => {
+  actionMode.value = null;
+  note.value = '';
   rejectReason.value = '';
 };
 
@@ -32,8 +36,12 @@ const approve = async () => {
   const confirmed = await modal.showConfirm('이 신청서를 승인하시겠습니까?', 'success');
   if (!confirmed) return;
   try {
-    await MemberService.processStatusRequest(requestId, { status: 'APPROVED' });
+    await MemberService.processStatusRequest(requestId, {
+      status: 'APPROVED',
+      note: note.value.trim() || undefined,
+    });
     await fetchRequest();
+    closeAction();
     modal.showAlert('승인되었습니다.', 'success');
   } catch (err) {
     console.error('승인 실패:', err);
@@ -53,7 +61,7 @@ const reject = async () => {
       rejectReason: rejectReason.value,
     });
     await fetchRequest();
-    closeRejectBox();
+    closeAction();
     modal.showAlert('반려 처리되었습니다.', 'success');
   } catch (err) {
     console.error('반려 실패:', err);
@@ -95,22 +103,31 @@ onMounted(fetchRequest);
       <button class="btn btn-default" @click="goBack">
         <font-awesome-icon icon="fa-solid fa-list" /> 목록
       </button>
-      <div v-if="isPending" class="action-group">
-        <button class="btn btn-success" @click="approve">승인</button>
-        <button v-if="!showRejectBox" class="btn btn-danger" @click="openRejectBox">반려</button>
+      <div v-if="isPending && !actionMode" class="action-group">
+        <button class="btn btn-success" @click="openAction('approve')">승인</button>
+        <button class="btn btn-danger" @click="openAction('reject')">반려</button>
       </div>
     </div>
 
-    <div v-if="showRejectBox" class="rejection-box">
+    <div v-if="actionMode" class="action-box" :class="actionMode">
       <textarea
+        v-if="actionMode === 'approve'"
+        v-model="note"
+        class="action-textarea"
+        placeholder="승인 사유를 입력해주세요. (선택)"
+        rows="3"
+      />
+      <textarea
+        v-else
         v-model="rejectReason"
-        class="rejection-textarea"
+        class="action-textarea"
         placeholder="반려 사유를 입력해주세요."
         rows="3"
       />
-      <div class="rejection-actions">
-        <button class="btn btn-default" @click="closeRejectBox">취소</button>
-        <button class="btn btn-danger" @click="reject">반려 처리</button>
+      <div class="action-buttons">
+        <button class="btn btn-default" @click="closeAction">취소</button>
+        <button v-if="actionMode === 'approve'" class="btn btn-success" @click="approve">승인 처리</button>
+        <button v-else class="btn btn-danger" @click="reject">반려 처리</button>
       </div>
     </div>
 
@@ -119,11 +136,21 @@ onMounted(fetchRequest);
 </template>
 
 <style scoped>
-.page-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px;}
+.page-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; }
 .action-group { display: flex; gap: 8px; }
 
-.rejection-box { display: flex; flex-direction: column; gap: 8px; margin-bottom: 16px; padding: 16px; background: #fff8f8; border: 1px solid #ffcdd2; border-radius: 8px;}
-.rejection-textarea { width: 100%; padding: 10px; border: 1px solid #e0e0e0; border-radius: 6px; resize: vertical; font-size: var(--text-sm); font-family: inherit;  line-height: 1.5;}
-.rejection-textarea:focus { outline: none; border-color: #c62828; }
-.rejection-actions { display: flex; gap: 8px; justify-content: flex-end; }
+.action-box { display: flex; flex-direction: column; gap: 8px; margin-bottom: 16px; padding: 16px; border-radius: 8px; border: 1px solid var(--line-color); }
+.action-box.approve { background: #f8fcfa; border-color: var(--main-color); }
+.action-box.reject  { background: #fff8f8; border-color: #ffcdd2; }
+
+.action-textarea { width: 100%; padding: 10px; border: 1px solid #e0e0e0; border-radius: 6px; resize: vertical; font-size: var(--text-sm); font-family: inherit; line-height: 1.5; }
+.action-box.approve .action-textarea:focus { outline: none; border-color: var(--main-color); }
+.action-box.reject  .action-textarea:focus { outline: none; border-color: #c62828; }
+
+.action-buttons { display: flex; gap: 8px; justify-content: flex-end; }
+
+.btn-success { background: var(--main-color); color: #fff; border-color: var(--main-color); }
+.btn-success:hover { filter: brightness(1.1); }
+.btn-danger { background: #c62828; color: #fff; border-color: #c62828; }
+.btn-danger:hover { filter: brightness(1.1); }
 </style>
