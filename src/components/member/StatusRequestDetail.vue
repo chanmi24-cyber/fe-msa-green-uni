@@ -1,7 +1,10 @@
 <script setup>
 import { computed } from 'vue';
-import { APPROVAL_STATUS, STATUS_REQUEST_TYPE, BADGE_CLASS } from '@/utils/constants';
+import { useRouter } from 'vue-router';
+import { APPROVAL_STATUS, STATUS_REQUEST_TYPE, STATUS_LABEL, BADGE_CLASS } from '@/utils/constants';
 import { formatDateTime } from '@/utils/dateNumber';
+
+const router = useRouter();
 
 const props = defineProps({
   request: { type: Object, required: true },
@@ -29,10 +32,34 @@ const isAbsence = computed(() => props.request.type === 'ABSENCE');
         </div>
         <div class="d-flex direct-col">
           <dl class="detail-row">
+            <dt>학과</dt>
+            <dd>{{ request.currentMajorName ?? '-' }} <template v-if="request.currentMinorName">/ 부전공: {{ request.currentMinorName ?? '-' }}</template></dd>
+          </dl>
+          <dl class="detail-row">
             <dt>학년/학기</dt>
             <dd>{{ request.academicYear }}학년 {{ request.semester }}학기</dd>
           </dl>
+          <dl class="detail-row">
+            <dt>현재 학적</dt>
+            <dd>{{ STATUS_LABEL.STUDENT[request.academicStatus] ?? request.academicStatus ?? '-' }}</dd>
+          </dl>
+          <dl class="detail-row">
+            <dt>취득 학점</dt>
+            <dd>{{ request.totalCredits ?? '-' }}</dd>
+          </dl>
+          <dl class="detail-row">
+            <dt>연락처</dt>
+            <dd>{{ request.phone ?? '-' }}</dd>
+          </dl>
+          <dl class="detail-row">
+            <dt>이메일</dt>
+            <dd>{{ request.email ?? '-' }}</dd>
+          </dl>
         </div>
+        <button class="btn btn-default history-btn"
+          @click="router.push(`/admin/members/${request.memberCode}`)">
+          변동 이력 보기
+        </button>
       </div>
 
       <!-- 우측: 신청 내용 -->
@@ -55,7 +82,7 @@ const isAbsence = computed(() => props.request.type === 'ABSENCE');
           </dl>
           <dl class="detail-row">
             <dt>신청 유형</dt>
-            <dd>{{ STATUS_REQUEST_TYPE[request.type] ?? request.type }}</dd>
+            <dd>{{ STATUS_REQUEST_TYPE[request.type] ?? request.type }} 신청</dd>
           </dl>
           <dl class="detail-row">
             <dt>시작일</dt>
@@ -112,4 +139,5 @@ const isAbsence = computed(() => props.request.type === 'ABSENCE');
 
 <style scoped>
 .reason-text { white-space: pre-wrap; line-height: 1.6; }
+.history-btn { width: 100%; margin-top: 4px; font-size: 0.85em; }
 </style>

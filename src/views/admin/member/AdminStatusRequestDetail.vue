@@ -86,6 +86,7 @@ const fetchRequest = async () => {
   try {
     const res = await MemberService.findStatusRequest(requestId);
     request.value = res.data ?? res;
+    console.log(res.data)
   } catch (err) {
     console.error('신청서 로드 실패:', err);
   } finally {
