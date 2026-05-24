@@ -130,8 +130,3 @@ const isAbsence = computed(() => props.request.type === 'ABSENCE');
     </div>
   </div>
 </template>
-
-<style scoped>
-.reason-text { white-space: pre-wrap; line-height: 1.6; }
-.history-btn { width: 100%; margin-top: 4px; font-size: 0.85em; }
-</style>

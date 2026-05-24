@@ -60,7 +60,7 @@ export const STATUS_REQUEST_TYPE = {
 // 상세 뷰용 뱃지 클래스 (박스 + 색상)
 export const BADGE_CLASS = {
   PENDING:   'badge-pending',
-  APPROVED:  'badge-running',
+  APPROVED:  'badge-approved',
   REJECTED:  'badge-rejected',
   CANCELLED: 'badge-closed',
 }
@@ -68,7 +68,7 @@ export const BADGE_CLASS = {
 // 목록 카드용 텍스트 색상 클래스
 export const TEXT_CLASS = {
   PENDING:   'text-pending',
-  APPROVED:  'text-running',
+  APPROVED:  'text-approved',
   REJECTED:  'text-rejected',
   CANCELLED: 'text-closed',
 }

@@ -8,7 +8,7 @@ import MajorRequestDetail from '@/components/member/MajorRequestDetail.vue';
 import FilterBar from '@/components/common/FilterBar.vue';
 import LoadingSpinner from '@/components/common/LoadingSpinner.vue';
 import { useModalStore } from '@/stores/modal';
-import { APPROVAL_STATUS, MAJOR_REQUEST_TYPE } from '@/utils/constants';
+import { APPROVAL_STATUS, MAJOR_REQUEST_TYPE, TEXT_CLASS } from '@/utils/constants';
 import { formatDateTime } from '@/utils/dateNumber';
 
 const router = useRouter();
@@ -21,13 +21,6 @@ const isPeriod = ref(true);
 const selectedYear = ref('');
 const searchQuery = ref('');
 const searchInput = ref('');
-
-const STATUS_CLASS = {
-    PENDING:   'badge-pending',
-    APPROVED:  'badge-approved',
-    REJECTED:  'badge-rejected',
-    CANCELLED: 'badge-cancelled',
-};
 
 // ── 연도 필터 ──────────────────────────────────────
 const yearOf = (item) => item.createdAt?.slice(0, 4);
@@ -56,7 +49,7 @@ const fetchPeriodStatus = async () => {
     try {
         const res = await ScheduleService.getActiveSchedules();
         const active = res.data?.data ?? {};
-        isPeriod.value = !!active.MAJOR_CHANGE;
+        isPeriod.value = !!active['전공변경신청'];
     } catch {
         isPeriod.value = false;
     }
@@ -154,12 +147,12 @@ onMounted(() => Promise.all([fetchPeriodStatus(), fetchList()]));
             <template #card="{ item }">
                 <div class="card-left">
                     <span class="card-sub">{{ formatDateTime(item.createdAt) }}</span>
-                    <span class="major-name">
+                    <span class="request-title">
                         <small>[{{ MAJOR_REQUEST_TYPE[item.type] ?? item.type }}]</small>
                         {{ item.targetMajorName }}
                     </span>
                 </div>
-                <span :class="['badge', STATUS_CLASS[item.status]]">
+                <span :class="TEXT_CLASS[item.status]">
                     {{ APPROVAL_STATUS[item.status] ?? item.status }}
                 </span>
             </template>
@@ -192,36 +185,37 @@ onMounted(() => Promise.all([fetchPeriodStatus(), fetchList()]));
                     </template>
                 </MajorRequestDetail>
             </template>
+
+            <template #detail-empty>
+                <div class="notice-panel">
+                    <h3 class="notice-title">전공 변경 신청 안내</h3>
+                    <p class="notice-desc">
+                        전과 및 부전공 신청서를 작성할 수 있습니다.<br />
+                        좌측 목록에서 기존 신청 내역을 선택하면 상세 내용을 확인할 수 있습니다.
+                    </p>
+
+                    <table class="notice-table">
+                        <colgroup>
+                            <col style="width: 72px" />
+                            <col />
+                        </colgroup>
+                        <tbody>
+                            <tr>
+                                <th>전과</th>
+                                <td>현재 소속 학과에서 다른 학과로 전과 신청합니다. 관련 서류가 있는 경우 첨부해 주세요.</td>
+                            </tr>
+                            <tr>
+                                <th>부전공</th>
+                                <td>주전공 외에 부전공을 추가로 이수하는 신청입니다. 관련 서류가 있는 경우 첨부해 주세요.</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <p class="notice-caution">
+                        대기 중인 신청서가 있는 경우 새로운 신청이 불가합니다.
+                    </p>
+                </div>
+            </template>
         </CardListDetail>
     </div>
 </template>
 
-<style scoped>
-/* 카드 내부 */
-.card-left {
-    display: flex;
-    flex-direction: column;
-    gap: 4px;
-}
-.major-name {
-    font-weight: 600;
-    font-size: 15px;
-}
-.card-sub {
-    font-size: 13px;
-    color: #777;
-}
-
-/* 상태 배지 */
-.badge {
-    padding: 4px 12px;
-    border-radius: 12px;
-    font-size: 12px;
-    font-weight: 600;
-    white-space: nowrap;
-}
-.badge-pending   { background: #fff3e0; color: #ef6c00; }
-.badge-approved  { background: #e8f4f0; color: var(--main-color); }
-.badge-rejected  { background: #fdecea; color: #d32f2f; }
-.badge-cancelled { background: #f0f0f0; color: #888; }
-</style>

@@ -203,8 +203,3 @@ onMounted(fetchList);
     </div>
 </template>
 
-<style scoped>
-.card-left { display: flex; flex-direction: column; gap: 4px; }
-.request-title { font-weight: 600; font-size: 15px; }
-.card-sub { font-size: 13px; color: #777; }
-</style>
