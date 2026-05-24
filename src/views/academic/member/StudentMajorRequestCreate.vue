@@ -142,7 +142,7 @@ onMounted(async () => {
     }
 
     const res = await ScheduleService.getActiveSchedules();
-    isPeriod.value = !!res.data?.data?.MAJOR_CHANGE;
+    isPeriod.value = !!res.data?.data?.['전공변경신청'];
     if (!isPeriod.value) return;
 
     try {

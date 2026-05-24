@@ -141,23 +141,3 @@ onMounted(fetchRequest);
     <StatusRequestDetail v-if="request" :request="request" :onDownload="downloadFile" />
   </div>
 </template>
-
-<style scoped>
-.page-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; }
-.action-group { display: flex; gap: 8px; }
-
-.action-box { display: flex; flex-direction: column; gap: 8px; margin-bottom: 16px; padding: 16px; border-radius: 8px; border: 1px solid var(--line-color); }
-.action-box.approve { background: #f8fcfa; border-color: var(--main-color); }
-.action-box.reject  { background: #fff8f8; border-color: #ffcdd2; }
-
-.action-textarea { width: 100%; padding: 10px; border: 1px solid #e0e0e0; border-radius: 6px; resize: vertical; font-size: var(--text-sm); font-family: inherit; line-height: 1.5; }
-.action-box.approve .action-textarea:focus { outline: none; border-color: var(--main-color); }
-.action-box.reject  .action-textarea:focus { outline: none; border-color: #c62828; }
-
-.action-buttons { display: flex; gap: 8px; justify-content: flex-end; }
-
-.btn-success { background: var(--main-color); color: #fff; border-color: var(--main-color); }
-.btn-success:hover { filter: brightness(1.1); }
-.btn-danger { background: #c62828; color: #fff; border-color: #c62828; }
-.btn-danger:hover { filter: brightness(1.1); }
-</style>
