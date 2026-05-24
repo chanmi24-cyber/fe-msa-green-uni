@@ -62,7 +62,7 @@ const fetchOptions = async () => {
 
 const hasSearchFilter = computed(() => !!searchInput.value);
 
-const GRID_COLS = '100px 90px 110px 90px 110px 90px 80px';
+const GRID_COLS = 'minmax(90px, 1fr) minmax(70px, 1fr) minmax(90px, 1fr) minmax(80px, 1fr) minmax(120px, 1fr) minmax(70px, 1fr) minmax(70px, 1fr)';
 
 const moveToDetail = (id) => router.push(`/admin/members/status-request/${id}`);
 
@@ -87,7 +87,10 @@ onMounted(() => {
     <TabNav />
 
     <FilterBar v-model:searchQuery="searchQuery" :hasFilter="hasSearchFilter"
-              @search="onSearch" @reset="resetFilter">
+              @search="onSearch" @reset="resetFilter"
+              :showCount="true" :count="filteredList.length"
+              :showPageSize="true" v-model:pageSize="pageSize" :pageSizeOptions="pageSizeOptions"
+              @pageSizeChange="onPageSizeChange">
       <div class="tab-area">
         <button
           v-for="tab in statusTabs"
@@ -99,13 +102,6 @@ onMounted(() => {
         </button>
       </div>
     </FilterBar>
-
-    <div class="data-header">
-      전체: {{ filteredList.length }}건
-      <select v-model="pageSize" @change="onPageSizeChange">
-        <option v-for="n in pageSizeOptions" :key="n" :value="n">{{ n }}개</option>
-      </select>
-    </div>
 
     <DataTable
       :columns="['학번', '이름', '학년/학기', '신청 유형', '신청일자', '처리자', '상태']"

@@ -5,6 +5,7 @@ import MemberService from '@/services/memberService';
 import { useModalStore } from '@/stores/modal';
 import LoadingSpinner from '@/components/common/LoadingSpinner.vue';
 import StatusRequestDetail from '@/components/member/StatusRequestDetail.vue';
+import { BADGE_CLASS, APPROVAL_STATUS } from '@/utils/constants';
 
 const route = useRoute();
 const router = useRouter();
@@ -101,9 +102,14 @@ onMounted(fetchRequest);
   <div style="position: relative;">
     <LoadingSpinner v-if="isLoading" :overlay="true" size="md" />
     <div class="page-header">
-      <button class="btn btn-default" @click="goBack">
-        <font-awesome-icon icon="fa-solid fa-list" /> 목록
-      </button>
+      <div class="d-flex ai-center g10">
+        <button class="btn btn-default" @click="goBack">
+          <font-awesome-icon icon="fa-solid fa-list" /> 목록
+        </button>
+        <span v-if="request" :class="BADGE_CLASS[request.status]">
+          {{ APPROVAL_STATUS[request.status] ?? request.status }}
+        </span>
+      </div>
       <div v-if="isPending && !actionMode" class="action-group">
         <button class="btn btn-success" @click="openAction('approve')">승인</button>
         <button class="btn btn-danger" @click="openAction('reject')">반려</button>

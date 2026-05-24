@@ -1,7 +1,7 @@
 <script setup>
 import { computed } from 'vue';
 import { useRouter } from 'vue-router';
-import { APPROVAL_STATUS, STATUS_REQUEST_TYPE, STATUS_LABEL, BADGE_CLASS } from '@/utils/constants';
+import { STATUS_REQUEST_TYPE, STATUS_LABEL } from '@/utils/constants';
 import { formatDateTime } from '@/utils/dateNumber';
 
 const router = useRouter();
@@ -25,33 +25,33 @@ const isAbsence = computed(() => props.request.type === 'ABSENCE');
     <div class="info-container g20">
 
       <!-- 좌측: 신청자 정보 (관리자만) -->
-      <div v-if="adminView" class="content-wrap info-wrap info-card g20" style="--flex-width: 260px;">
+      <div v-if="adminView" class="content-wrap info-wrap info-card d-flex direct-col g20" style="--flex-width: 260px;">
         <div class="info-title">
           <h2>{{ request.studentName }}</h2>
           <span class="info-detail">{{ request.memberCode }}</span>
         </div>
-        <div class="d-flex direct-col">
-          <dl class="detail-row">
+        <div>
+          <dl class="info-row">
             <dt>학과</dt>
-            <dd>{{ request.currentMajorName ?? '-' }} <template v-if="request.currentMinorName">/ 부전공: {{ request.currentMinorName ?? '-' }}</template></dd>
+            <dd>{{ request.currentMajorName ?? '-' }}<template v-if="request.currentMinorName"> / 부전공: {{ request.currentMinorName }}</template></dd>
           </dl>
-          <dl class="detail-row">
+          <dl class="info-row">
             <dt>학년/학기</dt>
             <dd>{{ request.academicYear }}학년 {{ request.semester }}학기</dd>
           </dl>
-          <dl class="detail-row">
+          <dl class="info-row">
             <dt>현재 학적</dt>
             <dd>{{ STATUS_LABEL.STUDENT[request.academicStatus] ?? request.academicStatus ?? '-' }}</dd>
           </dl>
-          <dl class="detail-row">
+          <dl class="info-row">
             <dt>취득 학점</dt>
             <dd>{{ request.totalCredits ?? '-' }}</dd>
           </dl>
-          <dl class="detail-row">
+          <dl class="info-row">
             <dt>연락처</dt>
             <dd>{{ request.phone ?? '-' }}</dd>
           </dl>
-          <dl class="detail-row">
+          <dl class="info-row">
             <dt>이메일</dt>
             <dd>{{ request.email ?? '-' }}</dd>
           </dl>
@@ -65,44 +65,38 @@ const isAbsence = computed(() => props.request.type === 'ABSENCE');
       <!-- 우측: 신청 내용 -->
       <div class="info-wrap content-wrap info-content d-flex direct-col g20">
 
-        <div class="d-flex ai-center g10">
-          <span :class="BADGE_CLASS[request.status]">
-            {{ APPROVAL_STATUS[request.status] ?? request.status }}
-          </span>
-        </div>
-
-        <div class="d-flex direct-col">
-          <dl class="detail-row">
+        <div class="d-flex direct-col g10">
+          <dl>
             <dt>신청일</dt>
             <dd>{{ formatDateTime(request.createdAt) }}</dd>
           </dl>
-          <dl class="detail-row" v-if="!adminView">
+          <dl v-if="!adminView">
             <dt>학년/학기</dt>
             <dd>{{ request.academicYear }}학년 {{ request.semester }}학기</dd>
           </dl>
-          <dl class="detail-row">
+          <dl>
             <dt>신청 유형</dt>
             <dd>{{ STATUS_REQUEST_TYPE[request.type] ?? request.type }} 신청</dd>
           </dl>
-          <dl class="detail-row">
+          <dl>
             <dt>시작일</dt>
             <dd>{{ request.startDate ?? '-' }}</dd>
           </dl>
           <template v-if="isAbsence">
-            <dl class="detail-row">
+            <dl>
               <dt>복학 예정 연도</dt>
               <dd>{{ request.returnYear }}년</dd>
             </dl>
-            <dl class="detail-row">
+            <dl>
               <dt>복학 예정 학기</dt>
               <dd>{{ request.returnSemester }}학기</dd>
             </dl>
           </template>
-          <dl class="detail-row">
+          <dl>
             <dt>신청 사유</dt>
             <dd class="reason-text">{{ request.reason }}</dd>
           </dl>
-          <dl class="detail-row">
+          <dl>
             <dt>첨부 파일</dt>
             <dd>
               <button v-if="request.originalFileName && onDownload"
@@ -117,11 +111,11 @@ const isAbsence = computed(() => props.request.type === 'ABSENCE');
               <span v-else class="empty-text">첨부 파일 없음</span>
             </dd>
           </dl>
-          <dl class="detail-row" v-if="request.updaterName">
+          <dl v-if="request.updaterName">
             <dt>처리자</dt>
             <dd>{{ request.updaterName }}</dd>
           </dl>
-          <dl class="detail-row" v-if="request.status !== 'PENDING' && request.updatedAt">
+          <dl v-if="request.status !== 'PENDING' && request.updatedAt">
             <dt>처리일</dt>
             <dd>{{ formatDateTime(request.updatedAt) }}</dd>
           </dl>
