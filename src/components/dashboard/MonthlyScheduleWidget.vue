@@ -31,6 +31,12 @@ const dotClass = (type) => {
   return map[type] ?? 'dot-gray'
 }
  
+const ROLE_SCHEDULE_FILTER = {
+  STUDENT: ['COURSE_REGISTRATION', 'COURSE_MODIFICATION', 'GRADE_VIEW', 'GRADE_APPEAL', 'LECTURE_EVALUATION', 'TUITION_PAYMENT','MAJOR_CHANGE', 'SEMESTER_START', 'ETC'],
+  PROFESSOR: ['LECTURE_REGISTRATION', 'GRADE_INPUT', 'LECTURE_EVALUATION', 'SEMESTER_START', 'ETC'],
+  ADMIN: null // null이면 전체
+}
+
 onMounted(async () => {
   loading.value = true
   try {
@@ -39,9 +45,11 @@ onMounted(async () => {
     const today = new Date()
     today.setHours(0, 0, 0, 0)
 
-    // 오늘 날짜 포함 or 오늘 이후인 일정만 필터 후 3개
+    const allowedTypes = ROLE_SCHEDULE_FILTER[authStore.role]
+
     schedules.value = all
       .filter(s => new Date(s.endDate) >= today)
+      .filter(s => allowedTypes === null || allowedTypes.includes(s.type))
       .slice(0, 3)
   } catch (e) {
     console.error('학사일정 조회 실패', e)

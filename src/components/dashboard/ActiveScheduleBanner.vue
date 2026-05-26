@@ -5,6 +5,14 @@ import { Autoplay, Pagination } from 'swiper/modules'
 import 'swiper/css'
 import 'swiper/css/pagination'
 import ScheduleService from '@/services/scheduleService.js'
+import { useAuthStore } from '@/stores/authentication'
+const authStore = useAuthStore()
+
+const ROLE_SCHEDULE_FILTER = {
+  STUDENT: ['COURSE_REGISTRATION', 'COURSE_MODIFICATION', 'GRADE_VIEW', 'GRADE_APPEAL', 'LECTURE_EVALUATION', 'TUITION_PAYMENT', 'MAJOR_CHANGE', 'SEMESTER_START', 'ETC'],
+  PROFESSOR: ['LECTURE_REGISTRATION', 'GRADE_INPUT', 'LECTURE_EVALUATION', 'SEMESTER_START', 'ETC'],
+  ADMIN: null
+}
 
 const SCHEDULE_MAP = {
   COURSE_REGISTRATION:  { label: '수강신청',     link: '/courses' },
@@ -42,7 +50,9 @@ onMounted(async () => {
   try {
     const res = await ScheduleService.getActiveBannerSchedules()
     const items = res.data?.data ?? []
+    const allowedTypes = ROLE_SCHEDULE_FILTER[authStore.role]
     schedules.value = items
+      .filter(s => allowedTypes === null || allowedTypes.includes(s.type))
       .map((s) => {
         const mapped = SCHEDULE_MAP[s.type]
         if (!mapped) return null
