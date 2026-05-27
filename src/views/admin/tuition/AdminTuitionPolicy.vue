@@ -139,7 +139,7 @@ onMounted(() => {
 </script>
 
 <template>
-  <div class="container">
+  <div>
 
     <div class="filter-header">
       <div class="filter-group">
