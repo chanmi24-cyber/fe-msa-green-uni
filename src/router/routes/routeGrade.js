@@ -28,6 +28,31 @@ export const gradeRoutes = [
             activeMenu: `professor/${url}`,
         },
     },
+    {
+        // 교수 이의신청 목록
+        // 브라우저: /professor/grades/appeals
+        path: `professor/${url}/appeals`,
+        component: () => import('@/views/academic/grade/GradeAppealProList.vue'),
+        meta: {
+            title: '성적 이의신청 목록',
+            groupTitle: '성적',
+            navSection: '학사정보',
+            auth: ['PROFESSOR'],
+        },
+    },
+    {
+        // 교수 이의신청 상세
+        // 브라우저: /professor/grades/appeals/{courseId}
+        path: `professor/${url}/appeals/:courseId`,
+        component: () => import('@/views/academic/grade/GradeAppealProDetail.vue'),
+        meta: {
+            title: '성적 이의신청 상세',
+            groupTitle: '성적',
+            auth: ['PROFESSOR'],
+            showInNav: false,
+            activeMenu: `professor/${url}/appeals`,
+        },
+    },
 
     // ── 학생 화면 ─────────────────────────────────────────────
     {

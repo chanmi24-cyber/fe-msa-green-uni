@@ -55,6 +55,24 @@ class GradeService {
         const res = await axios.post(`${this.#studentPath}/${gradeId}/appeal`, { reason })
         return res.data
     }
+
+    // 교수 이의신청 목록 조회
+    async getProfessorAppealList() {
+        const res = await axios.get(`${this.#professorPath}/appeals`)
+        return res.data.data
+    }
+
+    // 교수 이의신청 상세 조회
+    async getProfessorAppealDetail(courseId) {
+        const res = await axios.get(`${this.#professorPath}/appeals/${courseId}`)
+        return res.data.data
+    }
+
+    // 교수 이의신청 처리 (승인/반려)
+    async processAppeal(courseId, req) {
+        const res = await axios.patch(`${this.#professorPath}/appeals/${courseId}`, req)
+        return res.data
+    }
 }
 
 export default new GradeService();
