@@ -111,12 +111,11 @@ onMounted(fetchList);
         <font-awesome-icon icon="fa-solid fa-plus" /> 신청서 작성
       </button>
     </FilterBar>
-    <div class="master-detail-wrap">
-      <div class="list-panel">
+    <div class="split-layout">
+      <div class="split-list">
         <DataTable :columns="TABLE_COLUMN" :rows="pagedList" :gridCols="GRID_COLS" :isLoading="state.isLoading"
           emptyMessage="신청 내역이 없습니다.">
-          <article class="tbl-row" v-for="item in pagedList" :key="item.requestId"
-            :class="{ active: selectedId === item.requestId }" @click="selectItem(item.requestId)">
+          <article class="tbl-row pointer" v-for="item in pagedList" :key="item.requestId" @click="selectItem(item.requestId)">
             <div>{{ formatDateTime(item.createdAt) }}</div>
             <div>{{ STATUS_REQUEST_TYPE[item.type] ?? item.type }}</div>
             <div>{{ item.academicYear }}학년</div>
@@ -128,7 +127,7 @@ onMounted(fetchList);
         <Pagination :currentPage="currentPage" :maxPage="maxPage" :pageGroupSize="10" @goToPage="goToPage" />
       </div>
 
-      <div class="detail-panel">
+      <div class="split-detail">
         <LoadingSpinner v-if="detail.isLoading" :overlay="true" size="md" />
 
         <template v-if="!detail.isLoading && detail.data">
@@ -178,10 +177,3 @@ onMounted(fetchList);
     </div>
   </div>
 </template>
-
-<style scoped lang="scss">
-.master-detail-wrap { display: flex; gap: 20px; align-items: flex-start;}
-.list-panel { position: relative; flex: 0 0 500px; }
-.detail-panel { position: relative; flex: 1; min-width: 0;}
-.tbl-row { cursor: pointer; &.active { background: rgba($green-600, 0.07); }}
-</style>

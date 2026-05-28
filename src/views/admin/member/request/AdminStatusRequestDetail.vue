@@ -183,7 +183,3 @@ onMounted(fetchRequest);
   </div>
 </template>
 
-<style scoped lang="scss">
-.card-label { justify-content: space-between; }
-.history-btn { font-size: 0.8em; padding: 4px 12px; font-weight: 400; }
-</style>

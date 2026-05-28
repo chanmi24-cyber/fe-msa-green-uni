@@ -113,9 +113,9 @@ onMounted(() => Promise.all([fetchPeriodStatus(), fetchList()]));
 </script>
 
 <template>
-  <div class="master-detail-wrap">
+  <div class="split-layout">
     <!-- 좌측: 목록 패널 -->
-    <div class="list-panel">
+    <div class="split-list">
       <LoadingSpinner v-if="state.isLoading" :overlay="true" size="md" />
 
       <FilterBar v-model:searchQuery="searchQuery" :hasFilter="hasFilter"
@@ -160,7 +160,7 @@ onMounted(() => Promise.all([fetchPeriodStatus(), fetchList()]));
     </div>
 
     <!-- 우측: 상세/안내 패널 -->
-    <div class="detail-panel">
+    <div class="split-detail">
       <LoadingSpinner v-if="detail.isLoading" :overlay="true" size="md" />
 
       <template v-if="!detail.isLoading && detail.data">
@@ -209,27 +209,5 @@ onMounted(() => Promise.all([fetchPeriodStatus(), fetchList()]));
 </template>
 
 <style scoped lang="scss">
-@use '@/assets/styles/variables' as *;
-
-.master-detail-wrap {
-  display: flex;
-  gap: 20px;
-  align-items: flex-start;
-}
-
-.list-panel {
-  position: relative;
-  flex: 0 0 500px;
-}
-
-.detail-panel {
-  position: relative;
-  flex: 1;
-  min-width: 0;
-}
-
-.tbl-row {
-  cursor: pointer;
-  &.active { background: rgba($green-600, 0.07); }
-}
+.tbl-row { cursor: pointer; &.active { background: rgba($green-600, 0.07); } }
 </style>

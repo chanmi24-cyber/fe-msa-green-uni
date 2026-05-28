@@ -108,7 +108,7 @@ onMounted(() => {
       :isLoading="state.isLoading"
       emptyMessage="조회된 신청서가 없습니다."
     >
-      <article class="tbl-row" v-for="item in pagedList" :key="item.requestId"
+      <article class="tbl-row pointer" v-for="item in pagedList" :key="item.requestId"
               @click="moveToDetail(item.requestId)">
         <div>{{ item.memberCode }}</div>
         <div>{{ item.studentName }}</div>
@@ -125,7 +125,3 @@ onMounted(() => {
                 @goToPage="goToPage" />
   </div>
 </template>
-
-<style scoped lang="scss">
-.tbl-row { cursor: pointer; }
-</style>
