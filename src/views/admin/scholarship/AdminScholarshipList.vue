@@ -216,7 +216,7 @@ onMounted(() => {
             v-for="(item, idx) in filteredScholarships" 
             :key="idx"
           >
-            <div class="mono">{{ item.memberCode }}</div>
+            <div>{{ item.memberCode }}</div>
             <div>{{ item.studentName }}</div>
             <div>{{ item.deptName }}</div> 
             <div>{{ item.academicYear }}학년</div>
@@ -225,8 +225,8 @@ onMounted(() => {
                 {{ item.scholarshipType }}
               </span>
             </div>
-            <div class="amount">{{ formatAmount(item.scholarshipAmount) }}원</div>
-            <div class="date">{{ formatDate(item.createdAt) }}</div>
+            <div>{{ formatAmount(item.scholarshipAmount) }}원</div>
+            <div>{{ formatDate(item.createdAt) }}</div>
           </article>
         </template>
       </DataTable>
@@ -249,10 +249,6 @@ onMounted(() => {
   color: var(--font-color-light);
   font-size: var(--text-sm);
 }
-
-:deep(.tbl-row) .mono   { font-family: monospace; color: var(--font-color-light); }
-:deep(.tbl-row) .amount { font-weight: 600; }
-:deep(.tbl-row) .date   { color: var(--font-color-light); }
 
 .badge {
   display: inline-block;
