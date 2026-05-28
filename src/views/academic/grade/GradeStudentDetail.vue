@@ -128,14 +128,13 @@ onMounted(async () => {
                                         <span v-else class="no-data">-</span>
                                     </td>
                                     <td>
-                                        <span v-if="g.lectureGrade"
-                                              :class="['grade-badge', gradeClass(g.lectureGrade)]">
+                                        <span v-if="g.lectureGrade" class="grade-badge">
                                             {{ g.lectureGrade }}
                                         </span>
                                         <span v-else class="no-data">미입력</span>
                                     </td>
                                     <td>
-                                        <span v-if="g.lectureRating != null">{{ g.lectureRating.toFixed(1) }}</span>
+                                        <span v-if="g.lectureRating != null">{{ g.lectureRating.toFixed(2) }}</span>
                                         <span v-else class="no-data">-</span>
                                     </td>
                                     <td>
@@ -192,7 +191,7 @@ onMounted(async () => {
                         <p class="s-label">등급 평균</p>
                         <p class="s-value">
                             <span v-if="summary.averageGrade"
-                                  :class="['grade-badge-sm', gradeClass(summary.averageGrade)]">
+                                    :class="['grade-badge-sm', gradeClass(summary.averageGrade)]">
                                 {{ summary.averageGrade }}
                             </span>
                             <span v-else class="no-data">-</span>
@@ -310,28 +309,6 @@ onMounted(async () => {
 .weight { font-size: 11px; font-weight: 400; }
 .no-data { color: var(--font-color-light); }
 
-/* 등급 뱃지 */
-.grade-badge {
-    display: inline-block;
-    min-width: 32px; height: 24px; line-height: 24px;
-    border-radius: 12px; font-size: 12px; font-weight: 700;
-    text-align: center; padding: 0 6px;
-}
-.grade-badge-sm {
-    display: inline-block;
-    min-width: 38px; height: 30px; line-height: 30px;
-    border-radius: 15px; font-size: 14px; font-weight: 700;
-    text-align: center; padding: 0 8px;
-}
-.grade-aplus { background: #c8e6c9; color: #1b5e20; }
-.grade-a     { background: #e8f5e9; color: #2e7d32; }
-.grade-bplus { background: #bbdefb; color: #0d47a1; }
-.grade-b     { background: #e3f2fd; color: #1565c0; }
-.grade-cplus { background: #fff9c4; color: #e65100; }
-.grade-c     { background: #fff8e1; color: #f57f17; }
-.grade-dplus { background: #ffd0d0; color: #b71c1c; }
-.grade-d     { background: #fce4ec; color: #c62828; }
-.grade-f     { background: #eeeeee; color: #757575; }
 
 /* 하단 요약 */
 .summary-card { }
@@ -352,6 +329,13 @@ onMounted(async () => {
 .s-value { font-size: 1.25rem; font-weight: 700; color: var(--main-color); }
 .s-unit  { font-size: 12px; font-weight: 400; color: var(--font-color-light); }
 .rank-val strong { font-size: 1.5rem; }
+
+/* 등급 가운데 정렬 */
+.grade-badge {
+    display: inline-block;
+    width: 2.2em;
+    text-align: center;
+}
 
 /* 이의신청 버튼 */
 .btn-appeal {

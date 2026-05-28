@@ -43,9 +43,7 @@ const summary = computed(() => {
     const sumCredits  = graded.reduce((acc, g) => acc + g.lectureCredit, 0)
     const avg         = sumCredits > 0 ? Math.round(sumWeighted / sumCredits * 100) / 100 : 0
     const converted   = Math.round(avg / 4.5 * 100)
-    const totalCredits = graded
-        .filter(g => g.lectureGrade !== 'F')
-        .reduce((acc, g) => acc + g.lectureCredit, 0)
+    const totalCredits = graded.reduce((acc, g) => acc + g.lectureCredit, 0)
 
     return { averageGpa: avg.toFixed(2), convertedScore: converted, totalCredits }
 })
@@ -140,13 +138,13 @@ onMounted(async () => {
                 <div class="text-left">{{ g.lectureName }}</div>
                 <div>{{ g.lectureCredit }}</div>
                 <div>
-                    <span v-if="g.lectureGrade" :class="['grade-badge', gradeClass(g.lectureGrade)]">
+                    <span v-if="g.lectureGrade" class="grade-badge">
                         {{ g.lectureGrade }}
                     </span>
                     <span v-else class="no-grade">미입력</span>
                 </div>
                 <div>
-                    <span v-if="g.lectureRating != null">{{ g.lectureRating.toFixed(1) }}</span>
+                    <span v-if="g.lectureRating != null">{{ g.lectureRating.toFixed(2) }}</span>
                     <span v-else class="no-grade">-</span>
                 </div>
             </article>
@@ -212,6 +210,13 @@ onMounted(async () => {
 }
 .unit { font-size: var(--text-xs); font-weight: 400; color: var(--font-color-light); margin-left: 2px; }
 
+/* 등급 가운데 정렬 */
+.grade-badge {
+    display: inline-block;
+    width: 2.2em;
+    text-align: center;
+}
+
 /* ── 테이블 행 ── */
 .tbl-row {
     display: grid;
@@ -233,25 +238,6 @@ onMounted(async () => {
     }
 }
 .text-left { justify-content: flex-start !important; }
-
-/* ── 등급 뱃지 ── */
-.grade-badge {
-    display: inline-block;
-    min-width: 32px; height: 26px; line-height: 26px;
-    border-radius: 13px; font-size: 13px; font-weight: 700;
-    text-align: center; padding: 0 6px;
-}
-.grade-aplus { background: #c8e6c9; color: #1b5e20; }
-.grade-a     { background: #e8f5e9; color: #2e7d32; }
-.grade-bplus { background: #bbdefb; color: #0d47a1; }
-.grade-b     { background: #e3f2fd; color: #1565c0; }
-.grade-cplus { background: #fff9c4; color: #e65100; }
-.grade-c     { background: #fff8e1; color: #f57f17; }
-.grade-dplus { background: #ffd0d0; color: #b71c1c; }
-.grade-d     { background: #fce4ec; color: #c62828; }
-.grade-f     { background: #eeeeee; color: #757575; }
-
-.no-grade { color: var(--font-color-light); font-size: 12px; }
 
 /* ── 성적 상세보기 버튼 ── */
 .detail-btn-wrap {
