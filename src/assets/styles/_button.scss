@@ -29,6 +29,9 @@
 
 .btn.btn-danger   { @include btn-fill(#c62828); }
 
+/* 비활성 상태 — 전역 disabled 스타일 */
+.btn:disabled { background: #94a3b8; border-color: #94a3b8; color: #fff; cursor: not-allowed; filter: none; }
+
 /* 아웃라인 — hover 동작이 달라 mixin 미적용 */
 .btn.btn-line { background: #fff; color: $font-color-light; border-color: $border-color; }
 .btn.btn-line:hover { border-color: $green-600; color: $green-600; }

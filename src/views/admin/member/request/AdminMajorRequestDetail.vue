@@ -173,7 +173,7 @@ onBeforeRouteLeave((to) => {
           placeholder="반려 사유를 입력해주세요." rows="3" />
         <div class="action-buttons">
           <button class="btn btn-default" @click="showRejectBox = false">취소</button>
-          <button class="btn btn-default" @click="reject">반려 처리</button>
+          <button class="btn btn-neutral" @click="reject">반려 처리</button>
         </div>
       </div>
 

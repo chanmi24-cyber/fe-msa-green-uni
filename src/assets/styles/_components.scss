@@ -156,6 +156,32 @@
 }
 .action-group { display: flex; gap: 8px; align-items: center; }
 
+/* 더보기 드롭다운 */
+.more-menu-wrap { position: relative; }
+.more-btn {
+  font-size: 18px; font-weight: 700; letter-spacing: 2px;
+  padding: 4px 10px; background: none; border: none; cursor: pointer;
+}
+.more-dropdown {
+  position: absolute; top: calc(100% + 6px); right: 0;
+  background: #fff; border: 1px solid #e2e8f0; border-radius: 8px;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.10); min-width: 120px; z-index: 100; overflow: hidden;
+  button {
+    display: block; width: 100%; padding: 10px 16px; text-align: left;
+    background: none; border: none; font-size: 0.85em; cursor: pointer; color: #334155;
+    &:hover { background: #f1f5f9; }
+  }
+}
+
+/* action-box 내부 — 타이틀 / 푸터 / 글자수 카운터 */
+.action-box-title { font-weight: 700; font-size: 0.85em; margin: 0; color: #334155; }
+.action-box-footer { display: flex; justify-content: space-between; align-items: center; }
+.char-count { font-size: 0.75em; color: #aaa; }
+.char-count.valid { color: #334155; font-weight: 600; }
+
+/* result-box 타임스탬프 */
+.result-at { color: #94a3b8; font-size: 0.75em; text-align: right; margin-top: 4px; }
+
 /* 승인/반려 입력 박스 */
 .action-box {
   display: flex;
@@ -164,6 +190,7 @@
   margin-bottom: 16px;
   padding: 16px;
   border-radius: 8px;
+  background: #f8f8f7;
   border: 1px solid $border-color;
   &.approve {
     background: #f8fcfa;
@@ -204,7 +231,8 @@
   white-space: nowrap;
 }
 .badge-pending  { @extend %badge-base; background: #f0f0f0; color: #888; }
-.badge-approved { @extend %badge-base; background: rgba($green-600, 0.12); color: $green-600; }
+.badge-approved,
+.badge-running  { @extend %badge-base; background: rgba($green-600, 0.12); color: $green-600; }
 .badge-rejected { @extend %badge-base; background: #fff0f0; color: #d32f2f; }
 .badge-closed   { @extend %badge-base; background: #f0f0f0; color: #aaa; }
 

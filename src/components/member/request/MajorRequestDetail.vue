@@ -30,8 +30,9 @@ const emit = defineEmits(['downloadFile']);
       <dl v-if="request.updaterName" class="req-row"><dt>처리자</dt><dd>{{ request.updaterName }}</dd></dl>
     </div>
     <div v-if="request.status === 'REJECTED' && request.rejectReason" class="result-box rejected">
-      <p class="result-title">반려 사유</p>
+      <p class="result-title"><font-awesome-icon :icon="['fas', 'triangle-exclamation']" /> 반려 사유</p>
       <p class="result-body">{{ request.rejectReason }}</p>
+      <p class="result-at" v-if="request.updatedAt">{{ formatDateTime(request.updatedAt) }}</p>
     </div>
   </section>
 </template>
