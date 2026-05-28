@@ -2,8 +2,10 @@
 import { ref, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import GradeService from '@/services/gradeService'
+import { useModalStore } from '@/stores/modal'
 
 const router      = useRouter()
+const modal       = useModalStore()
 const isLoading   = ref(true)
 const studentInfo = ref(null)
 const gradeList   = ref([])
@@ -147,8 +149,12 @@ onMounted(async () => {
                                         <span v-if="!g.lectureGrade" class="no-data">-</span>
                                         <!-- 승인됨: 비활성 -->
                                         <span v-else-if="g.appealStatus === 'APPROVED'" class="appeal-badge approved">승인</span>
-                                        <!-- 검토 중: 비활성 -->
-                                        <span v-else-if="g.appealStatus === 'PENDING'" class="appeal-badge pending">검토 중</span>
+                                        <!-- 검토 중: 클릭 시 안내 모달 -->
+                                        <button v-else-if="g.appealStatus === 'PENDING'"
+                                                class="appeal-badge pending btn-pending"
+                                                @click="modal.showAlert('이미 신청한 이의내역이 존재합니다.\n담당교수님에게 문의하여 주세요.', 'info')">
+                                            검토 중
+                                        </button>
                                         <!-- 반려: 재신청 버튼 -->
                                         <button v-else-if="g.appealStatus === 'REJECTED'"
                                                 class="btn-appeal rejected"
@@ -374,4 +380,9 @@ onMounted(async () => {
 }
 .appeal-badge.pending  { background: #fff9c4; color: #e65100; }
 .appeal-badge.approved { background: #c8e6c9; color: #1b5e20; }
+.btn-pending {
+    border: none;
+    cursor: pointer;
+    &:hover { opacity: 0.75; }
+}
 </style>

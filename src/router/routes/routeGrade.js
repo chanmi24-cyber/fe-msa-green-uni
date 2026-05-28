@@ -11,6 +11,7 @@ export const gradeRoutes = [
         meta: {
             title: '성적 관리',
             groupTitle: '성적',
+            navSection: '학사정보',
             auth: ['PROFESSOR'],
         },
     },
@@ -37,6 +38,7 @@ export const gradeRoutes = [
         meta: {
             title: '내 성적 조회',
             groupTitle: '성적',
+            navSection: '학사정보',
             auth: ['STUDENT'],
         },
     },
@@ -61,6 +63,7 @@ export const gradeRoutes = [
         meta: {
             title: '성적 이의신청 내역',
             groupTitle: '성적',
+            navSection: '학사정보',
             auth: ['STUDENT'],
         },
     },
