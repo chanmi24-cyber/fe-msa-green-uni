@@ -184,12 +184,12 @@ onMounted(() => {
         <article class="tbl-row" v-for="s in filteredStudents" :key="s.tuitionId">
           <div>{{ s.year }}</div>
           <div>{{ s.semester }}</div>
-          <div class="mono">{{ s.studentCode }}</div>
+          <div>{{ s.studentCode }}</div>
           <div>{{ s.studentName }}</div>
           <div>{{ s.deptName }}</div> <div>{{ s.academicYear }}</div>
-          <div class="price">{{ formatPrice(s.finalAmount) }}</div>
+          <div>{{ formatPrice(s.finalAmount) }}</div>
           <div><span class="state-text" :class="s.status.toLowerCase()">{{ getStatusLabel(s.status) }}</span></div>
-          <div class="mono">{{ formatDate(s.paidAt) }}</div>
+          <div>{{ formatDate(s.paidAt) }}</div>
           <div v-if="filter.status === 'PENDING'">
             <button class="btn-table-action" @click="handlePayment(s)">납부</button>
           </div>
@@ -267,8 +267,6 @@ onMounted(() => {
 .keyword-input { width: 180px; }
 .search-btn { background: #2d7a5e; color: #fff; border: none; padding: 0 16px; border-radius: 4px; cursor: pointer; height: 36px; font-weight: bold; }
 .table-meta { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; font-size: 14px; font-weight: bold; .total-count span { color: #2d7a5e; } }
-.mono { font-family: 'Courier New', Courier, monospace; color: #475569; }
-.price { font-weight: 600; color: #1e293b; text-align: right; width: 100%; padding-right: 15px; }
 :deep(.state-text) { font-weight: bold; }
 :deep(.state-text.미납)  { color: #dc2626; }
 :deep(.state-text.납부완료)    { color: #16a34a; }

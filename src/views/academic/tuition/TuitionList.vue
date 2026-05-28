@@ -172,10 +172,10 @@ onMounted(() => {
           :class="{ 'clickable-row': item.status === '미납' || item.status === 'UNPAID' }"
           @click="handleRowClick(item)"
         >
-          <div class="mono">{{ item.year ? `${item.year}년` : '-' }}</div>
+          <div>{{ item.year ? `${item.year}년` : '-' }}</div>
           <div>{{ item.semester ? `${item.semester}학기` : '-' }}</div>
-          <div class="amount">{{ formatAmount(item.finalAmount) }}원</div>
-          <div class="mono">{{ item.paidAt ? formatDate(item.paidAt) : '-' }}</div>
+          <div>{{ formatAmount(item.finalAmount) }}원</div>
+          <div>{{ item.paidAt ? formatDate(item.paidAt) : '-' }}</div>
           <div>
             <span v-if="item.status === '완납' || item.status === '납부완료' || item.status === 'PAID'" class="badge badge--paid">완납</span>
             <span v-else-if="item.status === '처리중' || item.status === 'PENDING'" class="badge badge--pending">처리중</span>
@@ -210,12 +210,6 @@ onMounted(() => {
   align-items: center;
   gap: 8px;
   
-  .input-label {
-    font-weight: 600;
-    font-size: 0.9rem;
-    color: #333;
-  }
-  
   select {
     padding: 6px 10px;
     border: 1px solid #ddd;
@@ -224,9 +218,6 @@ onMounted(() => {
     font-size: 0.9rem;
   }
 }
-
-:deep(.tbl-row) .mono   { font-family: monospace; color: var(--font-color-light); }
-:deep(.tbl-row) .amount { font-weight: 600; }
 
 // 🎯 5. [추가] 미납 row에 마우스를 올렸을 때 포인터 및 효과 주기
 .clickable-row {
