@@ -69,6 +69,19 @@ export const memberRoutes = [
       auth: ['STUDENT'],
     },
   },
+  {
+    path: `${url}/status-request/:requestId`,
+    component: () => import('@/views/academic/member/StudentStatusRequestDetail.vue'),
+    meta: {
+      title: '학적 변동 신청 상세',
+      groupTitle: '정보 변동 신청',
+      navSection: '나의 정보',
+      subTitle: '학적 변동 신청',
+      showInNav: false,
+      activeMenu: `${url}/status-request`,
+      auth: ['STUDENT'],
+    },
+  },
   // ------------------ 전공 변경 신청 및 조회 ---------------
   {
     path: `${url}/major-request`,

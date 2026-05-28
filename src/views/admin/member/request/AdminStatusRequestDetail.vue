@@ -5,7 +5,7 @@ import MemberService from '@/services/memberService';
 import { useModalStore } from '@/stores/modal';
 import LoadingSpinner from '@/components/common/LoadingSpinner.vue';
 import StatusRequestDetail from '@/components/member/request/StatusRequestDetail.vue';
-import { BADGE_CLASS, APPROVAL_STATUS } from '@/utils/constants';
+import { STATUS_LABEL } from '@/utils/constants';
 
 const route = useRoute();
 const router = useRouter();
@@ -17,7 +17,6 @@ const isLoading = ref(false);
 
 const isPending = computed(() => request.value?.status === 'PENDING');
 
-// 'approve' | 'reject' | null
 const actionMode = ref(null);
 const note = ref('');
 const rejectReason = ref('');
@@ -87,7 +86,6 @@ const fetchRequest = async () => {
   try {
     const res = await MemberService.findStatusRequest(requestId);
     request.value = res.data ?? res;
-    console.log(res.data)
   } catch (err) {
     console.error('신청서 로드 실패:', err);
   } finally {
@@ -99,34 +97,83 @@ onMounted(fetchRequest);
 </script>
 
 <template>
-  <div style="position: relative;">
+  <div class="detail-wrap">
     <LoadingSpinner v-if="isLoading" :overlay="true" size="md" />
-    <div class="page-header">
-      <div class="d-flex ai-center g10">
+
+    <template v-if="!isLoading && request">
+
+      <!-- 신청자 정보 -->
+      <section class="card">
+        <p class="card-label">신청자 정보</p>
+        <div class="info-grid">
+          <div class="info-item">
+            <span class="info-key">이름</span>
+            <span class="info-val">{{ request.studentName }} ({{ request.memberCode }})</span>
+          </div>
+          <div class="info-item">
+            <span class="info-key">학과</span>
+            <span class="info-val">
+              {{ request.currentMajorName ?? '-' }}
+              <template v-if="request.currentMinorName"> / 부전공: {{ request.currentMinorName }}</template>
+            </span>
+          </div>
+          <div class="info-item">
+            <span class="info-key">학년/학기</span>
+            <span class="info-val">{{ request.academicYear }}학년 {{ request.semester }}학기</span>
+          </div>
+          <div class="info-item">
+            <span class="info-key">현재 학적</span>
+            <span class="info-val">{{ STATUS_LABEL.STUDENT[request.academicStatus] ?? request.academicStatus ?? '-' }}</span>
+          </div>
+          <div class="info-item">
+            <span class="info-key">취득 학점</span>
+            <span class="info-val">{{ request.totalCredits ?? '-' }}</span>
+          </div>
+          <div class="info-item">
+            <span class="info-key">연락처</span>
+            <span class="info-val">{{ request.phone ?? '-' }}</span>
+          </div>
+          <div class="info-item">
+            <span class="info-key">이메일</span>
+            <span class="info-val">{{ request.email ?? '-' }}</span>
+          </div>
+        </div>
+        <button class="btn btn-default history-btn"
+          @click="router.push(`/admin/members/${request.memberCode}`)">
+          변동 이력 보기
+        </button>
+      </section>
+
+      <!-- 신청 내용 -->
+      <StatusRequestDetail :request="request" @downloadFile="downloadFile" />
+
+      <!-- 승인/반려 입력 박스 -->
+      <div v-if="actionMode" class="action-box" :class="actionMode">
+        <textarea v-if="actionMode === 'approve'" v-model="note" class="action-textarea"
+          placeholder="승인 사유를 입력해주세요. (선택)" rows="3" />
+        <textarea v-else v-model="rejectReason" class="action-textarea"
+          placeholder="반려 사유를 입력해주세요." rows="3" />
+        <div class="action-buttons">
+          <button class="btn btn-default" @click="closeAction">취소</button>
+          <button v-if="actionMode === 'approve'" class="btn btn-success" @click="approve">승인 처리</button>
+          <button v-else class="btn btn-danger" @click="reject">반려 처리</button>
+        </div>
+      </div>
+
+      <div class="page-footer">
         <button class="btn btn-default" @click="goBack">
           <font-awesome-icon icon="fa-solid fa-list" /> 목록
         </button>
-        <span v-if="request" :class="BADGE_CLASS[request.status]">
-          {{ APPROVAL_STATUS[request.status] ?? request.status }}
-        </span>
+        <div v-if="isPending && !actionMode" class="action-group">
+          <button class="btn btn-success" @click="openAction('approve')">승인</button>
+          <button class="btn btn-danger" @click="openAction('reject')">반려</button>
+        </div>
       </div>
-      <div v-if="isPending && !actionMode" class="action-group">
-        <button class="btn btn-success" @click="openAction('approve')">승인</button>
-        <button class="btn btn-danger" @click="openAction('reject')">반려</button>
-      </div>
-    </div>
 
-    <div v-if="actionMode" class="action-box" :class="actionMode">
-      <textarea v-if="actionMode === 'approve'" v-model="note" class="action-textarea" placeholder="승인 사유를 입력해주세요. (선택)"
-        rows="3" />
-      <textarea v-else v-model="rejectReason" class="action-textarea" placeholder="반려 사유를 입력해주세요." rows="3" />
-      <div class="action-buttons">
-        <button class="btn btn-default" @click="closeAction">취소</button>
-        <button v-if="actionMode === 'approve'" class="btn btn-success" @click="approve">승인 처리</button>
-        <button v-else class="btn btn-danger" @click="reject">반려 처리</button>
-      </div>
-    </div>
-
-    <StatusRequestDetail v-if="request" :request="request" :onDownload="downloadFile" />
+    </template>
   </div>
 </template>
+
+<style scoped lang="scss">
+.history-btn { width: 100%; margin-top: 16px; }
+</style>

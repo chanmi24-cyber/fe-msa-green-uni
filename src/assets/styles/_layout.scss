@@ -1,10 +1,12 @@
 @use './variables' as *;
 
 .all-wrap {
-  display: grid; grid-template-columns: 220px 1fr; grid-template-rows: 40px 1fr; height: 100vh; width: 100vw; color: $font-color; 
-  .container{padding:50px 60px 120px; overflow-y: auto; min-width:960px; background: $default-bg;}
+  display: grid; grid-template-columns: 220px 1fr; grid-template-rows: 40px 1fr; height: 100vh; width: 100vw; color: $font-color; background: $default-bg;
+  .container{padding:50px 30px 120px; overflow-y: auto; display: flex; justify-content: center;
+    & > div{min-width:800px;  max-width: 1200px; width: 100%;
+    }
+  }
 }
-
 
 /************************* content header ( tab / filter / search )  ***********************/
 
@@ -76,6 +78,67 @@
 }
 
 /*************************** detail view **********************/
+
+/* 신청서/상세 페이지 공통 카드 패턴 */
+.detail-wrap { position: relative; min-height: 300px; }
+
+.card {
+  background: #fff;
+  border: 1px solid $border-color;
+  border-radius: $radius-sm;
+  padding: 18px 20px;
+  margin-bottom: 14px;
+}
+.card-label {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-weight: 700;
+  color: $font-color-bold;
+  margin-bottom: 14px;
+  font-size: 1.1em;
+}
+
+.info-grid { display: flex; flex-wrap: wrap; gap: 10px 28px; }
+.info-item { display: flex; gap: 8px; align-items: baseline; }
+.info-key { color: $font-color-light; width: 80px; flex-shrink: 0; }
+.info-val { color: $font-color; font-weight: 500; }
+
+.req-list {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1px;
+  background: $border-color;
+  border: 1px solid $border-color;
+  border-radius: $radius-sm;
+  overflow: hidden;
+}
+.req-row {
+  display: flex;
+  align-items: stretch;
+  background: #fff;
+  &.full { grid-column: 1 / -1; }
+  dt {
+    background: #f5f5f5;
+    color: $font-color-light;
+    font-size: 0.9em;
+    width: 100px;
+    flex-shrink: 0;
+    text-align: right;
+    padding: 8px 10px;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+  }
+  dd {
+    color: $font-color;
+    flex: 1;
+    padding: 8px 10px;
+    display: flex;
+    align-items: center;
+  }
+}
+
 .panel-actions {
   display: flex;
   justify-content: flex-end;
@@ -121,12 +184,18 @@
   .result-body { color: #444; line-height: 1.6; }
 }
 
-/* 상세 페이지 헤더 */
+/* 상세 페이지 헤더/푸터 */
 .page-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
   margin-bottom: 16px;
+}
+.page-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 16px;
 }
 .action-group { display: flex; gap: 8px; align-items: center; }
 
@@ -270,56 +339,43 @@
 
 /*************************** notice panel **********************/
 .notice-panel { 
-  display: flex; flex-direction: column; gap: 20px;
-  .notice-title { font-weight: 700; color:$font-color-bold;font-size: 1.1em; }
+  display: flex; flex-direction: column; gap: 10px;font-size: 0.95em;
+  .notice-title { font-weight: 700; color:$font-color-bold;}
   .notice-desc { line-height: 1.7; }
-  .notice-table {   width: 100%; border-collapse: collapse; font-size: 0.95em;
+  .notice-table {  width: 100%; border-collapse: collapse;
     th, td {padding: 7px 8px;  border: 1px solid $border-color;   vertical-align: top;      line-height: 1.6;
     }
     th { background: #f7f7f7; font-weight: 600; text-align: center;   white-space: nowrap;
     }
   }
-  .notice-caution { color: #888;}
 }
 
 /********************* button design *********************/
-.btn-row {
-  display: flex;
-  justify-content: center;
-  gap: 12px;
-}
+.btn-row { display: flex; justify-content: center; gap: 12px; }
+
 .btn {
-  font-size: 0.85em; padding: 8px 30px; border-radius: 5px; cursor: pointer; border: 1px solid $border-color; font-weight: 500; transition: opacity 0.2s; font-size: 1em;
-  &-submit { 
-    background: $green-600; color: #fff;
-    &:hover { box-shadow: 0 0 10px $green-600; border-color: $green-600;filter: brightness(1.1);}
-  &-default { background: #fafafa; color: #999;
-    &:hover { filter: brightness(0.9);  }
-  }
-  }
+  padding: 8px 20px; border-radius: 5px; cursor: pointer;
+  border: 1px solid $border-color; font-weight: 500; font-size: .85em;
+  transition: filter 0.15s;
 }
-.btn.btn-line { border: 1px solid $border-color; background: #fff;  color: $font-color-light;}
-
-.btn.btn-line:hover {
-  border-color: $green-600;
-  color: $green-600;
-}
-
-.btn.btn-line.point {
-  border-color: $green-600;
-  background: #fff;
-  color: $green-600;
-}
-
-.btn.btn-line.point:hover {
-  background-color: $green-600;
-  color: #fff;
-}
-
-.btn.btn-success { background: $green-600; color: #fff; border-color: $green-600; }
-.btn.btn-success:hover { filter: brightness(1.1); }
-.btn.btn-danger  { background: #c62828; color: #fff; border-color: #c62828; }
-.btn.btn-danger:hover  { filter: brightness(1.1); }
+/* 단색 버튼 팔레트 */
+.btn.btn-default { background: #f5f5f5; color: $font-color;  border-color: #e0e0e0; }
+.btn.btn-default:hover  { filter: brightness(0.95); }
+.btn.btn-neutral { background: #334155; color: #fff;         border-color: #334155; }
+.btn.btn-neutral:hover  { filter: brightness(1.15); }
+.btn.btn-submit,
+.btn.btn-primary { background: $green-600; color: #fff;      border-color: $green-600; }
+.btn.btn-submit:hover,
+.btn.btn-primary:hover  { filter: brightness(1.1); }
+.btn.btn-success { background: $green-600; color: #fff;      border-color: $green-600; }
+.btn.btn-success:hover  { filter: brightness(1.1); }
+.btn.btn-danger  { background: #c62828;   color: #fff;       border-color: #c62828; }
+.btn.btn-danger:hover   { filter: brightness(1.1); }
+/* 아웃라인 */
+.btn.btn-line { background: #fff; color: $font-color-light;  border-color: $border-color; }
+.btn.btn-line:hover { border-color: $green-600; color: $green-600; }
+.btn.btn-line.point { border-color: $green-600; color: $green-600; }
+.btn.btn-line.point:hover { background: $green-600; color: #fff; }
 
 /* 신청/취소 버튼 공통 스타일 */
 .btn-register,
