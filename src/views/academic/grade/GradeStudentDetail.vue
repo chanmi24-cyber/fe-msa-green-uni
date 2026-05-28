@@ -149,11 +149,7 @@ onMounted(async () => {
                                         <!-- 승인됨: 비활성 -->
                                         <span v-else-if="g.appealStatus === 'APPROVED'">승인</span>
                                         <!-- 검토 중: 클릭 시 안내 모달 -->
-                                        <button v-else-if="g.appealStatus === 'PENDING'"
-                                                class="appeal-badge pending btn-pending"
-                                                @click="modal.showAlert('이미 신청한 이의내역이 존재합니다.\n담당교수님에게 문의하여 주세요.', 'info')">
-                                            검토 중
-                                        </button>
+                                        <span v-else-if="g.appealStatus === 'PENDING'">검토 중</span>
                                         <!-- 반려: 재신청 버튼 -->
                                         <button v-else-if="g.appealStatus === 'REJECTED'"
                                                 class="btn-appeal rejected"
@@ -360,11 +356,5 @@ onMounted(async () => {
     border-radius: 4px;
     font-size: 12px;
     font-weight: 600;
-}
-.appeal-badge.pending  { background: #fff9c4; color: #e65100; }
-.btn-pending {
-    border: none;
-    cursor: pointer;
-    &:hover { opacity: 0.75; }
 }
 </style>
