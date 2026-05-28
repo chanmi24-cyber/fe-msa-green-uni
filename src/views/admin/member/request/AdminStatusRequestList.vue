@@ -1,6 +1,6 @@
 <script setup>
-import { reactive, computed, ref, onMounted } from 'vue';
-import { useRouter } from 'vue-router';
+import { reactive, computed, ref, watch, onMounted } from 'vue';
+import { useRoute, useRouter, onBeforeRouteLeave } from 'vue-router';
 import MemberService from '@/services/memberService';
 import codeListService from '@/services/codeService';
 import DataTable from '@/components/common/DataTable.vue';
@@ -12,14 +12,17 @@ import { APPROVAL_STATUS, STATUS_REQUEST_TYPE } from '@/utils/constants';
 import { formatDateTime } from '@/utils/dateNumber';
 import { useListFilter } from '@/composables/useListFilter';
 
+const route = useRoute();
 const router = useRouter();
 
 const {
   filter, searchQuery, searchInput, currentPage, pageSize, pageSizeOptions,
-  hasFilter, onFilterChange, onSearch, resetFilter, goToPage, onPageSizeChange, paginate,
+  hasFilter, onFilterChange, onSearch, resetFilter, goToPage, onPageSizeChange,
 } = useListFilter({ status: '' });
 
 const state = reactive({ list: [], isLoading: false });
+const maxPage = ref(1);
+const totalCount = ref(0);
 const statusOptions = ref([]);
 
 const STATUS_ORDER = Object.keys(APPROVAL_STATUS);
@@ -30,20 +33,18 @@ const statusTabs = computed(() => {
   return [{ code: '', value: '전체' }, ...sorted];
 });
 
-const filteredList = computed(() =>
-  state.list.filter(item => {
-    if (filter.status && item.status !== filter.status) return false;
-    if (searchInput.value && !item.studentName?.includes(searchInput.value)) return false;
-    return true;
-  })
-);
-const { pagedList, maxPage } = paginate(filteredList);
-
 const fetchList = async () => {
   state.isLoading = true;
   try {
-    const res = await MemberService.findAllStatusRequests();
-    state.list = res.data ?? [];
+    const res = await MemberService.findAllStatusRequests({
+      status: filter.status || undefined,
+      search: searchInput.value || undefined,
+      page: currentPage.value,
+      size: pageSize.value,
+    });
+    state.list = res.data.content ?? [];
+    maxPage.value = res.data.totalPages ?? 1;
+    totalCount.value = res.data.totalElements ?? 0;
   } catch (err) {
     console.error('신청서 목록 로드 실패:', err);
   } finally {
@@ -61,7 +62,7 @@ const fetchOptions = async () => {
 };
 
 const GRID_COLS = 'minmax(90px, 1fr) minmax(70px, 1fr) minmax(90px, 1fr) minmax(90px, 1fr) minmax(80px, 1fr) minmax(120px, 1fr) minmax(70px, 1fr) minmax(70px, 1fr)';
-const TABLE_COLUMN = ['학번', '이름', '학년','학기', '신청 유형', '신청일자', '처리자', '상태'];
+const TABLE_COLUMN = ['학번', '이름', '학년', '학기', '신청 유형', '신청일자', '처리자', '상태'];
 const moveToDetail = (id) => router.push(`/admin/members/status-request/${id}`);
 
 const selectStatus = (code) => {
@@ -69,10 +70,35 @@ const selectStatus = (code) => {
   onFilterChange();
 };
 
+watch(() => route.query, fetchList, { immediate: false });
+watch(pageSize, fetchList, { immediate: false });
+
+onBeforeRouteLeave((to) => {
+  // 상세 페이지 이동은 필터 유지, 다른 섹션으로 이동 시 초기화
+  if (!to.path.startsWith('/admin/members/status-request/')) {
+    sessionStorage.removeItem(`listFilter:${route.path}`)
+  }
+});
+
 onMounted(() => {
   fetchOptions();
-  fetchList();
-  if (!filter.status) {
+  const hasUrlQuery = Object.keys(route.query).length > 0;
+  const stored = sessionStorage.getItem(`listFilter:${route.path}`);
+
+  if (hasUrlQuery) {
+    // URL에 query가 있는 경우:
+    // useListFilter의 watcher는 { immediate: true } 옵션으로 setup() 단계에서 동기적으로 실행되므로
+    // onMounted가 호출되는 시점에는 filter 값이 URL 기준으로 이미 세팅되어 있음.
+    // 따라서 별도 복원 없이 바로 fetchList 호출.
+    fetchList();
+  } else if (stored) {
+    // URL이 비어있지만 sessionStorage에 이전 필터가 저장된 경우:
+    // useListFilter가 router.replace()로 URL을 복원하는 중이므로 여기서는 기다림.
+    // URL 변경이 완료되면 아래의 watch(() => route.query) 가 반응해 fetchList를 호출.
+  } else {
+    // URL도 없고 sessionStorage도 없는 최초 진입:
+    // PENDING을 기본 필터로 설정하고, onFilterChange()가 URL을 업데이트하면
+    // watch(() => route.query) 가 반응해 fetchList를 호출.
     filter.status = 'PENDING';
     onFilterChange();
   }
@@ -86,7 +112,7 @@ onMounted(() => {
 
     <FilterBar v-model:searchQuery="searchQuery" :hasFilter="hasFilter"
               @search="onSearch" @reset="resetFilter"
-              :showCount="true" :count="filteredList.length"
+              :showCount="true" :count="totalCount"
               :showPageSize="true" v-model:pageSize="pageSize" :pageSizeOptions="pageSizeOptions"
               @pageSizeChange="onPageSizeChange">
       <div class="tab-area">
@@ -103,12 +129,12 @@ onMounted(() => {
 
     <DataTable
       :columns="TABLE_COLUMN"
-      :rows="pagedList"
+      :rows="state.list"
       :gridCols="GRID_COLS"
       :isLoading="state.isLoading"
       emptyMessage="조회된 신청서가 없습니다."
     >
-      <article class="tbl-row pointer" v-for="item in pagedList" :key="item.requestId"
+      <article class="tbl-row pointer" v-for="item in state.list" :key="item.requestId"
               @click="moveToDetail(item.requestId)">
         <div>{{ item.memberCode }}</div>
         <div>{{ item.studentName }}</div>

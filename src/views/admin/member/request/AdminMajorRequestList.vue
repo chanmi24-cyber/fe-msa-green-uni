@@ -1,6 +1,6 @@
 <script setup>
 import { reactive, ref, computed, watch, onMounted } from 'vue';
-import { useRoute, useRouter } from 'vue-router';
+import { useRoute, useRouter, onBeforeRouteLeave } from 'vue-router';
 import MemberService from '@/services/memberService';
 import codeListService from '@/services/codeService';
 import DataTable from '@/components/common/DataTable.vue';
@@ -71,6 +71,13 @@ const selectStatus = (code) => {
 
 watch(() => route.query, fetchList, { immediate: false })
 watch(pageSize, fetchList, { immediate: false })
+
+onBeforeRouteLeave((to) => {
+  // 상세 페이지 이동은 필터 유지, 다른 섹션으로 이동 시 초기화
+  if (!to.path.startsWith('/admin/members/major-request/')) {
+    sessionStorage.removeItem(`listFilter:${route.path}`)
+  }
+})
 
 onMounted(() => {
   fetchOptions()

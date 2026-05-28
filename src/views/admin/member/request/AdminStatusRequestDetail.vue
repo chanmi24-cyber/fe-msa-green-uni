@@ -1,6 +1,6 @@
 <script setup>
 import { ref, computed, onMounted } from 'vue';
-import { useRoute, useRouter } from 'vue-router';
+import { useRoute, useRouter, onBeforeRouteLeave } from 'vue-router';
 import MemberService from '@/services/memberService';
 import { useModalStore } from '@/stores/modal';
 import LoadingSpinner from '@/components/common/LoadingSpinner.vue';
@@ -95,6 +95,13 @@ const fetchRequest = async () => {
 };
 
 onMounted(fetchRequest);
+
+onBeforeRouteLeave((to) => {
+  // 목록으로 돌아가는 경우는 필터 유지, 다른 섹션으로 이동 시 목록 필터 초기화
+  if (to.path !== '/admin/members/status-request') {
+    sessionStorage.removeItem('listFilter:/admin/members/status-request')
+  }
+});
 </script>
 
 <template>
