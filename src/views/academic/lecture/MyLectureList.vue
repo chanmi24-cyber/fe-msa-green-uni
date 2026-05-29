@@ -5,9 +5,10 @@ import ScheduleService from '@/services/scheduleService';
 import { reactive, onMounted, computed, ref, watch } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
 import DataTable from '@/components/common/DataTable.vue';
+import FilterBar from '@/components/common/FilterBar.vue';
+import LoadingSpinner from '@/components/common/LoadingSpinner.vue';
 import Pagination from '@/components/common/Pagination.vue';
-import SearchInput from '@/components/util/SearchInput.vue';
-import { APPROVAL_STATUS, BADGE_CLASS, BUILDING_LABEL } from '@/utils/constants';
+import { APPROVAL_STATUS, BUILDING_LABEL } from '@/utils/constants';
 
 const route = useRoute();
 const router = useRouter();
@@ -276,11 +277,21 @@ onMounted(() => {
 </script>
 
 <template>
-  <div class="container">
-
-    <div class="filter-header">
-      <!-- 탭: 교수만 노출 -->
-      <div class="tab-area" v-if="isProfessor">
+  <div style="position: relative;">
+    
+    <LoadingSpinner v-if="state.isLoading" :overlay="true" size="md" />
+    <FilterBar
+      searchType="search-input"
+      :searchList="state.list"
+      searchLabelKey="lectureName"
+      placeholder="강의명을 입력하세요"
+      :showCount="true"
+      :count="state.totalCount"
+      v-model:searchQuery="searchQuery"
+      @search="onSearch"
+      @select="(item) => { searchInput.value = item.lectureName; searchQuery.value = item.lectureName; state.currentPage = 1; }"
+    >
+      <div v-if="isProfessor" class="tab-area">
         <button
           v-for="tab in TABS"
           :key="tab"
@@ -290,58 +301,34 @@ onMounted(() => {
           {{ tab }}
         </button>
       </div>
-
-      <div class="d-flex g10" :class="{ full: !isProfessor }">
-        <div class="filter-group">
-          <div class="filter-item">
-            <div class="input-label">연도</div>
-            <div class="input-content">
-              <select v-model="filter.year" @change="onFilterChange">
-                <option value="">전체</option>
-                <option v-for="y in yearOptions" :key="y" :value="y">{{ y }}년</option>
-              </select>
-            </div>
-          </div>
-          <div class="filter-item">
-            <div class="input-label">학기</div>
-            <div class="input-content">
-              <select v-model="filter.semester" @change="onFilterChange">
-                <option value="">전체</option>
-                <option v-for="s in semesterOptions" :key="s" :value="s">{{ s }}학기</option>
-              </select>
-            </div>
-          </div>
-        </div>
-
-        <div class="search-area input-content">
-          <SearchInput
-            v-model="searchQuery"
-            :list="state.list"
-            labelKey="lectureName"
-            :realtime="false"
-            placeholder="강의명을 입력하세요"
-            @select="(item) => { searchInput.value = item.lectureName; searchQuery.value = item.lectureName; state.currentPage = 1; }"
-            @enter="onSearch"
-          />
-          <button class="btn search-btn" @click="onSearch">
-            <font-awesome-icon icon="fa-solid fa-magnifying-glass" /> 검색
-          </button>
+      <div class="filter-item">
+        <div class="input-label">연도</div>
+        <div class="input-content">
+          <select v-model="filter.year" @change="onFilterChange">
+            <option value="">전체</option>
+            <option v-for="y in yearOptions" :key="y" :value="y">{{ y }}년</option>
+          </select>
         </div>
       </div>
-    </div>
+      <div class="filter-item">
+        <div class="input-label">학기</div>
+        <div class="input-content">
+          <select v-model="filter.semester" @change="onFilterChange">
+            <option value="">전체</option>
+            <option v-for="s in semesterOptions" :key="s" :value="s">{{ s }}학기</option>
+          </select>
+        </div>
+      </div>
+    </FilterBar>
 
-    <div v-if="isStudent && periodMessage" class="notice-card">
+    <div v-if="isStudent && periodMessage" class="card d-flex ai-center g10">
       <font-awesome-icon icon="fa-solid fa-circle-exclamation" style="color: var(--main-color);" />
       {{ periodMessage }}
     </div>
 
-    <div v-if="isStudent && modificationNotice" class="notice-card">
+    <div v-if="isStudent && modificationNotice" class="card d-flex ai-center g10">
       <font-awesome-icon icon="fa-solid fa-circle-info" style="color: var(--main-color);" />
       {{ modificationNotice }}
-    </div>
-
-    <div class="data-header">
-      전체: {{ state.totalCount }}건
     </div>
 
     <DataTable
@@ -352,8 +339,7 @@ onMounted(() => {
       emptyMessage="조회된 강의가 없습니다."
     >
       <article
-        class="tbl-row"
-        :style="`display:grid; grid-template-columns:${tableConfig.grid}; align-items:center; text-align:center;`"
+        class="tbl-row pointer"
         v-for="item in state.list"
         :key="item.lectureId"
         @click="moveToDetail(item.lectureId)"
@@ -369,11 +355,7 @@ onMounted(() => {
         <!-- 교수 추가 컬럼 -->
         <template v-if="isProfessor">
           <div>{{ item.academicYear }}학년</div>
-          <div>
-            <span :class="['status-badge', BADGE_CLASS[item.status]]">
-              {{ APPROVAL_STATUS[item.status] || item.status }}
-            </span>
-          </div>
+          <div>{{ APPROVAL_STATUS[item.status] || item.status }}</div>
         </template>
       </article>
     </DataTable>
@@ -388,37 +370,3 @@ onMounted(() => {
   </div>
 </template>
 
-<style scoped>
-.tbl-row {
-  display: grid;
-  grid-template-columns: 90px 3fr 130px 180px 130px 60px 70px 80px;
-  align-items: center;
-  text-align: center;
-}
-.filter-header .full { justify-content: space-between; width: 100%; }
-.notice-card {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 10px 20px;
-  border: 1px solid #ddd;
-  border-radius: 6px;
-  background: #fff;
-  color: #555;
-  font-size: 0.9em;
-  margin-bottom: 10px;
-}
-
-.status-badge {
-  position: static !important;
-  transform: none !important;
-  display: inline-block;
-  padding: 2px 10px;
-  border-radius: 10px;
-  font-size: 13px;
-  font-weight: 700;
-}
-.status-badge.badge-pending  { background: #fff3e0; color: #ef6c00; }
-.status-badge.badge-rejected { background: #ffebee; color: #c62828; }
-.status-badge.badge-approved { background: #eafdf6; color: #3e9e7e; }
-</style>
