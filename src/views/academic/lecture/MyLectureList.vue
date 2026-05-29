@@ -125,8 +125,7 @@ const tableConfig = computed(() => {
   };
 });
 
-// ── 최대 페이지 ───────────────────────────────────
-const maxPage = computed(() => Math.ceil(state.totalCount / PAGE_SIZE) || 1);
+const maxPage = ref(1);
 
 // ── API 호출 ─────────────────────────────────────
 const fetchList = async () => {
@@ -138,34 +137,23 @@ const fetchList = async () => {
       lectureName: searchInput.value || undefined,
       page: state.currentPage,
       size: PAGE_SIZE,
-      startIdx: (state.currentPage - 1) * PAGE_SIZE, 
     };
     if (isProfessor.value && filter.status) {
       params.status = filter.status;
     }
     Object.keys(params).forEach(k => params[k] === undefined && delete params[k]);
 
-    let data;
+    let page = {};
     if (isProfessor.value) {
       const res = await LectureService.getProfessorMyLectures(params);
-      data = res.data || [];
+      page = res.data ?? {};
     } else if (isStudent.value) {
       const res = await LectureService.getStudentMyLectures(params);
-      data = res.data || []; 
-    } else {
-      // 관리자는 내 강의 목록 없음 → 빈 배열
-      data = [];
+      page = res.data ?? {};
     }
-    state.list = data;
-    state.totalCount = data[0]?.totalCount ?? 0;
-
-    // 연도 옵션 갱신
-    const years = [...new Set(data.map(i => i.year).filter(Boolean))].sort((a, b) => b - a);
-    if (years.length) {
-      const curYear = getCurrentTerm().year;
-      if (!years.includes(curYear)) years.unshift(curYear);
-      yearOptions.value = years;
-    }
+    state.list       = page.content ?? [];
+    state.totalCount = page.totalElements ?? 0;
+    maxPage.value    = page.totalPages ?? 1;
 
   } catch (err) {
     console.error('내 강의 목록 로드 실패:', err);
