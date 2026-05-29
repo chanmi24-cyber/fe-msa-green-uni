@@ -189,16 +189,6 @@ onMounted(() => {
           </select>
         </div>
       </div>
-
-      <div class="filter-item">
-        <div class="input-label">학년</div>
-        <div class="input-content">
-          <select v-model="filter.academicYear">
-            <option value="">전체</option>
-            <option v-for="y in [1, 2, 3, 4]" :key="y" :value="y">{{ y }}학년</option>
-          </select>
-        </div>
-      </div>
     </FilterBar>
 
     <div class="table-meta">
@@ -210,13 +200,13 @@ onMounted(() => {
 
     <DataTable
       :columns="filter.status === 'PENDING'
-        ? ['년도', '학기', '학번', '이름', '학과', '학년', '납부금액', '상태', '납부일자', '관리']
-        : ['년도', '학기', '학번', '이름', '학과', '학년', '납부금액', '상태', '납부일자']"
+        ? ['년도', '학기', '학번', '이름', '학과', '납부금액', '상태', '납부일자', '관리']
+        : ['년도', '학기', '학번', '이름', '학과', '납부금액', '상태', '납부일자']"
       :rows="filteredStudents"
       :isLoading="isLoading"
       :gridCols="filter.status === 'PENDING'
-        ? '70px 60px 110px 110px 1fr 60px 120px 90px 110px 90px'
-        : '70px 60px 110px 110px 1fr 60px 120px 90px 110px'"
+        ? '70px 60px 110px 110px 1fr 120px 90px 110px 90px'
+        : '70px 60px 110px 110px 1fr 120px 90px 110px'"
     >
       <template v-if="!isLoading && filteredStudents.length > 0">
         <article class="tbl-row" v-for="s in filteredStudents" :key="s.tuitionId">
@@ -225,7 +215,6 @@ onMounted(() => {
           <div>{{ s.studentCode }}</div>
           <div>{{ s.studentName }}</div>
           <div>{{ s.deptName }}</div>
-          <div>{{ s.academicYear }}</div>
           <div>{{ formatPrice(s.finalAmount) }}</div>
           <div>
             <span class="state-text" :class="s.status.toLowerCase()">{{ getStatusLabel(s.status) }}</span>

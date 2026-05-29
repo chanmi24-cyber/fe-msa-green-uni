@@ -14,6 +14,7 @@ const searchInput = ref('')
 const state = reactive({
   majorList:       [],
   collegeList:     [],
+  professorList:   [],
   isLoading:       false,
   activeTab:       'ALL',
   selectedCollege: '',
@@ -25,6 +26,13 @@ const searchQuery = ref('')
 
 function getCollegeName(collegeId) {
   return state.collegeList.find(c => c.collegeId === collegeId)?.name ?? '-'
+}
+
+// ↓ [추가] 학과장 코드로 이름을 찾아주는 함수
+function getProfessorName(professorCode) {
+  if (!professorCode) return '-'
+  const prof = state.professorList.find(p => p.memberCode === professorCode)
+  return prof ? prof.name : '-' // 매칭되는 교수가 없으면 '-' 반환
 }
 
 const BUILDING_LABEL = {
@@ -115,12 +123,14 @@ function goToDetail(id) {
 async function fetchData() {
   state.isLoading = true
   try {
-    const [majorsRes, collegesRes] = await Promise.all([
+    const [majorsRes, collegesRes, professorRes] = await Promise.all([
       majorService.getMajorList(),
       majorService.getCollegeList(),
+      majorService.getProfessorList(), 
     ])
-    state.majorList   = majorsRes.data?.data   ?? []
-    state.collegeList = collegesRes.data?.data ?? []
+    state.majorList     = majorsRes.data?.data   ?? []
+    state.collegeList   = collegesRes.data?.data ?? []
+    state.professorList = professorRes.data?.data ?? []
   } catch {
     await modal.showAlert('데이터를 불러오지 못했습니다.', 'error')
   } finally {
@@ -130,7 +140,7 @@ async function fetchData() {
 
 onMounted(fetchData)
 
-const columns  = ['학과명', '소속대학', '사무실', '전화번호', '학과장코드', '입학정원', '전체 교수', '상태']
+const columns  = ['학과명', '소속대학', '사무실', '전화번호', '학과장명', '입학정원', '전체 교수', '상태']
 const gridCols = '1.4fr 1fr 1.2fr 1.2fr 100px 80px 80px 100px'
 </script>
 
@@ -195,7 +205,7 @@ const gridCols = '1.4fr 1fr 1.2fr 1.2fr 100px 80px 80px 100px'
           <div>{{ getCollegeName(m.collegeId) }}</div>
           <div>{{ m.majorBuilding ? `${getBuildingLabel(m.majorBuilding)} ${m.room}` : '-' }}</div>
           <div>{{ m.tel ?? '-' }}</div>
-          <div>{{ m.professorCode ?? '-' }}</div>
+          <div>{{ getProfessorName(m.professorCode) }}</div>
           <div>{{ m.capacity ?? '-' }}명</div>
           <div>{{ m.professorCount ?? '-' }}명</div>
           <div>

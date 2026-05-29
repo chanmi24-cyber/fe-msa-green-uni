@@ -14,20 +14,33 @@ const majorId = computed(() => route.params.majorId)
 
 const state = reactive({
   detail:    null,
+  professorList: [],
   isLoading: false,
 })
 
 async function fetchDetail() {
   state.isLoading = true
   try {
-    const res = await majorService.getMajor(majorId.value)
-    state.detail = res.data?.data ?? null
+    const [majorRes, professorRes] = await Promise.all([
+      majorService.getMajor(majorId.value),
+      majorService.getProfessorList()
+    ])
+    
+    state.detail = majorRes.data?.data ?? null
+    state.professorList = professorRes.data?.data ?? []
   } catch {
     await modal.showAlert('학과 정보를 불러오지 못했습니다.', 'error')
   } finally {
     state.isLoading = false
   }
 }
+
+const displayProfessorName = computed(() => {
+  if (!state.detail || !state.detail.professorCode) return '-'
+  
+  const prof = state.professorList.find(p => p.memberCode === state.detail.professorCode)
+  return prof ? `${prof.name} (${state.detail.professorCode})` : '-'  
+})
 
 function goToEdit() {
   router.push(`/admin/majors/${majorId.value}/edit`)
@@ -63,7 +76,7 @@ onMounted(fetchDetail)
           </div>
           <div class="info-item">
             <span class="info-key">학과장명</span>
-            <span class="info-val">{{ state.detail.professorName ?? '-' }}</span>
+            <span class="info-val">{{ displayProfessorName }}</span>
           </div>
           <div class="info-item">
             <span class="info-key">수업연한</span>
