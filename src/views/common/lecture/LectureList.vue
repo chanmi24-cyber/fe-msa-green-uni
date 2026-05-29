@@ -1,6 +1,6 @@
 <script setup>
 import LectureService from '@/services/lectureService';
-import { onMounted, reactive, computed, ref, watch } from 'vue';
+import { onMounted, reactive, ref, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import DataTable from '@/components/common/DataTable.vue';
 import Pagination from '@/components/common/Pagination.vue';
@@ -34,10 +34,7 @@ const state = reactive({
   isLoading: false,
 });
 
-// ── 최대 페이지 ───────────────────────────────────
-const maxPage = computed(() => {
-  return Math.ceil(state.totalCount / PAGE_SIZE) || 1;
-});
+const maxPage = ref(1);
 
 // 필터: 서버로 보낼 파라미터
 const filter = reactive({
@@ -85,19 +82,19 @@ const fetchList = async () => {
       year: filter.year || undefined,
       semester: filter.semester || undefined,
       lectureName: searchInput.value || undefined,
-      proName: searchInput.value || undefined, 
+      proName: searchInput.value || undefined,
       majorId: filter.majorId || undefined,
       page: state.currentPage,
       size: PAGE_SIZE,
-      startIdx: (state.currentPage - 1) * PAGE_SIZE, 
     };
     // 빈 값 제거
     Object.keys(params).forEach(k => params[k] === undefined && delete params[k]);
 
     const res = await LectureService.getAllLectures(params);
-    const data = res.data || [];
-    state.list = data;
-    state.totalCount = data[0]?.totalCount ?? 0;
+    const page = res.data ?? {};
+    state.list       = page.content ?? [];
+    state.totalCount = page.totalElements ?? 0;
+    maxPage.value    = page.totalPages ?? 1;
 
 
   } catch (err) {

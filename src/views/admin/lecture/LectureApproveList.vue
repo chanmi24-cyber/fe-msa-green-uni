@@ -1,7 +1,7 @@
 <script setup>
 import { useAuthStore } from '@/stores/authentication';
 import LectureService from '@/services/lectureService';
-import { reactive, onMounted, computed, ref, watch } from 'vue';
+import { reactive, onMounted, ref, watch } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
 import DataTable from '@/components/common/DataTable.vue';
 import Pagination from '@/components/common/Pagination.vue';
@@ -63,18 +63,7 @@ const roomText = (schedules) => {
   return rooms.join(',\n');
 };
 
-// ── 최대 페이지 ───────────────────────────────────
-const maxPage = computed(() => Math.ceil(state.totalCount / PAGE_SIZE) || 1);
-
-// // ── 클라이언트 측 강의명 검색 필터 (서버 params에 없으므로 프론트에서 처리) ──
-// const filteredList = computed(() => {
-//   if (!searchInput.value) return state.list;
-//   const kw = searchInput.value.toLowerCase();
-//   return state.list.filter(i =>
-//     i.lectureName?.toLowerCase().includes(kw) ||
-//     i.proName?.toLowerCase().includes(kw)
-//   );
-// });
+const maxPage = ref(1);
 
 // ── API 호출 ─────────────────────────────────────
 const fetchList = async () => {
@@ -83,17 +72,16 @@ const fetchList = async () => {
     const params = {
       status: filter.status || undefined,
       lectureName: searchInput.value || undefined,
-      proName: searchInput.value || undefined,
       page: state.currentPage,
       size: PAGE_SIZE,
-      startIdx: (state.currentPage - 1) * PAGE_SIZE,
     };
     Object.keys(params).forEach(k => params[k] === undefined && delete params[k]);
 
     const res = await LectureService.getAdminLectures(params);
-    const data = res.data || [];
-    state.list = data;
-    state.totalCount = data[0]?.totalCount ?? 0;
+    const page = res.data ?? {};
+    state.list       = page.content ?? [];
+    state.totalCount = page.totalElements ?? 0;
+    maxPage.value    = page.totalPages ?? 1;
 
   } catch (err) {
     console.error('관리자 강의 목록 로드 실패:', err);
