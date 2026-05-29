@@ -4,8 +4,9 @@ import LectureService from '@/services/lectureService';
 import { reactive, onMounted, ref, watch } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
 import DataTable from '@/components/common/DataTable.vue';
+import FilterBar from '@/components/common/FilterBar.vue';
+import LoadingSpinner from '@/components/common/LoadingSpinner.vue';
 import Pagination from '@/components/common/Pagination.vue';
-import SearchInput from '@/components/util/SearchInput.vue';
 import { BUILDING_LABEL } from '@/utils/constants';
 
 const route = useRoute();
@@ -168,10 +169,20 @@ watch(
 </script>
 
 <template>
-  <div class="container">
+  <div style="position: relative;">
 
-    <div class="filter-header">
-      <!-- 탭 -->
+    <LoadingSpinner v-if="state.isLoading" :overlay="true" size="md" />
+    <FilterBar
+      searchType="search-input"
+      :searchList="state.list"
+      searchLabelKey="lectureName"
+      placeholder="강의명 또는 교수명"
+      :showCount="true"
+      :count="state.totalCount"
+      v-model:searchQuery="searchQuery"
+      @search="onSearch"
+      @select="(item) => { searchInput.value = item.lectureName; searchQuery.value = item.lectureName; }"
+    >
       <div class="tab-area">
         <button
           v-for="tab in TABS"
@@ -182,27 +193,7 @@ watch(
           {{ tab }}
         </button>
       </div>
-
-      <!-- 검색 -->
-      <div class="search-area input-content">
-        <SearchInput
-          v-model="searchQuery"
-          :list="state.list"
-          labelKey="lectureName"
-          :realtime="false"
-          placeholder="강의명 또는 교수명"
-          @select="(item) => { searchInput.value = item.lectureName; searchQuery.value = item.lectureName; }"
-          @enter="onSearch"
-        />
-        <button class="btn search-btn" @click="onSearch">
-          <font-awesome-icon icon="fa-solid fa-magnifying-glass" /> 검색
-        </button>
-      </div>
-    </div>
-
-    <div class="data-header">
-      전체: {{ state.totalCount }}건
-    </div>
+    </FilterBar>
 
     <DataTable
       :columns="['이수구분', '강의명', '교수명', '전공명', '학점', '강의시간', '강의실', '대상학년', '승인상태']"
@@ -212,7 +203,7 @@ watch(
       emptyMessage="조회된 강의가 없습니다."
     >
       <article
-        class="tbl-row"
+        class="tbl-row pointer"
         v-for="item in state.list"
         :key="item.lectureId"
         @click="moveToDetail(item.lectureId)"
@@ -225,12 +216,7 @@ watch(
         <div style="white-space: pre-line;">{{ scheduleText(item.schedules) }}</div>
         <div style="white-space: pre-line;">{{ roomText(item.schedules) }}</div>
         <div>{{ item.academicYear }}학년</div>
-        <div>
-          <template v-if="item.status === 'CANCELLED'">폐강</template>
-          <span v-else :class="['status-badge', item.status]">
-            {{ STATUS_TO_LABEL[item.status] || item.status }}
-          </span>
-        </div>
+        <div>{{ STATUS_TO_LABEL[item.status] || item.status }}</div>
       </article>
     </DataTable>
 
@@ -244,22 +230,3 @@ watch(
   </div>
 </template>
 
-<style scoped>
-.tbl-row { 
-  cursor: pointer;
-  display: grid;
-  grid-template-columns: 90px 3fr 90px 130px 60px 180px 130px 70px 80px;
-  align-items: center;
-  text-align: center;
-}
-
-.status-badge {
-  position: static !important;
-  transform: none !important;
-  display: inline-block;
-  padding: 2px 10px;
-  border-radius: 10px;
-  font-size: 13px;
-  font-weight: 700;
-}
-</style>
