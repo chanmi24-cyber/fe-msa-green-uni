@@ -223,7 +223,7 @@ onMounted(() => {
 
     <Pagination :currentPage="currentPage" :maxPage="totalPages" @goToPage="goPage" />
 
-    <div v-if="filter.status === 'UNPAID'" class="panel-actions mt15">
+    <div v-if="filter.status === 'UNPAID'" class="panel-actions mt-md">
       <button class="btn btn-default" @click="openMailModal">미납자 메일 발송</button>
     </div>
 

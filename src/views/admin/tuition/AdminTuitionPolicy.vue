@@ -193,9 +193,9 @@ onMounted(() => {
             <div>{{ policy.collegeName }}</div>
             <div v-if="policy.isEditing" class="edit-form">
               <input type="number" v-model.number="policy.editAmount" class="edit-input" />
-              <span class="unit">원</span>
+              <span>원</span>
             </div>
-            <div v-else class="price-display">{{ formatPrice(policy.baseAmount) }}원</div>
+            <div v-else>{{ formatPrice(policy.baseAmount) }}원</div>
             <div>{{ formatDateTime(policy.updatedAt) }}</div>
             <div>{{ policy.updatedBy || '-' }}</div>
             <div v-if="policy.isEditing" class="d-flex g5 jc-center">
@@ -218,30 +218,6 @@ onMounted(() => {
 </template>
 
 <style scoped lang="scss">
-.price-display {
-  font-weight: 600;
-  color: $font-color-bold;
-  text-align: right;
-  padding-right: 24px;
-}
-
-.edit-form {
-  display: flex;
-  align-items: center;
-  justify-content: flex-end;
-  padding-right: 24px;
-  gap: 4px;
-}
-
-.edit-input {
-  width: 120px;
-  padding: 4px 8px;
-  border: 1px solid $border-color;
-  border-radius: 4px;
-  text-align: right;
-  font-weight: 600;
-  font-size: 13px;
-}
-
-.unit { font-size: 13px; color: $font-color; }
+.edit-form { gap: 4px;}
+.edit-input { width: 120px; padding: 4px 8px; text-align: right; font-weight: bold;}
 </style>
