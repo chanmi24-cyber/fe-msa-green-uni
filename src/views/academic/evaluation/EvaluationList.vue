@@ -110,20 +110,20 @@ const getEvalStatus = (item) => {
 
 const getStudentBadge = (item) => {
   const status = getEvalStatus(item);
-  if (status === 'before') return { label: '강의진행중', cls: 'before' };
+  if (status === 'before') return { label: '강의진행중', cls: 'badge-pending' };
   if (status === 'active') return item.isEvaluated
-    ? { label: '완료', cls: 'done' }
-    : { label: '미작성', cls: 'pending' };
+    ? { label: '완료', cls: 'badge-approved' }
+    : { label: '미작성', cls: 'badge-rejected' };
   return item.isEvaluated
-    ? { label: '완료', cls: 'done' }
-    : { label: '만료', cls: 'expired' };
+    ? { label: '완료', cls: 'badge-approved' }
+    : { label: '만료', cls: 'badge-closed' };
 };
 
 const getProfessorBadge = (item) => {
   const status = getEvalStatus(item);
-  if (status === 'before') return { label: '강의진행중', cls: 'before' };
-  if (status === 'active') return { label: '진행중', cls: 'pending' };
-  return { label: '평가완료', cls: 'done' };
+  if (status === 'before') return { label: '강의진행중', cls: 'badge-pending' };
+  if (status === 'active') return { label: '진행중', cls: 'badge-running' };
+  return { label: '평가완료', cls: 'badge-approved' };
 };
 
 const getBadge = (item) =>
@@ -202,15 +202,15 @@ onMounted(() => {
         </colgroup>
         <tbody>
           <template v-if="role === 'STUDENT'">
-            <tr><th><span class="badge before">강의진행중</span></th><td>강의평가 기간이 시작되지 않은 강의입니다.</td></tr>
-            <tr><th><span class="badge pending">미작성</span></th><td>강의평가 기간이며 아직 평가를 작성하지 않은 강의입니다.</td></tr>
-            <tr><th><span class="badge done">완료</span></th><td>강의평가를 완료한 강의입니다.</td></tr>
-            <tr><th><span class="badge expired">만료</span></th><td>평가 기간이 종료되어 더 이상 작성할 수 없습니다.</td></tr>
+            <tr><th><span class="badge-pending">강의진행중</span></th><td>강의평가 기간이 시작되지 않은 강의입니다.</td></tr>
+            <tr><th><span class="badge-rejected">미작성</span></th><td>강의평가 기간이며 아직 평가를 작성하지 않은 강의입니다.</td></tr>
+            <tr><th><span class="badge-approved">완료</span></th><td>강의평가를 완료한 강의입니다.</td></tr>
+            <tr><th><span class="badge-closed">만료</span></th><td>평가 기간이 종료되어 더 이상 작성할 수 없습니다.</td></tr>
           </template>
           <template v-else>
-            <tr><th><span class="badge before">강의진행중</span></th><td>강의평가 기간이 시작되지 않은 강의입니다.</td></tr>
-            <tr><th><span class="badge pending">진행중</span></th><td>현재 강의평가 기간입니다. 결과는 기간 종료 후 확인 가능합니다.</td></tr>
-            <tr><th><span class="badge done">평가완료</span></th><td>강의평가 기간이 종료되어 결과를 확인할 수 있습니다.</td></tr>
+            <tr><th><span class="badge-pending">강의진행중</span></th><td>강의평가 기간이 시작되지 않은 강의입니다.</td></tr>
+            <tr><th><span class="badge-running">진행중</span></th><td>현재 강의평가 기간입니다. 결과는 기간 종료 후 확인 가능합니다.</td></tr>
+            <tr><th><span class="badge-approved">평가완료</span></th><td>강의평가 기간이 종료되어 결과를 확인할 수 있습니다.</td></tr>
           </template>
         </tbody>
       </table>
@@ -219,12 +219,6 @@ onMounted(() => {
 </template>
 
 <style lang="scss" scoped>
-.badge { padding: 4px 10px; border-radius: 12px; font-size: 12px; font-weight: 600; white-space: nowrap; }
-.badge.before  { color: $font-color-light; }
-.badge.pending { color: #c62828; }
-.badge.done    { color: $font-color-bold; }
-.badge.expired { color: $font-color-light; }
-
 :deep(.tbl-row div.txt-left) { justify-content: flex-start; }
 :deep(.tbl-row div.txt-ellipsis) { overflow: hidden; white-space: nowrap; text-overflow: ellipsis; display: block; padding: 10px; }
 </style>
