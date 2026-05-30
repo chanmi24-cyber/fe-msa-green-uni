@@ -199,12 +199,12 @@ onMounted(() => {
             <div>{{ formatDateTime(policy.updatedAt) }}</div>
             <div>{{ policy.updatedBy || '-' }}</div>
             <div v-if="policy.isEditing" class="d-flex g5 jc-center">
-              <button class="btn btn-submit history-btn" @click="savePolicy(policy)">저장</button>
-              <button class="btn btn-default history-btn" @click="cancelEdit(policy)">취소</button>
+              <button class="btn btn-submit btn-sm" @click="savePolicy(policy)">저장</button>
+              <button class="btn btn-default btn-sm" @click="cancelEdit(policy)">취소</button>
             </div>
             <div v-else>
               <button
-                class="btn btn-default history-btn"
+                class="btn btn-default btn-sm"
                 :disabled="policy.isHistory || !isEditablePeriod(filter.year, filter.semester) || isPaymentPeriod"
                 @click="enableEdit(policy)"
               >수정</button>

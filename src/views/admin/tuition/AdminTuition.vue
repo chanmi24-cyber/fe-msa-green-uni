@@ -215,7 +215,7 @@ onMounted(() => {
           <div>{{ getStatusLabel(s.status) }}</div>
           <div>{{ formatDate(s.paidAt) }}</div>
           <div v-if="filter.status === 'PENDING'">
-            <button class="btn btn-default history-btn" @click="handlePayment(s)">납부</button>
+            <button class="btn btn-default btn-sm" @click="handlePayment(s)">납부</button>
           </div>
         </article>
       </template>
