@@ -3,8 +3,9 @@ import LectureService from '@/services/lectureService';
 import { onMounted, reactive, ref, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import DataTable from '@/components/common/DataTable.vue';
+import FilterBar from '@/components/common/FilterBar.vue';
+import LoadingSpinner from '@/components/common/LoadingSpinner.vue';
 import Pagination from '@/components/common/Pagination.vue';
-import SearchInput from '@/components/util/SearchInput.vue';
 import { useAuthStore } from '@/stores/authentication';
 import { BUILDING_LABEL } from '@/utils/constants';
 
@@ -208,56 +209,39 @@ onMounted(() => {
 </script>
 
 <template>
-  <div class="container">
+  <div style="position: relative;">
 
-    <!-- 필터 헤더 -->
-    <div class="filter-header">
-      <div class="filter-group">
-
-        <div class="filter-item">
-          <div class="input-label">연도</div>
-          <div class="input-content">
-            <select v-model="filter.year" @change="onFilterChange">
-              <option value="">전체</option>
-              <option v-for="y in yearOptions" :key="y" :value="y">{{ y }}년</option>
-            </select>
-          </div>
-        </div>
-
-        <div class="filter-item">
-          <div class="input-label">학기</div>
-          <div class="input-content">
-            <select v-model="filter.semester" @change="onFilterChange">
-              <option value="">전체</option>
-              <option v-for="s in semesterOptions" :key="s" :value="s">{{ s }}학기</option>
-            </select>
-          </div>
-        </div>
-
-      </div>
-
-      <div class="search-area">
+    <LoadingSpinner v-if="state.isLoading" :overlay="true" size="md" />
+    <FilterBar
+      searchType="search-input"
+      :searchList="state.list"
+      searchLabelKey="lectureName"
+      placeholder="강의명 또는 교수명 검색"
+      :showCount="true"
+      :count="state.totalCount"
+      v-model:searchQuery="searchQuery"
+      @search="onSearch"
+      @select="(item) => { searchInput.value = item.lectureName; searchQuery.value = item.lectureName; state.currentPage = 1; }"
+    >
+      <div class="filter-item">
+        <div class="input-label">연도</div>
         <div class="input-content">
-          <SearchInput
-            v-model="searchQuery"
-            :list="state.list"
-            :realtime="false"
-            labelKey="lectureName"
-            placeholder="강의명 또는 교수명 검색"
-            @select="(item) => { searchInput.value = item.lectureName; searchQuery.value = item.lectureName; state.currentPage = 1; }"
-            @enter="onSearch"
-          />
+          <select v-model="filter.year" @change="onFilterChange">
+            <option value="">전체</option>
+            <option v-for="y in yearOptions" :key="y" :value="y">{{ y }}년</option>
+          </select>
         </div>
-        <button class="btn search-btn" @click="onSearch">
-          <font-awesome-icon icon="fa-solid fa-magnifying-glass" /> 검색
-        </button>
       </div>
-    </div>
-
-    <!-- 건수 -->
-    <div class="data-header">
-      전체: {{ state.totalCount }}건
-    </div>
+      <div class="filter-item">
+        <div class="input-label">학기</div>
+        <div class="input-content">
+          <select v-model="filter.semester" @change="onFilterChange">
+            <option value="">전체</option>
+            <option v-for="s in semesterOptions" :key="s" :value="s">{{ s }}학기</option>
+          </select>
+        </div>
+      </div>
+    </FilterBar>
 
     <!-- 테이블 -->
     <DataTable
@@ -268,7 +252,7 @@ onMounted(() => {
       emptyMessage="조회된 강의가 없습니다."
     >
       <article
-        class="tbl-row"
+        class="tbl-row pointer"
         v-for="item in state.list"
         :key="item.lectureId"
         @click="moveToDetail(item.lectureId)"
@@ -294,13 +278,3 @@ onMounted(() => {
 
   </div>
 </template>
-
-<style scoped>
-.tbl-row {
-  cursor: pointer;
-  display: grid;
-  grid-template-columns: 90px 150px 3fr 90px 180px 150px 60px 70px;
-  align-items: center;
-  text-align: center;
-}
-</style>
