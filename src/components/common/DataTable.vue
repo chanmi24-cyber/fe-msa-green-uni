@@ -42,6 +42,7 @@ defineProps({
   &:last-of-type { border-radius: 0 0 5px 5px; }
   &:not(.no-hover):hover { background: $hover-bg-color; }
   div { padding: 10px; line-height: 1.2; position: relative; }
+  &.edit-row > div { padding-top: 6px; padding-bottom: 6px; }
 }
 :deep(.tbl-row div) { display: flex; align-items: center; justify-content: center;}
 .no-data { grid-column: 1 / -1;  text-align: center; color: #aaa; padding: 40px 0; background: #fff; border: 1px solid $border-color; border-radius: 5px;}

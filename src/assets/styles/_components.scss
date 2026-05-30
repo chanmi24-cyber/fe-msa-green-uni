@@ -270,6 +270,14 @@
   transform: translate(-50%, -50%);
 }
 
+/* 테이블 row 내 입력 필드 */
+input.tbl-input {
+  padding: 4px 8px;
+  border: 1px solid $border-color;
+  border-radius: 4px;
+  font-size: 13px;
+}
+
 /* === 수평 스크롤 테이블 래퍼 === */
 .tbl-scroll {
   overflow-x: auto;
