@@ -108,7 +108,6 @@ onMounted(fetchDetail)
 
       <!-- Card 2: 학과 소개 -->
       <div class="card">
-        <div class="card-label">학과 소개</div>
         <p class="reason-text">{{ state.detail.info || '-' }}</p>
       </div>
 

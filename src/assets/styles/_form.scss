@@ -1,30 +1,11 @@
 @use './variables' as *;
 
 /* === Form 레이아웃 === */
-.form-wrap {
-  display: flex;
-  flex-direction: column;
-  border: 1px solid $border-color;
-  border-radius: $radius-sm;
-  gap: 16px;
-}
-.form-grid {
-  display: grid;
-  grid-template-columns: var(--grid-cols);
-  row-gap: 15px;
-  padding: var(--size-df);
-}
-.form-wrap .content-wrap { padding: 0; gap: 0; }
-.form-wrap .content-wrap h3 {
-  font-weight: 700;
-  font-size: 1.05em;
-  color: $font-color-bold;
-  padding: 13px 20px;
-  border-bottom: 1px solid $border-color;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  margin: 0;
+.form-wrap { display: flex; flex-direction: column; border-radius: $radius-sm;gap: 16px;}
+.form-grid { display: grid; grid-template-columns: var(--grid-cols); row-gap: 15px; padding: var(--size-df);}
+.form-wrap .content-wrap { 
+  padding: 0; gap: 0; border: 1px solid $border-color;overflow:hidden;
+  h3 { font-weight: 700; font-size: 1.05em; color: $font-color-bold; padding: 10px 15px; border-bottom: 1px solid $border-color; display: flex; align-items: center; gap: 8px; background-color: $default-bg; }
 }
 .form-wrap .input-label  { white-space: normal; }
 
@@ -91,7 +72,7 @@ input[type='radio'] {
 
 /* === Radio 디자인 === */
 .radio-group {
-  display: flex; gap: 12px; align-items: center; font-size: 1.1em; width: auto;
+  display: flex; gap: 12px; align-items: center; width: auto;
 }
 .radio-label {
   display: flex; align-items: center; gap: 4px; cursor: pointer; position: relative; padding-left: 15px;

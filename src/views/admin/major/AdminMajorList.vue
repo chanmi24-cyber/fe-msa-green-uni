@@ -33,11 +33,6 @@ const TAB_LIST = [
   { label: '폐지', value: 'CLOSED' },
 ]
 
-const STATUS_MAP = {
-  NORMAL: '정상',
-  CLOSED: '폐지',
-}
-
 // ─── 헬퍼 함수 ───────────────────────────────────────────────────
 
 function getCollegeName(collegeId) {
@@ -48,10 +43,6 @@ function getProfessorName(professorCode) {
   if (!professorCode) return '-'
   const prof = state.professorList.find(p => p.memberCode === professorCode)
   return prof ? prof.name : '-'
-}
-
-function getStatusLabel(active) {
-  return STATUS_MAP[String(active || '').toUpperCase()] ?? active ?? '-'
 }
 
 // ─── 서버 사이드 페이징 데이터 fetch ─────────────────────────────
@@ -118,6 +109,11 @@ function onPageChange(page) {
   fetchMajorList()
 }
 
+function onPageSizeChange() {
+  state.currentPage = 1
+  fetchMajorList()
+}
+
 function goToDetail(id) {
   router.push(`/admin/majors/${id}`)
 }
@@ -139,11 +135,15 @@ const gridCols = '1.4fr 1fr 1.2fr 1.2fr 100px 80px 80px 100px'
   <div>
     <FilterBar
       v-model:searchQuery="searchInput"
+      v-model:pageSize="state.pageSize"
       :hasFilter="false"
       :show-count="true"
       :count="state.totalElements"
+      :show-page-size="true"
+      :page-size-options="[10, 20, 30]"
       placeholder="학과명을 입력하세요"
       @search="onSearch"
+      @pageSizeChange="onPageSizeChange"
     >
       <!-- 탭 -->
       <div class="tab-area">
@@ -183,7 +183,7 @@ const gridCols = '1.4fr 1fr 1.2fr 1.2fr 100px 80px 80px 100px'
           <div>{{ getProfessorName(m.professorCode) }}</div>
           <div>{{ m.capacity ?? '-' }}명</div>
           <div>{{ m.professorCount ?? '-' }}명</div>
-          <div>{{ getStatusLabel(m.active) }}</div>
+          <div>{{ m.active ?? '-' }}</div>
         </article>
       </template>
     </DataTable>
