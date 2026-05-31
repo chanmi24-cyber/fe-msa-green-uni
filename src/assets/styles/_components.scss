@@ -87,7 +87,7 @@
 .info-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 10px 28px; }
 .info-item { display: flex; gap: 8px; align-items: baseline; }
 .info-key  { color: $font-color-light; width: 80px; flex-shrink: 0; }
-.info-val  { color: $font-color; font-weight: 500; }
+.info-val  { color: $font-color; font-weight: 500; flex: 1; }
 
 .req-list {
   display: grid;

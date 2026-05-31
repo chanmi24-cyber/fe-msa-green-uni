@@ -46,8 +46,10 @@ body.pwa-view #app { height: auto; min-height: 100vh; min-height: 100dvh; overfl
 .ai-end     { align-items: end; }
 .ai-center  { align-items: center; }
 
+.por{position: relative;}
 .tac        { text-align: center !important; }
 .tal        { text-align: left !important; justify-content: flex-start !important; }
+.pre-line   { white-space: pre-line; }
 .text-sub   { color: $font-color-light; margin-left: 4px; }
 
 /* 출석 상태 텍스트 색상 */
