@@ -1,5 +1,9 @@
 <script setup>
+import { useSlots, computed } from 'vue'
 import SearchInput from '@/components/util/SearchInput.vue'
+
+const slots = useSlots()
+const hasSlotContent = computed(() => !!slots.default?.())
 
 defineProps({
   hasFilter: Boolean,
@@ -24,7 +28,7 @@ const pageSize = defineModel('pageSize', { default: 10 })
 
 <template>
   <div class="list-header">
-    <div class="filter-header list-header-box">
+    <div v-if="showSearch || hasSlotContent" class="filter-header list-header-box">
       <div class="filter-group">
         <slot />
         <button v-if="hasFilter" class="btn" @click="emit('reset')">초기화</button>
