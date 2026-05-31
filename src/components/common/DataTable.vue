@@ -48,4 +48,5 @@ defineProps({
   &:has(button, input) > div { padding-top: 7px;padding-bottom: 7px;}
 }
 .no-data { grid-column: 1 / -1;  text-align: center; color: $font-color-light; padding: 40px 0; background: #fff; border: 1px solid $border-color; border-radius: 5px;}
+:deep(.tbl-meta) { font-size: 0.9em;  }
 </style>

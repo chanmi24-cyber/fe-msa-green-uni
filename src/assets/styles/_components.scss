@@ -124,6 +124,18 @@
   }
 }
 
+/* === 공지사항 카드 (제목+메타+본문 단일 묶음) === */
+.anno-card { border: 1px solid $border-color; border-radius: $radius-sm; overflow: hidden; background: #fff; margin-bottom: 14px; }
+.anno-header {
+  padding: 20px 24px 16px; border-bottom: 1px solid $border-color;
+  h2 { font-size: 1.05em; font-weight: 700; margin: 0 0 10px; color: $font-color-bold; }
+}
+.anno-meta {
+  display: flex; gap: 6px; align-items: center; font-size: 0.86em; color: $font-color-light;
+  span + span::before { content: '·'; margin-right: 6px; }
+}
+.anno-body { padding: 24px; min-height: 200px; line-height: 1.8; white-space: pre-wrap; word-break: break-word; }
+
 /* 신청서 공통 */
 .reason-text { white-space: pre-wrap; line-height: 1.6; }
 .reason-body { margin-top: $md; padding: $sm; }
@@ -187,6 +199,7 @@
   align-items: center;
   justify-content: space-between;
   margin-top: 16px;
+  &.page-left .pagination{margin-top: 0!important;}
 }
 .action-group { display: flex; gap: 8px; align-items: center; }
 
