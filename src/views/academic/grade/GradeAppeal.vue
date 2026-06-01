@@ -96,14 +96,9 @@ const handleSubmit = async () => {
                         </div>
                         <div class="input-wrap input-grid-full">
                             <label class="input-label">유형</label>
-                            <div class="input-content">
-                                <div class="radio-group">
-                                    <label class="radio-label">
-                                        <input type="radio" name="appealType" checked readonly />
+                                    <label>
                                         성적 오류
                                     </label>
-                                </div>
-                            </div>
                         </div>
                         <div class="input-wrap input-grid-full" style="align-items: flex-start">
                             <label class="input-label" style="padding-top: 10px">내용</label>

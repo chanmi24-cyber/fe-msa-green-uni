@@ -131,10 +131,10 @@ onMounted(() => fetchSummary())
                     :key="item.courseId"
                     class="tbl-row">
                     <div>{{ rowNum(idx) }}</div>
-                    <div class="cell-left">{{ item.lectureName }}</div>
+                    <div>{{ item.lectureName }}</div>
                     <div>{{ item.studentName ?? '-' }}</div>
                     <div>{{ item.academicYear != null ? item.academicYear + '학년' : '-' }}</div>
-                    <div class="cell-left cell-muted">{{ preview(item.reason) }}</div>
+                    <div class="cell-muted">{{ preview(item.reason) }}</div>
                     <div>{{ formatDate(item.createdAt) }}</div>
                     <div>
                         <button class="btn-view"
@@ -166,7 +166,7 @@ onMounted(() => fetchSummary())
 
 .summary-box {
     background: #fff;
-    border: 1px solid var(--line-color);
+    border: 1px solid $border-color;
     border-radius: 12px;
     padding: 24px 20px 20px;
     display: flex;
@@ -178,15 +178,15 @@ onMounted(() => fetchSummary())
 .box-approved { border-left: 4px solid #2e7d32; }
 
 .box-top    { display: flex; flex-direction: column; gap: 8px; }
-.box-title  { font-size: var(--text-sm); color: var(--font-color-light); font-weight: 600; }
-.box-count  { font-size: 2rem; font-weight: 800; color: var(--font-color); line-height: 1; margin: 0; }
+.box-title  { font-size: $fs-sm; color: $font-color-light; font-weight: 600; }
+.box-count  { font-size: 2rem; font-weight: 800; color: $font-color; line-height: 1; margin: 0; }
 .box-unit   { font-size: 1rem; font-weight: 600; margin-left: 4px; }
 
 .box-btn {
     width: 100%;
     padding: 10px;
     border-radius: 8px;
-    font-size: var(--text-sm);
+    font-size: $fs-sm;
     font-weight: 700;
     cursor: pointer;
     border: none;
@@ -205,14 +205,14 @@ onMounted(() => fetchSummary())
 }
 .btn-back {
     background: none;
-    border: 1px solid var(--line-color);
+    border: 1px solid $border-color;
     border-radius: 6px;
     padding: 6px 12px;
-    font-size: var(--text-xs);
-    color: var(--font-color-light);
+    font-size: $fs-xs;
+    color: $font-color-light;
     cursor: pointer;
     white-space: nowrap;
-    &:hover { color: var(--font-color); }
+    &:hover { color: $font-color; }
 }
 .list-title {
     font-size: 1.1rem;
@@ -229,16 +229,15 @@ onMounted(() => fetchSummary())
 .badge-approved { background: #c8e6c9; color: #1b5e20; }
 
 /* ── 테이블 행 ──────────────────────────────────────────────────────────── */
-.cell-left  { justify-content: flex-start !important; text-align: left; padding-left: 14px !important; }
-.cell-muted { color: var(--font-color-light); }
+.cell-muted { color: $font-color-light; }
 
 .btn-view {
-    background: var(--main-color);
+    background: $green-600;
     color: #fff;
     border: none;
     border-radius: 5px;
     padding: 5px 12px;
-    font-size: var(--text-xs);
+    font-size: $fs-xs;
     font-weight: 600;
     cursor: pointer;
     white-space: nowrap;

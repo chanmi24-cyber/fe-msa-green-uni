@@ -125,10 +125,10 @@ onMounted(async () => {
 <style scoped lang="scss">
 
 .btn-submit {
-    background: var(--main-color);
+    background: $green-600;
     color: #fff;
-    border: 1px solid var(--main-color);
-    font-size: var(--text-xs);
+    border: 1px solid $green-600;
+    font-size: $fs-xs;
     padding: 6px 14px;
     border-radius: 5px;
     cursor: pointer;
