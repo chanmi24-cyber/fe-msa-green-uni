@@ -85,8 +85,8 @@ const fetchSchedules = async () => {
 
 const getSemester = (dateStr) => {
   const month = new Date(dateStr).getMonth() + 1
-  if (month >= 3 && month <= 8) return 'FIRST'
-  return 'SECOND'
+  if (month >= 3 && month <= 8) return '1'
+  return '2'
 }
 
 // ===== API: 학사일정 등록 (관리자) =====
