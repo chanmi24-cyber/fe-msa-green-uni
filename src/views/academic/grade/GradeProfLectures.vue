@@ -41,7 +41,7 @@ onMounted(async () => {
                 :key="lecture.lectureId"
                 class="tbl-row">
                 <div>{{ lecture.lectureName }}</div>
-                <div><span class="type-badge">{{ lecture.lectureType }}</span></div>
+                <div>{{ lecture.lectureType }}</div>
                 <div>{{ lecture.year }}년 {{ lecture.semester }}학기</div>
                 <div>{{ lecture.credit }}학점 / {{ lecture.academicYear }}학년</div>
                 <div class="action-cell">
@@ -59,18 +59,6 @@ onMounted(async () => {
 .prof-grade-page {
     width: 100%;
     overflow-x: auto;
-}
-
-.type-badge {
-    position: static;
-    display: inline-block;
-    background: var(--main-color);
-    color: #fff;
-    font-size: var(--text-xs);
-    font-weight: 700;
-    padding: 3px 10px;
-    border-radius: 20px;
-    white-space: nowrap;
 }
 
 .action-cell {

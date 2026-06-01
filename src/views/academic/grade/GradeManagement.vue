@@ -9,7 +9,7 @@ import SearchInput from '@/components/util/SearchInput.vue'
 import GradeService from '@/services/gradeService'
 import LectureService from '@/services/lectureService'
 // 4. 라우터 / 스토어
-import { useRoute, useRouter } from 'vue-router'
+import { useRoute, useRouter, onBeforeRouteLeave } from 'vue-router'
 import { useModalStore } from '@/stores/modal'
 
 const route = useRoute()
@@ -168,6 +168,30 @@ const saveGrades = async () => {
 
 const goToPage = (page) => { currentPage.value = page }
 
+let leaving = false
+
+const handleBack = async () => {
+    if (localStorage.getItem(GRADE_KEY)) {
+        const confirmed = await modal.showConfirm('저장하지 않은 성적이 있습니다. 나가시겠습니까?', 'warning')
+        if (!confirmed) return
+        localStorage.removeItem(GRADE_KEY)
+    }
+    leaving = true
+    router.back()
+}
+
+onBeforeRouteLeave(async (_to, _from, next) => {
+    if (leaving) { leaving = false; next(); return }
+    if (!localStorage.getItem(GRADE_KEY)) { next(); return }
+    const confirmed = await modal.showConfirm('저장하지 않은 성적이 있습니다. 나가시겠습니까?', 'warning')
+    if (confirmed) {
+        localStorage.removeItem(GRADE_KEY)
+        next()
+    } else {
+        next(false)
+    }
+})
+
 // 11. onMounted
 onMounted(async () => {
     await loadGrades()
@@ -200,10 +224,10 @@ onMounted(async () => {
 
         <!-- 성적 테이블 -->
         <DataTable
-            :columns="['학번', '성명', '학년', '중간평가', '기말평가', '과제점수', '출석점수', '총점', '최종등급']"
+            :columns="['학번', '성명', '학년', '학과', '중간평가', '기말평가', '과제점수', '출석점수', '총점', '최종등급']"
             :rows="pagedList"
             :isLoading="state.isLoading"
-            gridCols="1.2fr 1fr 60px 1fr 1fr 1fr 1fr 80px 90px"
+            gridCols="1.2fr 1fr 60px 1.4fr 1fr 1fr 1fr 1fr 80px 90px"
             emptyMessage="수강 학생이 없습니다.">
 
             <article
@@ -214,6 +238,7 @@ onMounted(async () => {
                 <div>{{ student.studentCode }}</div>
                 <div>{{ student.memberName }}</div>
                 <div>{{ student.academic_year ?? '-' }}</div>
+                <div>{{ student.majorName ?? '-' }}</div>
 
                 <!-- 조회 모드 -->
                 <template v-if="!isEditMode">
@@ -257,7 +282,7 @@ onMounted(async () => {
                 @goToPage="goToPage"
             />
             <div class="btn-group">
-                <button class="btn btn-default" @click="router.back()">← 뒤로</button>
+                <button class="btn btn-default" @click="handleBack">← 뒤로</button>
                 <button v-if="!isEditMode" class="btn btn-default" @click="startEditMode">수정</button>
                 <button v-else class="btn btn-submit" @click="saveGrades">저장</button>
             </div>
