@@ -1,24 +1,51 @@
 <script setup>
-// 1. 라이브러리
-import { ref, onMounted } from 'vue'
-// 2. 컴포넌트
-import DataTable from '@/components/common/DataTable.vue'
-// 3. 서비스
-// [수정] 팀원 강의 API 의존 제거 → 성적 도메인 자체 API 사용 (GET /professor/grades/lectures)
-import GradeService from '@/services/gradeService'
-// 4. 라우터
+import { ref, reactive, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
+import GradeService from '@/services/gradeService'
+import DataTable from '@/components/common/DataTable.vue'
+import FilterBar from '@/components/common/FilterBar.vue'
+import Pagination from '@/components/common/Pagination.vue'
+import LoadingSpinner from '@/components/common/LoadingSpinner.vue'
 
 const router = useRouter()
 
-// 5. 상태값
-const lectures = ref([])
+const allLectures = ref([])
 const isLoading = ref(true)
+const currentPage = ref(1)
+const PAGE_SIZE = 10
 
-// 11. onMounted
+const filter = reactive({ year: '', semester: '' })
+const searchQuery = ref('')
+const searchInput = ref('')
+
+// 보유 강의에서 연도 옵션 추출 (최신순)
+const yearOptions = computed(() =>
+    [...new Set(allLectures.value.map(l => l.year))].sort((a, b) => b - a)
+)
+
+const filteredList = computed(() => {
+    const keyword = searchInput.value.toLowerCase()
+    return allLectures.value.filter(l => {
+        if (filter.year     && l.year     !== Number(filter.year))     return false
+        if (filter.semester && l.semester !== Number(filter.semester)) return false
+        if (keyword         && !l.lectureName.toLowerCase().includes(keyword)) return false
+        return true
+    })
+})
+
+const maxPage = computed(() => Math.max(1, Math.ceil(filteredList.value.length / PAGE_SIZE)))
+const pagedList = computed(() => {
+    const start = (currentPage.value - 1) * PAGE_SIZE
+    return filteredList.value.slice(start, start + PAGE_SIZE)
+})
+
+const onFilterChange = () => { currentPage.value = 1 }
+const onSearch = () => { searchInput.value = searchQuery.value; currentPage.value = 1 }
+const goToPage = (page) => { currentPage.value = page }
+
 onMounted(async () => {
     try {
-        lectures.value = await GradeService.getProfessorLectures()
+        allLectures.value = await GradeService.getProfessorLectures()
     } catch {
         // 에러 모달은 httpRequester 인터셉터가 처리
     } finally {
@@ -28,23 +55,55 @@ onMounted(async () => {
 </script>
 
 <template>
-    <div class="prof-grade-page">
-        <DataTable
-            :columns="['강의명', '유형', '학년도 / 학기', '학점 / 대상학년', '관리']"
-            :rows="lectures"
-            gridCols="minmax(160px,2fr) minmax(80px,1fr) minmax(140px,1.4fr) minmax(110px,1fr) minmax(120px,1fr)"
-            :isLoading="isLoading"
-            emptyMessage="담당 중인 강의가 없습니다.">
+    <div style="position: relative;">
+        <LoadingSpinner v-if="isLoading" :overlay="true" size="md" />
 
+        <FilterBar
+            placeholder="강의명을 입력하세요"
+            :showCount="true"
+            :count="filteredList.length"
+            v-model:searchQuery="searchQuery"
+            @search="onSearch"
+        >
+            <div class="filter-item">
+                <div class="input-label">연도</div>
+                <div class="input-content">
+                    <select v-model="filter.year" @change="onFilterChange">
+                        <option value="">전체</option>
+                        <option v-for="y in yearOptions" :key="y" :value="y">{{ y }}년</option>
+                    </select>
+                </div>
+            </div>
+            <div class="filter-item">
+                <div class="input-label">학기</div>
+                <div class="input-content">
+                    <select v-model="filter.semester" @change="onFilterChange">
+                        <option value="">전체</option>
+                        <option :value="1">1학기</option>
+                        <option :value="2">2학기</option>
+                    </select>
+                </div>
+            </div>
+        </FilterBar>
+
+        <DataTable
+            :columns="['이수구분', '강의명', '학년도', '학기', '학점', '대상학년', '관리']"
+            :rows="pagedList"
+            gridCols="100px 3fr 80px 70px 70px 80px 110px"
+            :isLoading="isLoading"
+            emptyMessage="담당 중인 강의가 없습니다."
+        >
             <article
-                v-for="lecture in lectures"
+                v-for="lecture in pagedList"
                 :key="lecture.lectureId"
                 class="tbl-row">
-                <div>{{ lecture.lectureName }}</div>
                 <div>{{ lecture.lectureType }}</div>
-                <div>{{ lecture.year }}년 {{ lecture.semester }}학기</div>
-                <div>{{ lecture.credit }}학점 / {{ lecture.academicYear }}학년</div>
-                <div class="action-cell">
+                <div>{{ lecture.lectureName }}</div>
+                <div>{{ lecture.year }}년</div>
+                <div>{{ lecture.semester }}학기</div>
+                <div>{{ lecture.credit }}학점</div>
+                <div>{{ lecture.academicYear }}학년</div>
+                <div>
                     <button class="btn btn-submit"
                         @click.stop="router.push(`/professor/grades/${lecture.lectureId}`)">
                         성적 관리
@@ -52,53 +111,30 @@ onMounted(async () => {
                 </div>
             </article>
         </DataTable>
+
+        <Pagination
+            v-if="maxPage > 1"
+            :currentPage="currentPage"
+            :maxPage="maxPage"
+            :pageGroupSize="10"
+            @goToPage="goToPage"
+        />
     </div>
 </template>
 
 <style scoped lang="scss">
-.prof-grade-page {
-    width: 100%;
-    overflow-x: auto;
-}
 
-.action-cell {
-    display: flex;
-    gap: 6px;
-    justify-content: center;
-}
-
-.btn {
+.btn-submit {
+    background: var(--main-color);
+    color: #fff;
+    border: 1px solid var(--main-color);
     font-size: var(--text-xs);
     padding: 6px 14px;
     border-radius: 5px;
     cursor: pointer;
     font-weight: 600;
-    transition: all 0.2s;
     white-space: nowrap;
-}
-.btn-submit {
-    background: var(--main-color);
-    color: #fff;
-    border: 1px solid var(--main-color);
+    transition: all 0.2s;
     &:hover { filter: brightness(1.1); }
-}
-
-.tbl-row {
-    display: grid;
-    grid-template-columns: var(--grid-cols);
-    align-items: stretch;
-    background: #fff;
-    border: 1px solid var(--table-border-color);
-    border-top-width: 0;
-
-    &:nth-of-type(2) { border-radius: 5px 5px 0 0; border-width: 1px; }
-    &:last-child     { border-radius: 0 0 5px 5px; }
-
-    > div {
-        padding: 12px 10px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-    }
 }
 </style>
