@@ -30,8 +30,9 @@ const fetchList = async (page = 1) => {
     }
 }
 
-const rowNum = (idx) => (currentPage.value - 1) * 10 + idx + 1
+const rowNum     = (idx) => (currentPage.value - 1) * 10 + idx + 1
 const formatDate = (dateStr) => dateStr?.slice(0, 10) ?? ''
+const truncate   = (text, max = 10) => text?.length > max ? text.slice(0, max) + '...' : (text ?? '')
 
 onMounted(() => fetchList(1))
 </script>
@@ -56,7 +57,7 @@ onMounted(() => fetchList(1))
           @click="router.push(`/public/announcements/${anno.annoId}`)"
         >
           <div>{{ rowNum(idx) }}</div>
-          <div class="tal">{{ anno.title }}</div>
+          <div>{{ truncate(anno.title) }}</div>
           <div class="tbl-meta">{{ formatDate(anno.createdAt) }}</div>
         </article>
       </DataTable>

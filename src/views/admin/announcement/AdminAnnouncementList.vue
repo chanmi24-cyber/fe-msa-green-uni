@@ -50,6 +50,7 @@ function onPageSizeChange() {
     fetchList()
 }
 const formatDate = (dateStr) => dateStr?.slice(0, 10) ?? ''
+const truncate   = (text, max = 10) => text?.length > max ? text.slice(0, max) + '...' : (text ?? '')
 
 watch(() => route.query, fetchList, { immediate: false })
 
@@ -101,7 +102,7 @@ onMounted(() => {
         @click="router.push(`/admin/announcements/${anno.annoId}`)"
       >
         <div>{{ rowNum(idx) }}</div>
-        <div class="tal">{{ anno.title }}</div>
+        <div>{{ truncate(anno.title) }}</div>
         <div class="tbl-meta">{{ anno.viewCount }}</div>
         <div class="tbl-meta">{{ formatDate(anno.createdAt) }}</div>
       </article>
