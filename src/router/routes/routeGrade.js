@@ -61,7 +61,7 @@ export const gradeRoutes = [
         path: url,
         component: () => import('@/views/academic/grade/GradeStudentList.vue'),
         meta: {
-            title: '내 성적 조회',
+            title: '나의 성적 조회',
             groupTitle: '성적',
             navSection: '학사정보',
             auth: ['STUDENT'],
@@ -73,7 +73,7 @@ export const gradeRoutes = [
         path: `${url}/detail`,
         component: () => import('@/views/academic/grade/GradeStudentDetail.vue'),
         meta: {
-            title: '성적 상세 조회',
+            title: '나의 성적 상세 조회',
             groupTitle: '성적',
             auth: ['STUDENT'],
             showInNav: false,
@@ -86,7 +86,7 @@ export const gradeRoutes = [
         path: `${url}/appeals/my`,
         component: () => import('@/views/academic/grade/GradeAppealStuList.vue'),
         meta: {
-            title: '성적 이의신청 내역',
+            title: '나의 성적 이의신청 내역',
             groupTitle: '성적',
             navSection: '학사정보',
             auth: ['STUDENT'],

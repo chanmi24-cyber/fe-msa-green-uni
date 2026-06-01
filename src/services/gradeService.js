@@ -56,9 +56,17 @@ class GradeService {
         return res.data
     }
 
-    // 교수 이의신청 목록 조회
-    async getProfessorAppealList({ page = 1, size = 10 } = {}) {
-        const res = await axios.get(`${this.#professorPath}/appeals`, { params: { page, size } })
+    // 교수 이의신청 현황 요약 (대기/반려/처리완료 건수)
+    async getProfessorAppealSummary() {
+        const res = await axios.get(`${this.#professorPath}/appeals/summary`)
+        return res.data.data
+    }
+
+    // 교수 이의신청 목록 조회 (status: 'PENDING' | 'REJECTED' | 'APPROVED' | null=전체)
+    async getProfessorAppealList({ status = null, page = 1, size = 10 } = {}) {
+        const params = { page, size }
+        if (status) params.status = status
+        const res = await axios.get(`${this.#professorPath}/appeals`, { params })
         return res.data.data
     }
 
