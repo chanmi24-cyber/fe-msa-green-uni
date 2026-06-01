@@ -50,7 +50,7 @@ function onPageSizeChange() {
     fetchList()
 }
 const formatDate = (dateStr) => dateStr?.slice(0, 10) ?? ''
-const truncate   = (text, max = 10) => text?.length > max ? text.slice(0, max) + '...' : (text ?? '')
+const truncate   = (text, max = 20) => text?.length > max ? text.slice(0, max) + '...' : (text ?? '')
 
 watch(() => route.query, fetchList, { immediate: false })
 
@@ -87,6 +87,8 @@ onMounted(() => {
           @click="filter.targetRole = 'PROFESSOR'; onFilterChange()">교수</button>
         <button class="filter-btn" :class="{ active: filter.targetRole === 'MEMBER' }"
           @click="filter.targetRole = 'MEMBER'; onFilterChange()">교내 전체</button>
+        <button class="filter-btn" :class="{ active: filter.targetRole === 'ALL' }"
+          @click="filter.targetRole = 'ALL'; onFilterChange()">전체공개</button>
       </div>
     </FilterBar>
 
@@ -104,7 +106,7 @@ onMounted(() => {
         @click="router.push(`/admin/announcements/${anno.annoId}`)"
       >
         <div>{{ rowNum(idx) }}</div>
-        <div>{{ truncate(anno.title) }}</div>
+        <div style="display:block; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; text-align:center; width:100%">{{ truncate(anno.title) }}</div>
         <div class="tbl-meta">{{ anno.viewCount }}</div>
         <div class="tbl-meta">{{ formatDate(anno.createdAt) }}</div>
       </article>
