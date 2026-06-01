@@ -25,7 +25,7 @@ const yearFilter = ref('')
 
 const yearOptions = ref([])
 
-const GRID_COLS = '60px 1fr 80px 120px'
+const GRID_COLS = '60px 1fr 120px 80px 120px'
 
 const fetchList = async () => {
     isLoading.value = true
@@ -107,7 +107,7 @@ onMounted(async () => {
     </FilterBar>
 
     <DataTable
-      :columns="['번호', '제목', '조회수', '등록일']"
+      :columns="['번호', '제목', '작성자', '조회수', '등록일']"
       :rows="annoList"
       :gridCols="GRID_COLS"
       :isLoading="isLoading"
@@ -121,6 +121,7 @@ onMounted(async () => {
       >
         <div>{{ rowNum(idx) }}</div>
         <div style="display:block; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; text-align:center; width:100%">{{ truncate(anno.title) }}</div>
+        <div class="tbl-meta">{{ anno.writerName }} ({{ anno.writerCode }})</div>
         <div class="tbl-meta">{{ anno.viewCount }}</div>
         <div class="tbl-meta">{{ formatDate(anno.createdAt) }}</div>
       </article>

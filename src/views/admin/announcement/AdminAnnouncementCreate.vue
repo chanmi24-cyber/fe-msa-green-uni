@@ -117,7 +117,7 @@ const handleDelete = async () => {
         <div class="post-header">
           <h2>{{ form.title }}</h2>
           <div class="post-meta">
-            <span>{{ annoInfo.writerName }}</span>
+            <span>{{ annoInfo.writerName }} ({{ annoInfo.writerCode }})</span>
             <span>조회 {{ annoInfo.viewCount }}</span>
             <span>{{ formatDate(annoInfo.createdAt) }}</span>
             <span>대상 : {{ targetRoleLabel }}</span>
