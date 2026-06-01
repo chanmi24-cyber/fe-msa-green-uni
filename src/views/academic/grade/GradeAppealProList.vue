@@ -57,6 +57,7 @@ const fetchList = async (page = 1) => {
         maxPage.value     = res.totalPages ?? 1
         currentPage.value = page
     } catch {
+        // 에러 모달은 httpRequester 인터셉터가 처리
     } finally {
         isListLoading.value = false
     }
