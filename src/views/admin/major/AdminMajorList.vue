@@ -73,7 +73,7 @@ async function fetchMajorList() {
   try {
     const status = state.activeTab === 'ALL' ? null : state.activeTab
     const search = searchInput.value.trim() || null
-    const page   = state.currentPage - 1   // 0-based
+    const page   = state.currentPage
 
     const res = await majorService.getMajorList({
       status,
