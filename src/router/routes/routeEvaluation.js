@@ -7,6 +7,7 @@ export const evaluationRoutes = [
     meta: {
       title: '나의 강의평가',
       groupTitle: '강의 관리',
+      navSection: '학사정보',
       auth: ['STUDENT', 'PROFESSOR'],
     },
   },
@@ -15,7 +16,10 @@ export const evaluationRoutes = [
     component: () => import('@/views/academic/evaluation/EvaluationDetail.vue'),
     meta: {
       title: '강의평가 상세',
+      groupTitle: '강의 관리',
+      navSection: '학사정보',
       auth: ['STUDENT', 'PROFESSOR'],
+      showInNav: false,
     },
   },
 ]

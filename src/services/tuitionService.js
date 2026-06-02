@@ -15,7 +15,7 @@ class TuitionService {
    * API-TUI-03: 학생 - 등록금 납부 상세 조회
    */
   getMyTuitionDetail(tuitionId) {
-    return axios.get(`${studentPath}/${tuitionId}`);
+    return axios.get(`${studentPath}/detail/${tuitionId}`);
   }
 
   /**
@@ -26,10 +26,17 @@ class TuitionService {
   }
 
   /**
+   * 🎯 [새로 추가] API-TUI-14-STU: 학생 - 등록금 납부 기간 동적 조회
+   */
+  getStudentPaymentPeriod() {
+    return axios.get(`${studentPath}/payment-period`);
+  }
+
+  /**
    * API-TUI-02: 관리자 - 등록금 납부 학생 목록 조회 (페이징 및 필터)
    */
-  getTuitionList(year, semester, status, page = 0, size = 10) {
-    const params = { year, semester, page, size };
+  getTuitionList(year, semester, status, page = 0, size = 10, searchKeyword) {
+    const params = { year, semester, page, size, searchKeyword };
     // '전체' 탭이거나 status가 공백이 아니라면 대문자로 변환하여 전송
     if (status && status !== '') {
       params.status = status;

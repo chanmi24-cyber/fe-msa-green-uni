@@ -11,8 +11,11 @@ import { tuitionRoutes, adminTuitionRoutes } from './routeTuition'
 import { scholarshipRoutes, adminScholarshipRoutes } from './routeScholarship'
 
 import { gradeRoutes } from './routeGrade'
-import { announcementRoutes, adminAnnouncementRoutes } from './routeAnnouncement'
+import { announcementRoutes, adminAnnouncementRoutes, publicAnnouncementRoutes } from './routeAnnouncement'
 import { attendanceRoutes, mobileAttendanceRoutes } from './routeAttendance'
+
+// 에러 라우트 import
+import { errorRoutes } from './routeError'
 
 export const routes = [
   // 학생/교수 레이아웃
@@ -31,6 +34,7 @@ export const routes = [
       ...scholarshipRoutes,
       ...announcementRoutes,
       ...attendanceRoutes,
+      ...publicAnnouncementRoutes,
     ],
   },
   // 관리자 레이아웃
@@ -57,4 +61,6 @@ export const routes = [
       ...mobileAuthRoutes,
     ],
   },
+    // 에러 페이지 (레이아웃 없이 풀스크린, catch-all 404 포함)
+  ...errorRoutes,
 ]

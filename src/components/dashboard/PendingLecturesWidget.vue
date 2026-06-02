@@ -11,16 +11,16 @@ const fetchPendingLectures = async () => {
     // 1. 대시보드용 파라미터 세팅 (3건 제한, 1페이지, 대기 상태)
     const params = {
       status: 'PENDING',
+      page: 1,
       size: 3,
-      startIdx: 0
     };
 
-    // 2. 관리자용 강의 목록 API 호출
     const response = await lectureService.getAdminLectures(params);
-    
+
     if (response) {
-      lectures.value = response.data || [];
-      totalCount.value = response.data?.[0]?.totalCount ?? 0;
+      const page = response.data ?? {};
+      lectures.value  = page.content ?? [];
+      totalCount.value = page.totalElements ?? 0;
     }
   } catch (error) {
     console.error("대시보드 강의 승인 대기 목록 로드 실패:", error);
