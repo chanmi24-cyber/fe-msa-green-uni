@@ -1,11 +1,13 @@
 <script setup>
 import LectureService from '@/services/lectureService';
-import { onMounted, reactive, computed, ref, watch } from 'vue';
+import { onMounted, reactive, ref, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import DataTable from '@/components/common/DataTable.vue';
+import FilterBar from '@/components/common/FilterBar.vue';
+import LoadingSpinner from '@/components/common/LoadingSpinner.vue';
 import Pagination from '@/components/common/Pagination.vue';
-import SearchInput from '@/components/util/SearchInput.vue';
 import { useAuthStore } from '@/stores/authentication';
+import { scheduleText, roomText } from '@/utils/scheduleHelpers';
 
 const authStore = useAuthStore();
 const route = useRoute();
@@ -24,14 +26,17 @@ const getCurrentTerm = () => {
 };
 
 // ── 상태 ────────────────────────────────────────
-const PAGE_SIZE = 10;
+const pageSize = ref(10)
+const pageSizeOptions = [10, 20, 30]
 
 const state = reactive({
   list: [],
+  currentPage: 1,
   totalCount: 0,
   isLoading: false,
-  currentPage: 1,
 });
+
+const maxPage = ref(1);
 
 // 필터: 서버로 보낼 파라미터
 const filter = reactive({
@@ -55,25 +60,7 @@ const LECTURE_TYPE_LABEL = {
 };
 const lectureTypeLabel = (code) => LECTURE_TYPE_LABEL[code] || code;
 
-// ── schedule 표시용 헬퍼 ──────────────────────────
-const scheduleText = (schedules) => {
-  if (!schedules || schedules.length === 0) return '-';
-  return schedules
-    .map(s => `${s.dayOfWeek} ${s.startPeriod}~${s.endPeriod}교시`)
-    .join(',\n');
-};
 
-const roomText = (schedules) => {
-  if (!schedules || schedules.length === 0) return '-';
-  // 강의실이 모두 같으면 하나만, 다르면 첫 번째만 표시
-  const rooms = [...new Set(schedules.map(s => `${s.building ?? ''} ${s.room ?? ''}`.trim()))];
-  return rooms.join(',\n');
-};
-
-// ── 최대 페이지 ───────────────────────────────────
-const maxPage = computed(() => {
-  return Math.ceil(state.totalCount / PAGE_SIZE) || 1;
-});
 
 // ── API 호출 ─────────────────────────────────────
 const fetchList = async () => {
@@ -83,19 +70,19 @@ const fetchList = async () => {
       year: filter.year || undefined,
       semester: filter.semester || undefined,
       lectureName: searchInput.value || undefined,
-      proName: searchInput.value || undefined, 
+      proName: searchInput.value || undefined,
       majorId: filter.majorId || undefined,
       page: state.currentPage,
-      size: PAGE_SIZE,
-      startIdx: (state.currentPage - 1) * PAGE_SIZE, 
+      size: pageSize.value,
     };
     // 빈 값 제거
     Object.keys(params).forEach(k => params[k] === undefined && delete params[k]);
 
     const res = await LectureService.getAllLectures(params);
-    const data = res.data || [];
-    state.list = data;
-    state.totalCount = data[0]?.totalCount ?? 0;
+    const page = res.data ?? {};
+    state.list       = page.content ?? [];
+    state.totalCount = Number(page.totalElements ?? 0);
+    maxPage.value    = page.totalPages ?? 1;
 
 
   } catch (err) {
@@ -165,6 +152,8 @@ const moveToDetail = (id) => {
   });
 };
 
+watch(pageSize, () => { state.currentPage = 1; pushQuery() })
+
 // ── watch: query 변경 시 fetch ─────────────────────
 watch(
   () => route.query,
@@ -188,12 +177,8 @@ watch(
 // 연도 옵션만 가져오는 함수
 const fetchYearOptions = async () => {
   try {
-    const res = await LectureService.getAllLectures({ 
-      page: 1, size: 9999, startIdx: 0 
-    });
-    const data = res.data || [];
-    const years = [...new Set(data.map(i => i.year).filter(Boolean))].sort((a, b) => b - a);
-    yearOptions.value = years;
+    const res = await LectureService.getLectureYears();
+    yearOptions.value = res ?? [];
   } catch (err) {
     console.error('연도 옵션 로드 실패:', err);
   }
@@ -213,56 +198,43 @@ onMounted(() => {
 </script>
 
 <template>
-  <div class="container">
+  <div style="position: relative;">
 
-    <!-- 필터 헤더 -->
-    <div class="filter-header">
-      <div class="filter-group">
-
-        <div class="filter-item">
-          <div class="input-label">연도</div>
-          <div class="input-content">
-            <select v-model="filter.year" @change="onFilterChange">
-              <option value="">전체</option>
-              <option v-for="y in yearOptions" :key="y" :value="y">{{ y }}년</option>
-            </select>
-          </div>
-        </div>
-
-        <div class="filter-item">
-          <div class="input-label">학기</div>
-          <div class="input-content">
-            <select v-model="filter.semester" @change="onFilterChange">
-              <option value="">전체</option>
-              <option v-for="s in semesterOptions" :key="s" :value="s">{{ s }}학기</option>
-            </select>
-          </div>
-        </div>
-
-      </div>
-
-      <div class="search-area">
+    <LoadingSpinner v-if="state.isLoading" :overlay="true" size="md" />
+    <FilterBar
+      searchType="search-input"
+      :searchList="state.list"
+      searchLabelKey="lectureName"
+      placeholder="강의명 또는 교수명 검색"
+      :showCount="true"
+      :count="state.totalCount"
+      :showPageSize="true"
+      v-model:pageSize="pageSize"
+      :pageSizeOptions="pageSizeOptions"
+      @pageSizeChange="() => { state.currentPage = 1 }"
+      v-model:searchQuery="searchQuery"
+      @search="onSearch"
+      @select="(item) => { searchInput.value = item.lectureName; searchQuery.value = item.lectureName; state.currentPage = 1; }"
+    >
+      <div class="filter-item">
+        <div class="input-label">연도</div>
         <div class="input-content">
-          <SearchInput
-            v-model="searchQuery"
-            :list="state.list"
-            :realtime="false"
-            labelKey="lectureName"
-            placeholder="강의명 또는 교수명 검색"
-            @select="(item) => { searchInput.value = item.lectureName; searchQuery.value = item.lectureName; state.currentPage = 1; }"
-            @enter="onSearch"
-          />
+          <select v-model="filter.year" @change="onFilterChange">
+            <option value="">전체</option>
+            <option v-for="y in yearOptions" :key="y" :value="y">{{ y }}년</option>
+          </select>
         </div>
-        <button class="btn search-btn" @click="onSearch">
-          <font-awesome-icon icon="fa-solid fa-magnifying-glass" /> 검색
-        </button>
       </div>
-    </div>
-
-    <!-- 건수 -->
-    <div class="data-header">
-      전체: {{ state.totalCount }}건
-    </div>
+      <div class="filter-item">
+        <div class="input-label">학기</div>
+        <div class="input-content">
+          <select v-model="filter.semester" @change="onFilterChange">
+            <option value="">전체</option>
+            <option v-for="s in semesterOptions" :key="s" :value="s">{{ s }}학기</option>
+          </select>
+        </div>
+      </div>
+    </FilterBar>
 
     <!-- 테이블 -->
     <DataTable
@@ -273,7 +245,7 @@ onMounted(() => {
       emptyMessage="조회된 강의가 없습니다."
     >
       <article
-        class="tbl-row"
+        class="tbl-row pointer"
         v-for="item in state.list"
         :key="item.lectureId"
         @click="moveToDetail(item.lectureId)"
@@ -282,8 +254,8 @@ onMounted(() => {
         <div>{{ item.majorName }}</div>
         <div>{{ item.lectureName }}</div>
         <div>{{ item.proName }}</div>
-        <div style="white-space: pre-line;">{{ scheduleText(item.schedules) }}</div>
-        <div style="white-space: pre-line;">{{ roomText(item.schedules) }}</div>
+        <div class="pre-line">{{ scheduleText(item.schedules) }}</div>
+        <div class="pre-line">{{ roomText(item.schedules) }}</div>
         <div>{{ item.credit }}</div>
         <div>{{ item.academicYear }}학년</div>
       </article>
@@ -299,13 +271,3 @@ onMounted(() => {
 
   </div>
 </template>
-
-<style scoped>
-.tbl-row {
-  cursor: pointer;
-  display: grid;
-  grid-template-columns: 90px 150px 3fr 90px 180px 150px 60px 70px;
-  align-items: center;
-  text-align: center;
-}
-</style>

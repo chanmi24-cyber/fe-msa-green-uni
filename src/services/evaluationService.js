@@ -13,7 +13,7 @@ class EvaluationService {
 
   // 교수 - 강의평가 상세
   async getProfessorEvalDetail(lectureId) {
-    const res = await axios.get(`${professorPath}/${lectureId}`);
+    const res = await axios.get(`${professorPath}/${lectureId}`, { _skipModal: true });
     return res.data;
   }
 
@@ -25,7 +25,7 @@ class EvaluationService {
 
   // 학생 - 강의평가 상세
   async getStudentEvalDetail(lectureId) {
-    const res = await axios.get(`${studentPath}/${lectureId}`);
+    const res = await axios.get(`${studentPath}/${lectureId}`, { _skipModal: true });
     return res.data;
   }
 
@@ -34,6 +34,17 @@ class EvaluationService {
     const res = await axios.post(`${studentPath}/${lectureId}`, payload);
     return res.data;
   }
+
+  async getStudentEvalYears() {
+  const res = await axios.get(`${studentPath}/years`);
+  return res.data;
+}
+
+async getProfessorEvalYears() {
+  const res = await axios.get(`${professorPath}/years`);
+  return res.data;
+}
+
 }
 
 export default new EvaluationService();

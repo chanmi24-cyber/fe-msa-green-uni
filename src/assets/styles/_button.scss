@@ -1,0 +1,56 @@
+@use './variables' as *;
+
+@mixin btn-fill($bg, $color: #fff, $border: $bg, $brightness: 1.1) {
+  background: $bg;
+  color: $color;
+  border-color: $border;
+  &:hover { filter: brightness($brightness); }
+}
+
+/* =====================================================
+   [ 표준1 ] Base
+   ===================================================== */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  white-space: nowrap;
+  padding: 8px 20px;
+  border-radius: 5px;
+  cursor: pointer;
+  border: 1px solid $border-color;
+  font-weight: 500;
+  font-size: $fs-sm;
+  transition: filter 0.15s;
+  line-height: 1;
+}
+
+/* =====================================================
+   [ 표준2 ] 크기
+   ===================================================== */
+/* 소형 버튼 */
+.btn.btn-sm { padding: 5px 12px 4px; font-size: $fs-xs; font-weight: 400; border-radius: 3px;}
+
+/* =====================================================
+   [ 표준3 ] 색상 / 용도
+   ===================================================== */
+.btn.btn-default { @include btn-fill(#f5f5f5, $font-color, #e0e0e0, 0.95); }
+.btn.btn-submit  { @include btn-fill($green-600); }
+.btn.btn-danger  { @include btn-fill(#fff, $danger, $danger); 
+  &:hover{background: $danger; color: #fff;}
+}
+
+.btn.btn-line{ 
+  background: #fff; color: $font-color-light; border-color: $border-color; 
+  &:hover { border-color: $green-600; color: $green-600; }
+  &.point  { border-color: $green-600; color: $green-600; 
+    &:hover { background: $green-600; color: #fff; }
+  }
+}
+
+/* 비활성 상태 */
+.btn:disabled { background: #dedfe2; border-color: #d1d9e4; color: $font-color-light; cursor: not-allowed; filter: none; }
+
+/* 레이아웃 유틸 */
+.btn-row { display: flex; justify-content: center; gap: 12px; }

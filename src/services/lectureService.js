@@ -6,6 +6,9 @@ class LectureService {
   #studentPath = '/core/student/lectures';
   #commonPath = '/core/lectures';
 
+
+  
+
   // 건물 목록 조회
   async getBuildings() {
     const res = await axios.get('/auth/code?code_type=building');
@@ -77,6 +80,21 @@ class LectureService {
     return res.data;
   }
 
+  async cancelLecture(lectureId, payload) {
+    const res = await axios.patch(`${this.#adminPath}/${lectureId}/cancel`, payload);
+    return res.data;
+  }
+
+  async getProfessorList() {
+    const res = await axios.get('/member/admin/professors');
+    return res.data;
+  }
+
+  async changeLectureProfessor(lectureId, payload) {
+    const res = await axios.patch(`${this.#adminPath}/${lectureId}/professor`, payload);
+    return res.data;
+  }
+
   // ── 공통 ──────────────────────────────────────
   async getAllLectures(params = {}) {
     const res = await axios.get(`${this.#commonPath}`, { params });
@@ -87,6 +105,55 @@ class LectureService {
     const res = await axios.get(`${this.#commonPath}/${lectureId}`);
     return res.data.data;
   }
+
+  async getLectureYears() {
+  const res = await axios.get(`${this.#commonPath}/years`);
+  return res.data;
+}
+
+async getProfessorLectureYears() {
+  const res = await axios.get(`${this.#professorPath}/years`);
+  return res.data;
+}
+
+async getStudentLectureYears() {
+  const res = await axios.get(`${this.#studentPath}/years`);
+  return res.data;
+}
+
+async getAdminLectureYears() {
+  const res = await axios.get(`${this.#adminPath}/years`);
+  return res.data;
+}
+
+  // 현재 연도/학기 계산
+  #getCurrentYearSemester() {
+    const now = new Date()
+    const year = now.getFullYear()
+    const month = now.getMonth() + 1 // 1~12
+    const semester = month >= 3 && month <= 8 ? 1 : 2
+    return { year, semester }
+  }
+
+  // ── 대시보드 시간표 ────────────────────────────
+  async dashboardProfessorTimetable() {
+    const { year, semester } = this.#getCurrentYearSemester()
+    const res = await axios.get(`${this.#professorPath}/my/timetable`, { params: { year, semester } })
+    return res.data
+  }
+
+  async dashboardStudentTimetable() {
+    const { year, semester } = this.#getCurrentYearSemester()
+    const res = await axios.get(`${this.#studentPath}/my/timetable`, { params: { year, semester } })
+    return res.data
+  }
+
+  // DASH 교수 오늘 강의 목록
+async dashboardTodayLectures() {
+  const res = await axios.get(`${this.#professorPath}/my/today`)
+  return res.data
+}
+  
 }
 
 export default new LectureService();

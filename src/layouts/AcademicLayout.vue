@@ -20,12 +20,12 @@ const showLayout = computed(() =>
 )
 const isTransitioning = computed(() =>
   (authStore.isLogin && publicRoutes.includes(route.path)) ||
-  (!authStore.isLogin && !publicRoutes.includes(route.path))
+  (!authStore.isLogin && !publicRoutes.includes(route.path) && !route.meta.public)
 )
 </script>
 <template>
   <div :class="showLayout ? 'all-wrap' : 'intro'">
-    <!-- 로그인 전 왼쪽 배너 -->
+    <!-- [팀원 추가] 로그인 전 왼쪽 배너 -->
     <section class="intro-banner" aria-hidden="true" v-if="!showLayout">
       <div class="intro-banner-content">
         <p class="sub">GREEN UNIVERSITY · 통합 학사시스템</p>
@@ -36,7 +36,6 @@ const isTransitioning = computed(() =>
     <LeftNav v-if="showLayout" />
     <TopLocation v-if="showLayout" />
     <main :class="showLayout ? 'container' : 'intro-panel'">
-      <PageTitle v-if="showLayout" />
       <RouterView />
     </main>
   </div>
@@ -100,7 +99,7 @@ const isTransitioning = computed(() =>
     gap: 14px;
 
     .sub {
-      font-size: .9em;
+      font-size: $fs-xs;
       letter-spacing: .18em;
       text-transform: uppercase;
       opacity: .85;
