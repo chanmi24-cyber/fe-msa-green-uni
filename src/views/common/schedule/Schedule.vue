@@ -87,8 +87,8 @@ const fetchSchedules = async () => {
 
 const getSemester = (dateStr) => {
   const month = new Date(dateStr).getMonth() + 1
-  if (month >= 3 && month <= 8) return 'FIRST'
-  return 'SECOND'
+  if (month >= 3 && month <= 8) return '1'
+  return '2'
 }
 
 // ===== 시작일 변경 시 종료일 자동 세팅 =====
@@ -122,7 +122,7 @@ const submitEvent = async () => {
     await ScheduleService.createSchedule({
       title: newEvent.value.title,
       year: currentYear.value,
-      semester: getSemester(editEvent.value.startDate),
+      semester: getSemester(newEvent.value.startDate),
       type: newEvent.value.type,
       startDate: newEvent.value.startDate + 'T00:00:00',
       endDate: (newEvent.value.endDate || newEvent.value.startDate) + 'T23:59:59',
@@ -152,7 +152,7 @@ const submitEdit = async () => {
   try {
     await ScheduleService.updateSchedule(editEvent.value.id, {
       title: editEvent.value.title,
-      semester: editEvent.value.semester,
+      semester: getSemester(editEvent.value.startDate),
       type: editEvent.value.type,
       startDate: editEvent.value.startDate + 'T00:00:00',
       endDate: editEvent.value.endDate + 'T23:59:59',
