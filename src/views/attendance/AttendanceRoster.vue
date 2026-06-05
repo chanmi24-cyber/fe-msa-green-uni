@@ -273,17 +273,6 @@ function today() {
       </article>
     </DataTable>
 
-    <!-- 페이지네이션 -->
-    <div class="roster-footer" v-if="roster.length > 0 && !isSelectedDateCancelled">
-      <Pagination v-if="totalPages > 1"
-        :currentPage="currentPage" :maxPage="totalPages" :pageGroupSize="10"
-        @goToPage="goToPage" />
-      <p class="roster-count">
-        총 {{ roster.length }}명 중
-        {{ (currentPage - 1) * PAGE_SIZE + 1 }}~{{ Math.min(currentPage * PAGE_SIZE, roster.length) }}명 표시
-      </p>
-    </div>
-
     <!-- 하단 버튼 -->
     <div class="page-footer">
       <button class="btn btn-default" @click="router.push('/attendances/roster')">← 강의 목록</button>
@@ -294,6 +283,17 @@ function today() {
           <button class="btn btn-submit" :disabled="isSaving" @click="saveAttendance">저장</button>
         </template>
       </div>
+    </div>
+
+    <!-- 페이지네이션 -->
+    <div class="roster-footer" v-if="roster.length > 0 && !isSelectedDateCancelled">
+      <Pagination v-if="totalPages > 1"
+        :currentPage="currentPage" :maxPage="totalPages" :pageGroupSize="10"
+        @goToPage="goToPage" />
+      <p class="roster-count">
+        총 {{ roster.length }}명 중
+        {{ (currentPage - 1) * PAGE_SIZE + 1 }}~{{ Math.min(currentPage * PAGE_SIZE, roster.length) }}명 표시
+      </p>
     </div>
   </div>
 </template>
@@ -345,9 +345,7 @@ function today() {
   margin-bottom: $md;
 }
 
-/* 최소 높이 — 인원 적어도 레이아웃 안정 */
 .roster-table {
-  min-height: 460px;
   display: flex;
   flex-direction: column;
   :deep(.tbl-wrap) { overflow: visible !important; }
