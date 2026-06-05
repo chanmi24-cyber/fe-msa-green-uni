@@ -9,10 +9,6 @@
           <span class="info-val">{{ lecture.lectureName || '정보 로딩 중...' }}</span>
         </div>
         <div class="info-item">
-          <span class="info-key">수업일</span>
-          <span class="info-val">{{ todayFormatted }}</span>
-        </div>
-        <div class="info-item">
           <span class="info-key">강의실</span>
           <span class="info-val pre-line">{{ scheduleRoomText(lecture.schedules) }}</span>
         </div>
@@ -88,7 +84,8 @@
         <p class="empty-text" style="padding: 0">수강 학생 전원의 출석 상태가 휴강으로 등록됩니다.</p>
       </div>
         <div class="page-footer">
-          <button class="btn btn-default" style="margin-left: auto" @click="goToLectureList">← 목록으로</button>
+          <button class="btn btn-default" @click="goToLectureList">← 목록으로</button>
+          <button class="btn btn-submit" @click="goToList">출석 현황 보기</button>
         </div>
     </template>
 
@@ -221,6 +218,8 @@ onMounted(async () => {
         sessionId.value       = session.sessionId
         isSessionActive.value = true
         startStream(session.sessionId)
+      } else if (session.sessionType === 'CANCEL') {
+        isClassCancelled.value = true
       } else {
         isTodayCompleted.value = true
       }
@@ -427,7 +426,7 @@ function goToLectureList() {
 }
 
 function goToList() {
-  router.push('/attendances/roster')
+  router.push(`/attendances/${lectureId}/roster`)
 }
 
 // ── 날짜 포맷 유틸 ───────────────────────────────────────────────

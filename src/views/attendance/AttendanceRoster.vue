@@ -12,7 +12,7 @@ const route  = useRoute()
 const router = useRouter()
 const modal  = useModalStore()
 
-const lectureId = Number(route.params.lectureId)
+const lectureId = route.params.lectureId
 
 // ── 강의 정보 ──────────────────────────────────────────────────
 const lecture   = ref(null)
@@ -27,6 +27,11 @@ const scheduleText = (schedules) => {
 // ── 날짜 필터 ──────────────────────────────────────────────────
 const selectedDate  = ref(today())
 const recordedDates = ref([])
+const cancelledDates = ref([])
+
+const isSelectedDateCancelled = computed(() =>
+  cancelledDates.value.includes(selectedDate.value)
+)
 
 // ── 출석부 ────────────────────────────────────────────────────
 const roster          = ref([])
@@ -79,7 +84,7 @@ onMounted(async () => {
   const lastDate = localStorage.getItem(LAST_EDIT_KEY)
   if (lastDate) selectedDate.value = lastDate
 
-  await loadRecordedDates()
+  await Promise.all([loadRecordedDates(), loadCancelledDates()])
   await loadRoster()
   _initDone = true  // 이후 selectedDate 변경은 watch가 처리
 })
@@ -90,6 +95,16 @@ async function loadRecordedDates() {
     recordedDates.value = res.data ?? res
   } catch (e) {
     console.error('날짜 목록 조회 실패', e)
+  }
+}
+
+async function loadCancelledDates() {
+  try {
+    const res = await attendanceService.getCancelledDates(lectureId)
+    const list = res.data ?? res
+    cancelledDates.value = list.map(item => item.cancelDate)
+  } catch (e) {
+    console.error('휴강 날짜 조회 실패', e)
   }
 }
 
@@ -195,11 +210,16 @@ function today() {
     <!-- 날짜 선택 -->
     <div class="date-bar">
       <span class="date-label">수업 날짜</span>
-      <CalendarDate v-model="selectedDate" :highlightedDates="recordedDates" />
+      <CalendarDate v-model="selectedDate" :highlightedDates="recordedDates" :cancelledDates="cancelledDates" />
+    </div>
+
+    <!-- 휴강 날짜 안내 -->
+    <div v-if="isSelectedDateCancelled" class="cancel-notice">
+      <p>해당 요일은 휴강처리 되었습니다.</p>
     </div>
 
     <!-- 출석부 테이블 -->
-    <DataTable
+    <DataTable v-if="!isSelectedDateCancelled"
       :columns="['학년', '학과', '이름', '출결 상태', '비고']"
       :rows="roster"
       gridCols="0.8fr 1.8fr 1fr 2.5fr 2fr"
@@ -246,7 +266,7 @@ function today() {
     </DataTable>
 
     <!-- 페이지네이션 -->
-    <div class="roster-footer" v-if="roster.length > 0">
+    <div class="roster-footer" v-if="roster.length > 0 && !isSelectedDateCancelled">
       <Pagination v-if="totalPages > 1"
         :currentPage="currentPage" :maxPage="totalPages" :pageGroupSize="10"
         @goToPage="goToPage" />
@@ -258,8 +278,8 @@ function today() {
 
     <!-- 하단 버튼 -->
     <div class="page-footer">
-      <button class="btn btn-default" @click="router.push('/attendances/professor')">← 강의 목록</button>
-      <div class="action-group" v-if="roster.length > 0">
+      <button class="btn btn-default" @click="router.push('/attendances/roster')">← 강의 목록</button>
+      <div class="action-group" v-if="roster.length > 0 && !isSelectedDateCancelled">
         <button v-if="!isEditMode" class="btn btn-default" @click="isEditMode = true">수정</button>
         <template v-else>
           <button class="btn btn-default" @click="cancelEditMode">취소</button>
@@ -286,8 +306,22 @@ function today() {
   margin-bottom: 16px;
   position: relative;
   z-index: 50;
+  :deep(.calendar-input-wrap) { width: auto; }
 }
 .date-label { font-size: $fs-xs; font-weight: 600; white-space: nowrap; }
+
+/* 휴강 안내 */
+.cancel-notice {
+  background: #fff3e0;
+  border: 1px solid #e65100;
+  border-radius: $radius-sm;
+  padding: 24px;
+  text-align: center;
+  color: #e65100;
+  font-weight: 600;
+  font-size: 1rem;
+  margin-bottom: $md;
+}
 
 /* 최소 높이 — 인원 적어도 레이아웃 안정 */
 .roster-table {
