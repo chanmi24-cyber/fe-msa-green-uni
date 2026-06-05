@@ -18,10 +18,18 @@ const lectureId = route.params.lectureId
 const lecture   = ref(null)
 const isLoading = ref(true)
 
+// 현재 학기 강의만 출석 수정 가능
+const now             = new Date()
+const currentYear     = now.getFullYear()
+const currentSemester = now.getMonth() + 1 <= 6 ? 1 : 2
+const isCurrentLecture = computed(() =>
+  lecture.value?.year === currentYear && lecture.value?.semester === currentSemester
+)
+
 // 강의실 헬퍼 — 출석 서비스 schedules는 s.lectureRoom 필드 사용 (강의 서비스와 다름)
 const scheduleText = (schedules) => {
   if (!schedules?.length) return '-'
-  return schedules.map(s => `${s.dayOfWeek}요일 ${s.startPeriod}-${s.endPeriod}교시 · ${s.lectureRoom}`).join('\n')
+  return schedules.map(s => `${s.dayOfWeek}요일 ${s.startPeriod}-${s.endPeriod}교시 · ${s.lectureRoom}`).join(', ')
 }
 
 // ── 날짜 필터 ──────────────────────────────────────────────────
@@ -191,7 +199,7 @@ function today() {
     <!-- 강의 정보 카드 -->
     <div class="card" v-if="lecture">
       <div class="card-label">{{ lecture.lectureName }}</div>
-      <div class="info-grid">
+      <div class="info-grid lecture-info-grid">
         <div class="info-item">
           <span class="info-key">학점</span>
           <span class="info-val">{{ lecture.credit ?? '-' }}학점</span>
@@ -202,7 +210,7 @@ function today() {
         </div>
         <div class="info-item">
           <span class="info-key">강의일정</span>
-          <span class="info-val pre-line">{{ scheduleText(lecture.schedules) }}</span>
+          <span class="info-val schedule-val">{{ scheduleText(lecture.schedules) }}</span>
         </div>
       </div>
     </div>
@@ -280,7 +288,7 @@ function today() {
     <div class="page-footer">
       <button class="btn btn-default" @click="router.push('/attendances/roster')">← 강의 목록</button>
       <div class="action-group" v-if="roster.length > 0 && !isSelectedDateCancelled">
-        <button v-if="!isEditMode" class="btn btn-default" @click="isEditMode = true">수정</button>
+        <button v-if="!isEditMode && isCurrentLecture" class="btn btn-default" @click="isEditMode = true">수정</button>
         <template v-else>
           <button class="btn btn-default" @click="cancelEditMode">취소</button>
           <button class="btn btn-submit" :disabled="isSaving" @click="saveAttendance">저장</button>
@@ -297,6 +305,20 @@ function today() {
   overflow: visible;
   position: relative;
 }
+
+/* 강의 정보 카드 — 학점 · 대상학년 · 강의일정 한 줄 균일 간격 */
+.lecture-info-grid {
+  display: flex;
+  gap: 28px;
+  align-items: baseline;
+
+  .info-item { flex-shrink: 0; }
+
+  :deep(.info-item) { gap: 20px !important; }
+  :deep(.info-key)  { width: auto !important; }
+}
+
+.schedule-val { white-space: nowrap; }
 
 /* 달력 팝업이 테이블 뒤로 숨지 않도록 z-index 확보 */
 .date-bar {

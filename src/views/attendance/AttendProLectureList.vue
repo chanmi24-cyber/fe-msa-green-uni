@@ -31,7 +31,7 @@ const isCurrent = (lecture) =>
 onMounted(async () => {
   try {
     const res = await attendanceService.getProfessorLectures()
-    lectures.value = res.data ?? res
+    lectures.value = (res.data ?? res).filter(lec => isCurrent(lec))
   } catch {
     // 에러 모달은 httpRequester 인터셉터가 처리
   } finally {

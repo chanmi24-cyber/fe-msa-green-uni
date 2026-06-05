@@ -1,19 +1,39 @@
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
-import { useModalStore } from '@/stores/modal'
 import attendanceService from '@/services/attendanceService.js'
 import DataTable from '@/components/common/DataTable.vue'
+import FilterBar from '@/components/common/FilterBar.vue'
 import LoadingSpinner from '@/components/common/LoadingSpinner.vue'
 
 const router = useRouter()
-const modal  = useModalStore()
 
-// ── 강의 목록 ──────────────────────────────────────────────────
-const lectures         = ref([])
+// ── 현재 학기 ────────────────────────────────────────────────
+const now             = new Date()
+const currentYear     = now.getFullYear()
+const currentSemester = now.getMonth() + 1 <= 6 ? 1 : 2
+
+// ── 전체 강의 + 필터 상태 ────────────────────────────────────
+const allLectures      = ref([])
 const isLectureLoading = ref(true)
+const selectedYear     = ref(currentYear)
+const selectedSemester = ref(currentSemester)
 
-// ── 강의 유형 / 강의실 헬퍼 ───────────────────────────────────
+// ── 연도 옵션 (불러온 강의에서 추출, 내림차순) ──────────────
+const yearOptions = computed(() =>
+  [...new Set(allLectures.value.map(l => l.year))].sort((a, b) => b - a)
+)
+
+// ── 필터링된 강의 목록 ────────────────────────────────────────
+const lectures = computed(() =>
+  allLectures.value.filter(lec => {
+    const matchYear     = !selectedYear.value     || lec.year     === selectedYear.value
+    const matchSemester = !selectedSemester.value || lec.semester === selectedSemester.value
+    return matchYear && matchSemester
+  })
+)
+
+// ── 강의 유형 / 강의실 헬퍼 ──────────────────────────────────
 const LECTURE_TYPE = {
   GENERAL_REQUIRED: '교양필수', GENERAL_ELECTIVE: '교양선택',
   MAJOR_REQUIRED: '전공필수',   MAJOR_ELECTIVE: '전공선택',
@@ -25,16 +45,15 @@ const scheduleText = (schedules) => {
   return schedules.map(s => `${s.dayOfWeek}요일 ${s.startPeriod}-${s.endPeriod}교시 · ${s.lectureRoom}`).join('\n')
 }
 
-// ── 현재 학기 판별 ────────────────────────────────────────────
-const now             = new Date()
-const currentYear     = now.getFullYear()
-const currentSemester = now.getMonth() + 1 <= 6 ? 1 : 2
-const isCurrent       = (lec) => lec.year === currentYear && lec.semester === currentSemester
+function resetFilter() {
+  selectedYear.value     = currentYear
+  selectedSemester.value = currentSemester
+}
 
 onMounted(async () => {
   try {
     const res = await attendanceService.getProfessorLectures()
-    lectures.value = res.data ?? res
+    allLectures.value = res.data ?? res
   } finally {
     isLectureLoading.value = false
   }
@@ -45,11 +64,18 @@ onMounted(async () => {
   <div class="attendance-list-page">
     <LoadingSpinner v-if="isLectureLoading" :overlay="true" size="md" />
 
-    <div class="list-header">
-      <div class="list-header-box">
-        <p>현재 학기 <strong>{{ currentYear }}</strong>년 <strong>{{ currentSemester }}</strong>학기</p>
-      </div>
-    </div>
+    <!-- 연도 / 학기 필터 -->
+    <FilterBar :hasFilter="true" :showSearch="false" @reset="resetFilter">
+      <select v-model="selectedYear" class="filter-select">
+        <option value="">전체 연도</option>
+        <option v-for="y in yearOptions" :key="y" :value="y">{{ y }}년</option>
+      </select>
+      <select v-model="selectedSemester" class="filter-select">
+        <option value="">전체 학기</option>
+        <option :value="1">1학기</option>
+        <option :value="2">2학기</option>
+      </select>
+    </FilterBar>
 
     <DataTable
       :columns="['강의명', '유형', '학년도 / 학기', '학점 / 대상학년', '강의실']"
@@ -61,7 +87,6 @@ onMounted(async () => {
         v-for="lec in lectures"
         :key="lec.lectureId"
         class="tbl-row pointer"
-        :class="{ 'row--sample': !isCurrent(lec) }"
         @click="router.push(`/attendances/${lec.lectureId}/roster`)">
         <div>{{ lec.lectureName }}</div>
         <div>{{ typeLabel(lec.lectureType) }}</div>
@@ -74,4 +99,14 @@ onMounted(async () => {
 </template>
 
 <style scoped lang="scss">
+.filter-select {
+  height: 36px;
+  padding: 0 10px;
+  border: 1px solid $border-color;
+  border-radius: 4px;
+  font-size: $fs-sm;
+  color: $font-color;
+  cursor: pointer;
+  background: #fff;
+}
 </style>
