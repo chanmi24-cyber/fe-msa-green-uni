@@ -10,17 +10,17 @@ import 'swiper/css/effect-fade'
 import ScheduleService from '@/services/scheduleService.js'
 
 const SCHEDULE_MAP = {
-  COURSE_REGISTRATION:  { label: '수강신청',     links: { STUDENT: '/courses',                          PROFESSOR: null,                       ADMIN: null } },
-  COURSE_MODIFICATION:  { label: '수강정정',     links: { STUDENT: '/courses',                          PROFESSOR: null,                       ADMIN: null } },
-  GRADE_INPUT:          { label: '성적입력',     links: { STUDENT: null,                                PROFESSOR: '/professor/grades',        ADMIN: null } },
-  GRADE_VIEW:           { label: '성적조회',     links: { STUDENT: '/grades',                          PROFESSOR: null,                       ADMIN: null } },
-  GRADE_APPEAL:         { label: '성적이의신청',  links: { STUDENT: '/grades/appeals/my',               PROFESSOR: null,                       ADMIN: null } },
-  LECTURE_EVALUATION:   { label: '강의평가',     links: { STUDENT: '/evaluations',                     PROFESSOR: '/evaluations',             ADMIN: null } },
-  TUITION_PAYMENT:      { label: '등록금납부',    links: { STUDENT: '/tuitions/my',                    PROFESSOR: null,                       ADMIN: '/admin/tuition' } },
-  LECTURE_REGISTRATION: { label: '강의개설신청',  links: { STUDENT: null,                               PROFESSOR: '/lectures/my',             ADMIN: '/admin/lectures/my' } },
-  MAJOR_CHANGE:         { label: '전공변경신청',  links: { STUDENT: '/members/major-request',           PROFESSOR: null,                       ADMIN: '/admin/members/major-request' } },
-  SEMESTER_START:       { label: '학기시작',     links: { STUDENT: null,                                PROFESSOR: null,                       ADMIN: null } },
-  ETC:                  { label: '기타',         links: { STUDENT: null,                                PROFESSOR: null,                       ADMIN: null } },
+  COURSE_REGISTRATION:  { label: '수강신청',    roles: ['STUDENT'],                    links: { STUDENT: '/courses',                       PROFESSOR: null,               ADMIN: null } },
+  COURSE_MODIFICATION:  { label: '수강정정',    roles: ['STUDENT'],                    links: { STUDENT: '/courses',                       PROFESSOR: null,               ADMIN: null } },
+  GRADE_INPUT:          { label: '성적입력',    roles: ['PROFESSOR'],                  links: { STUDENT: null,                             PROFESSOR: '/professor/grades', ADMIN: null } },
+  GRADE_VIEW:           { label: '성적조회',    roles: ['STUDENT', 'PROFESSOR'],       links: { STUDENT: '/grades',                        PROFESSOR: '/professor/grades', ADMIN: null } },
+  GRADE_APPEAL:         { label: '성적이의신청', roles: ['STUDENT', 'PROFESSOR'],      links: { STUDENT: '/grades/appeals/my',             PROFESSOR: '/professor/grades/appeals', ADMIN: null } },
+  LECTURE_EVALUATION:   { label: '강의평가',    roles: ['STUDENT', 'PROFESSOR'],       links: { STUDENT: '/evaluations',                   PROFESSOR: '/evaluations',     ADMIN: null } },
+  TUITION_PAYMENT:      { label: '등록금납부',   roles: ['STUDENT', 'ADMIN'],          links: { STUDENT: '/tuitions/my',                   PROFESSOR: null,               ADMIN: '/admin/tuition' } },
+  LECTURE_REGISTRATION: { label: '강의개설신청', roles: ['PROFESSOR', 'ADMIN'],        links: { STUDENT: null,                             PROFESSOR: '/lectures/my',     ADMIN: '/admin/lectures/my' } },
+  MAJOR_CHANGE:         { label: '전공변경신청', roles: ['STUDENT', 'ADMIN'],          links: { STUDENT: '/members/major-request',         PROFESSOR: null,               ADMIN: '/admin/members/major-request' } },
+  SEMESTER_START:       { label: '학기시작',    roles: ['STUDENT', 'PROFESSOR', 'ADMIN'], links: { STUDENT: null,                          PROFESSOR: null,               ADMIN: null } },
+  ETC:                  { label: '기타',        roles: ['STUDENT', 'PROFESSOR', 'ADMIN'], links: { STUDENT: null,                          PROFESSOR: null,               ADMIN: null } },
 }
 
 const role = computed(() => useAuthStore().role)
@@ -50,6 +50,7 @@ const fetchBanner = async () => {
       .map((s) => {
         const mapped = SCHEDULE_MAP[s.type]
         if (!mapped) return null
+        if (!mapped.roles.includes(role.value)) return null
         return {
           label: mapped.label,
           link: mapped.links[role.value] ?? null,
