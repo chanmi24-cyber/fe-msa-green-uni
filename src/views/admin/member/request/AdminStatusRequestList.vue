@@ -141,9 +141,9 @@ onMounted(() => {
         <div>{{ item.academicYear }}학년</div>
         <div>{{ item.semester }}학기</div>
         <div>{{ STATUS_REQUEST_TYPE[item.type] ?? item.type }}</div>
-        <div>{{ formatDateTime(item.createdAt) }}</div>
+        <div class="tbl-meta">{{ formatDateTime(item.createdAt) }}</div>
         <div>{{ item.updaterName ?? '-' }}</div>
-        <div>{{ APPROVAL_STATUS[item.status] ?? item.status }}</div>
+        <div class="tbl-meta">{{ APPROVAL_STATUS[item.status] ?? item.status }}</div>
       </article>
     </DataTable>
 
