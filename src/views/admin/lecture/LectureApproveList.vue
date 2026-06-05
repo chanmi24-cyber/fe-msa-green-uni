@@ -43,15 +43,15 @@ const state = reactive({
   currentPage: 1,
 });
 
+const currentYear = new Date().getFullYear();
+const currentSemester = new Date().getMonth() + 1 >= 3 && new Date().getMonth() + 1 <= 8 ? 1 : 2;
+const yearOptions = Array.from({ length: 5 }, (_, i) => currentYear - i);
+
 const filter = reactive({
   status: '',
   year: currentYear,
   semester: currentSemester,
 });
-
-const currentYear = new Date().getFullYear();
-const currentSemester = new Date().getMonth() + 1 >= 3 && new Date().getMonth() + 1 <= 8 ? 1 : 2;
-const yearOptions = Array.from({ length: 5 }, (_, i) => currentYear - i);
 
 // ── lectureType 한글 변환 ──────────────────────────
 const LECTURE_TYPE_LABEL = {
