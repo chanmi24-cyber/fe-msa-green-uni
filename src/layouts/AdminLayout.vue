@@ -31,7 +31,6 @@ const isTransitioning = computed(() =>
     <LeftNav v-if="authStore.isLogin" />
     <TopLocation v-if="authStore.isLogin" />
     <main :class="authStore.isLogin ? 'container' : 'intro-panel'">
-      <PageTitle  v-if="authStore.isLogin" />
       <RouterView :key="$route.path" />
     </main>
   </div>
@@ -87,7 +86,7 @@ const isTransitioning = computed(() =>
     gap: 14px;
 
     .sub {
-      font-size: .9em;
+      font-size: $fs-xs;
       letter-spacing: .18em;
       text-transform: uppercase;
       opacity: .85;

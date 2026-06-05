@@ -5,8 +5,9 @@ export const evaluationRoutes = [
     path: `${url}`,
     component: () => import('@/views/academic/evaluation/EvaluationList.vue'),
     meta: {
-      title: '나의 강의평가',
+      title: '내 강의평가',
       groupTitle: '강의 관리',
+      navSection: '학사정보',
       auth: ['STUDENT', 'PROFESSOR'],
     },
   },
@@ -15,15 +16,10 @@ export const evaluationRoutes = [
     component: () => import('@/views/academic/evaluation/EvaluationDetail.vue'),
     meta: {
       title: '강의평가 상세',
+      groupTitle: '강의 관리',
+      navSection: '학사정보',
       auth: ['STUDENT', 'PROFESSOR'],
-    },
-  },
-  {
-    path: `${url}/:lectureId/edit`,
-    component: () => import('@/views/academic/evaluation/EvaluationCreateEdit.vue'),
-    meta: {
-      title: '강의평가 작성',
-      auth: ['STUDENT'],
+      showInNav: false,
     },
   },
 ]

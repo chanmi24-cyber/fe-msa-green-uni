@@ -5,8 +5,11 @@ import ScheduleService from '@/services/scheduleService';
 import { reactive, onMounted, computed, ref, watch } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
 import DataTable from '@/components/common/DataTable.vue';
+import FilterBar from '@/components/common/FilterBar.vue';
+import LoadingSpinner from '@/components/common/LoadingSpinner.vue';
 import Pagination from '@/components/common/Pagination.vue';
-import SearchInput from '@/components/util/SearchInput.vue';
+import { APPROVAL_STATUS } from '@/utils/constants';
+import { scheduleText, roomText } from '@/utils/scheduleHelpers';
 
 const route = useRoute();
 const router = useRouter();
@@ -43,7 +46,7 @@ const fetchPeriodStatus = async () => {
     const isModification = active.COURSE_MODIFICATION || active['수강정정'];
 
     if (isRegistration) {
-      periodMessage.value = '수강신청 기간 중에는 나의 강의 목록을 확인할 수 없습니다. 수강신청 기간 종료 후 확인해 주세요.';
+      periodMessage.value = '수강신청 기간 중에는 내 강의 목록을 확인할 수 없습니다. 수강신청 기간 종료 후 확인해 주세요.';
       modificationNotice.value = '';
     } else if (isModification) {
       periodMessage.value = '';
@@ -61,8 +64,7 @@ const fetchPeriodStatus = async () => {
 // ── 탭 (교수만) ───────────────────────────────────
 const TABS = ['전체', '대기', '승인', '반려'];
 const STATUS_MAP = { '대기': 'PENDING', '승인': 'APPROVED', '반려': 'REJECTED' };
-const LABEL_MAP = { PENDING: '대기', APPROVED: '승인', REJECTED: '반려' };
-const activeTab = ref('전체');
+const activeTab = ref('승인');
 
 const onTabClick = (tab) => {
   activeTab.value = tab;
@@ -72,7 +74,8 @@ const onTabClick = (tab) => {
 };
 
 // ── 상태 ────────────────────────────────────────
-const PAGE_SIZE = 10;
+const pageSize = ref(10)
+const pageSizeOptions = [10, 20, 30]
 
 const state = reactive({
   list: [],
@@ -99,17 +102,6 @@ const LECTURE_TYPE_LABEL = {
 };
 const lectureTypeLabel = (code) => LECTURE_TYPE_LABEL[code] || code;
 
-// ── schedule 헬퍼 ─────────────────────────────────
-const scheduleText = (schedules) => {
-  if (!schedules?.length) return '-';
-  return schedules.map(s => `${s.dayOfWeek} ${s.startPeriod}~${s.endPeriod}교시`).join(',\n');
-};
-const roomText = (schedules) => {
-  if (!schedules?.length) return '-';
-  const rooms = [...new Set(schedules.map(s => `${s.building ?? ''} ${s.room ?? ''}`.trim()))];
-  return rooms.join(',\n');
-};
-
 // ── 테이블 컬럼 설정 ──────────────────────────────
 const tableConfig = computed(() => {
   if (isProfessor.value) {
@@ -125,8 +117,7 @@ const tableConfig = computed(() => {
   };
 });
 
-// ── 최대 페이지 ───────────────────────────────────
-const maxPage = computed(() => Math.ceil(state.totalCount / PAGE_SIZE) || 1);
+const maxPage = ref(1);
 
 // ── API 호출 ─────────────────────────────────────
 const fetchList = async () => {
@@ -137,35 +128,24 @@ const fetchList = async () => {
       semester: filter.semester || undefined,
       lectureName: searchInput.value || undefined,
       page: state.currentPage,
-      size: PAGE_SIZE,
-      startIdx: (state.currentPage - 1) * PAGE_SIZE, 
+      size: pageSize.value,
     };
     if (isProfessor.value && filter.status) {
       params.status = filter.status;
     }
     Object.keys(params).forEach(k => params[k] === undefined && delete params[k]);
 
-    let data;
+    let page = {};
     if (isProfessor.value) {
       const res = await LectureService.getProfessorMyLectures(params);
-      data = res.data || [];
+      page = res.data ?? {};
     } else if (isStudent.value) {
       const res = await LectureService.getStudentMyLectures(params);
-      data = res.data || []; 
-    } else {
-      // 관리자는 내 강의 목록 없음 → 빈 배열
-      data = [];
+      page = res.data ?? {};
     }
-    state.list = data;
-    state.totalCount = data[0]?.totalCount ?? 0;
-
-    // 연도 옵션 갱신
-    const years = [...new Set(data.map(i => i.year).filter(Boolean))].sort((a, b) => b - a);
-    if (years.length) {
-      const curYear = getCurrentTerm().year;
-      if (!years.includes(curYear)) years.unshift(curYear);
-      yearOptions.value = years;
-    }
+    state.list       = page.content ?? [];
+    state.totalCount = Number(page.totalElements ?? 0);
+    maxPage.value    = page.totalPages ?? 1;
 
   } catch (err) {
     console.error('내 강의 목록 로드 실패:', err);
@@ -189,7 +169,7 @@ const syncFromQuery = (query) => {
   state.currentPage = query.page ? Number(query.page) : 1;
 
   // 탭 동기화
-  const tabLabel = LABEL_MAP[query.status] || '전체';
+  const tabLabel = APPROVAL_STATUS[query.status] || '전체';
   activeTab.value = tabLabel === '전체' ? '전체' : tabLabel;
 };
 
@@ -240,6 +220,8 @@ const moveToDetail = (id) => {
   });
 };
 
+watch(pageSize, () => { state.currentPage = 1; pushQuery() })
+
 // ── watch ─────────────────────────────────────────
 watch(
   () => route.query,
@@ -264,17 +246,20 @@ const fetchYearOptions = async () => {
   try {
     let res;
     if (isProfessor.value) {
-      res = await LectureService.getProfessorMyLectures({ page: 1, size: 100, startIdx: 0 });
+      res = await LectureService.getProfessorLectureYears();
     } else if (isStudent.value) {
-      res = await LectureService.getStudentMyLectures({ page: 1, size: 100, startIdx: 0 });
+      res = await LectureService.getStudentLectureYears();
     } else {
-      return; // 관리자는 스킵
+      return;
     }
-    const data = res.data || []; 
-    const years = [...new Set(data.map(i => i.year).filter(Boolean))].sort((a, b) => b - a);
+    const years = Array.isArray(res) ? res : (res.data ?? []);
+    const { year: curYear } = getCurrentTerm();
+    if (!years.includes(curYear)) years.unshift(curYear);
     yearOptions.value = years;
   } catch (err) {
     console.error('연도 옵션 로드 실패:', err);
+    const { year: curYear } = getCurrentTerm();
+    yearOptions.value = [curYear];
   }
 };
 
@@ -284,17 +269,31 @@ onMounted(() => {
   fetchPeriodStatus();
   if (Object.keys(route.query).length === 0) {
     const { year, semester } = getCurrentTerm();
-    router.replace({ path: route.path, query: { year, semester, page: 1 } });
+    router.replace({ path: route.path, query: { year, semester, status: 'APPROVED', page: 1 } });
   }
 });
 </script>
 
 <template>
-  <div class="container">
-
-    <div class="filter-header">
-      <!-- 탭: 교수만 노출 -->
-      <div class="tab-area" v-if="isProfessor">
+  <div style="position: relative;">
+    
+    <LoadingSpinner v-if="state.isLoading" :overlay="true" size="md" />
+    <FilterBar
+      searchType="search-input"
+      :searchList="state.list"
+      searchLabelKey="lectureName"
+      placeholder="강의명을 입력하세요"
+      :showCount="true"
+      :count="state.totalCount"
+      :showPageSize="true"
+      v-model:pageSize="pageSize"
+      :pageSizeOptions="pageSizeOptions"
+      @pageSizeChange="() => { state.currentPage = 1 }"
+      v-model:searchQuery="searchQuery"
+      @search="onSearch"
+      @select="(item) => { searchInput.value = item.lectureName; searchQuery.value = item.lectureName; state.currentPage = 1; }"
+    >
+      <div v-if="isProfessor" class="tab-area">
         <button
           v-for="tab in TABS"
           :key="tab"
@@ -304,55 +303,34 @@ onMounted(() => {
           {{ tab }}
         </button>
       </div>
-
-      <div class="d-flex g10" :class="{ full: !isProfessor }">
-        <div class="filter-group">
-          <div class="filter-item">
-            <div class="input-label">연도</div>
-            <div class="input-content">
-              <select v-model="filter.year" @change="onFilterChange">
-                <option value="">전체</option>
-                <option v-for="y in yearOptions" :key="y" :value="y">{{ y }}년</option>
-              </select>
-            </div>
-          </div>
-          <div class="filter-item">
-            <div class="input-label">학기</div>
-            <div class="input-content">
-              <select v-model="filter.semester" @change="onFilterChange">
-                <option value="">전체</option>
-                <option v-for="s in semesterOptions" :key="s" :value="s">{{ s }}학기</option>
-              </select>
-            </div>
-          </div>
-        </div>
-
-        <div class="search-area input-content">
-          <SearchInput
-            v-model="searchQuery"
-            :list="state.list"
-            labelKey="lectureName"
-            :realtime="false"
-            placeholder="강의명을 입력하세요"
-            @select="(item) => { searchInput.value = item.lectureName; searchQuery.value = item.lectureName; state.currentPage = 1; }"
-            @enter="onSearch"
-          />
-          <button class="btn search-btn" @click="onSearch">
-            <font-awesome-icon icon="fa-solid fa-magnifying-glass" /> 검색
-          </button>
+      <div class="filter-item">
+        <div class="input-label">연도</div>
+        <div class="input-content">
+          <select v-model="filter.year" @change="onFilterChange">
+            <option value="">전체</option>
+            <option v-for="y in yearOptions" :key="y" :value="y">{{ y }}년</option>
+          </select>
         </div>
       </div>
-    </div>
+      <div class="filter-item">
+        <div class="input-label">학기</div>
+        <div class="input-content">
+          <select v-model="filter.semester" @change="onFilterChange">
+            <option value="">전체</option>
+            <option v-for="s in semesterOptions" :key="s" :value="s">{{ s }}학기</option>
+          </select>
+        </div>
+      </div>
+    </FilterBar>
 
-    <div v-if="isStudent && periodMessage" class="period-notice">
+    <div v-if="isStudent && periodMessage" class="card d-flex ai-center g10">
+      <font-awesome-icon icon="fa-solid fa-circle-exclamation" style="color: #3e9e7e;" />
       {{ periodMessage }}
     </div>
 
-    <div class="data-header d-flex ai-center jc-space-b">
-      전체: {{ state.totalCount }}건
-      <span v-if="isStudent && modificationNotice" class="modification-notice">
-        {{ modificationNotice }}
-      </span>
+    <div v-if="isStudent && modificationNotice" class="card d-flex ai-center g10">
+      <font-awesome-icon icon="fa-solid fa-circle-info" style="color: #3e9e7e;" />
+      {{ modificationNotice }}
     </div>
 
     <DataTable
@@ -363,8 +341,7 @@ onMounted(() => {
       emptyMessage="조회된 강의가 없습니다."
     >
       <article
-        class="tbl-row"
-        :style="`display:grid; grid-template-columns:${tableConfig.grid}; align-items:center; text-align:center;`"
+        class="tbl-row pointer"
         v-for="item in state.list"
         :key="item.lectureId"
         @click="moveToDetail(item.lectureId)"
@@ -374,17 +351,13 @@ onMounted(() => {
         <!-- 교수: 전공명 / 학생: 교수명 -->
         <div v-if="isProfessor">{{ item.majorName }}</div>
         <div v-else>{{ item.proName }}</div>
-        <div style="white-space: pre-line;">{{ scheduleText(item.schedules) }}</div>
-        <div style="white-space: pre-line;">{{ roomText(item.schedules) }}</div>
+        <div class="pre-line">{{ scheduleText(item.schedules) }}</div>
+        <div class="pre-line">{{ roomText(item.schedules) }}</div>
         <div>{{ item.credit }}</div>
         <!-- 교수 추가 컬럼 -->
         <template v-if="isProfessor">
           <div>{{ item.academicYear }}학년</div>
-          <div>
-            <span :class="['status-badge', item.status?.toLowerCase()]">
-              {{ LABEL_MAP[item.status] || item.status }}
-            </span>
-          </div>
+          <div>{{ APPROVAL_STATUS[item.status] || item.status }}</div>
         </template>
       </article>
     </DataTable>
@@ -399,38 +372,3 @@ onMounted(() => {
   </div>
 </template>
 
-<style scoped>
-.tbl-row {
-  display: grid;
-  grid-template-columns: 90px 3fr 130px 180px 130px 60px 70px 80px;
-  align-items: center;
-  text-align: center;
-}
-.filter-header .full { justify-content: space-between; width: 100%; }
-.period-notice {
-  background: #fff8e1;
-  border: 1px solid #ffe082;
-  border-radius: 6px;
-  padding: 10px 16px;
-  color: #795548;
-  font-size: 0.9em;
-  margin-bottom: 10px;
-}
-.modification-notice {
-  font-size: 0.85em;
-  color: #e67e22;
-}
-
-.status-badge {
-  position: static !important;
-  transform: none !important;
-  display: inline-block;
-  padding: 2px 10px;
-  border-radius: 10px;
-  font-size: 13px;
-  font-weight: 700;
-}
-.status-badge.pending  { background: #fff3e0; color: #ef6c00; }
-.status-badge.rejected { background: #ffebee; color: #c62828; }
-.status-badge.approved { background: #eafdf6; color: #3e9e7e; }
-</style>

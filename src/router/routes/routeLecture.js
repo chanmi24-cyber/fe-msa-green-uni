@@ -7,6 +7,7 @@ export const lectureRoutes = [
     meta: {
       title: '강의 전체 조회',
       groupTitle: '강의 관리',
+      navSection: '학사정보',
       auth: ['STUDENT', 'PROFESSOR'],
     },
   },
@@ -14,8 +15,9 @@ export const lectureRoutes = [
     path: `${url}/my`,
     component: () => import('@/views/academic/lecture/MyLectureList.vue'),
     meta: {
-      title: '나의 강의 관리',
+      title: '내 강의 관리',
       groupTitle: '강의 관리',
+      navSection: '학사정보',
       auth: ['STUDENT', 'PROFESSOR'],
     },
   },
@@ -26,6 +28,7 @@ export const lectureRoutes = [
     meta: {
       title: '강의 개설',
       groupTitle: '강의 관리',
+      navSection: '학사정보',
       auth: ['PROFESSOR'],
     },
   },
@@ -54,6 +57,7 @@ export const adminLectureRoutes = [
     meta: {
       title: '강의 승인 관리',
       groupTitle: '강의 관리',
+      navSection: '학사 관리',
       auth: ['ADMIN'],
     },
   },
@@ -63,6 +67,7 @@ export const adminLectureRoutes = [
     meta: {
       title: '강의 전체 조회',
       groupTitle: '강의 관리',
+      navSection: '학사 관리',
       auth: ['ADMIN'],
     },
   },

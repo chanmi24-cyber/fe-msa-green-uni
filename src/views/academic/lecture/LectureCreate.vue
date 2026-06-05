@@ -8,8 +8,11 @@ import { useAuthStore } from '@/stores/authentication';
 import SearchInput from '@/components/util/SearchInput.vue';
 import { useModalStore } from '@/stores/modal';
 import CalendarDate from '@/components/util/CalendarDate.vue';
+import LoadingSpinner from '@/components/common/LoadingSpinner.vue';
+import ScheduleService from '@/services/scheduleService';
 
 const modal = useModalStore();
+const isPeriod = ref(true);
 const route = useRoute();
 const router = useRouter();
 const authStore = useAuthStore();
@@ -146,8 +149,12 @@ onMounted(async () => {
     return;
   }
 
+  const activeRes = await ScheduleService.getActiveSchedules();
+  isPeriod.value = !!activeRes.data?.data?.LECTURE_REGISTRATION;
+  if (!isPeriod.value) return;
+
   if (authStore.isLogin) {
-    state.data.loginUserId = authStore.memberCode;
+    //state.data.loginUserId = authStore.memberCode;
     state.data.loginUserCode = authStore.memberCode;
     state.data.loginUserName = authStore.name;
   }
@@ -348,8 +355,11 @@ onBeforeRouteLeave(async (to, from, next) => {
 </script>
 
 <template>
-  <div class="container">
-    <div class="form-wrap">
+  <div>
+    <div v-if="!isPeriod" class="empty-period">강의개설 기간이 아닙니다.</div>
+    <template v-else>
+    <div class="form-wrap" style="position: relative; min-height: 200px;">
+      <LoadingSpinner v-if="!isMounted" :overlay="true" size="md" />
 
       <!-- 교수 정보 (개설 모드만 노출) -->
       <div class="content-wrap" v-if="!isEdit">
@@ -508,7 +518,7 @@ onBeforeRouteLeave(async (to, from, next) => {
                 </button>
                 <button
                   v-if="idx === state.data.timeSlots.length - 1"
-                  class="btn btn-line" @click="addTimeSlot"
+                  class="btn btn-default" @click="addTimeSlot"
                   style="padding:8px; flex-shrink:0;"
                 >
                   <font-awesome-icon icon="fa-solid fa-plus" />
@@ -540,7 +550,7 @@ onBeforeRouteLeave(async (to, from, next) => {
                 </select>
                 <span
                   v-if="room.room && getRoomCapacity(idx)"
-                  style="white-space:nowrap; font-size:var(--text-sm); color:var(--font-color-light); flex-shrink:0;"
+                  style="white-space:nowrap; font-size:12px; color:#9fa9b1; flex-shrink:0;"
                 >
                   최대수용 {{ getRoomCapacity(idx) }}명
                 </span>
@@ -553,7 +563,7 @@ onBeforeRouteLeave(async (to, from, next) => {
                 </button>
                 <button
                   v-if="idx === state.data.rooms.length - 1"
-                  class="btn btn-line" @click="addRoom"
+                  class="btn btn-default" @click="addRoom"
                   style="padding:8px; flex-shrink:0;"
                 >
                   <font-awesome-icon icon="fa-solid fa-plus" />
@@ -590,13 +600,26 @@ onBeforeRouteLeave(async (to, from, next) => {
         </div>
       </div>
 
-      <div class="btn-row">
+    </div>
+    <div class="page-footer">
+      <button class="btn btn-default" @click="router.go(-1)">← 돌아가기</button>
+      <div class="action-group">
         <button class="btn btn-submit" @click="submitLecture" :disabled="isSubmitting">
           <font-awesome-icon icon="fa-solid fa-circle-check" /> {{ isEdit ? '수정하기' : '개설신청' }}
         </button>
       </div>
     </div>
-  </div>
+  </template>
+</div>
 </template>
 
-<style scoped></style>
+<style scoped>
+.empty-period {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 60vh;
+  font-size: $fs-xl;
+  color: #999;
+}
+</style>
