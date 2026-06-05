@@ -1,6 +1,20 @@
 <template>
   <div class="attend-home">
 
+    <!-- 상단 헤더: 학생 정보 -->
+    <header class="s-header">
+      <div class="header-title">
+        <span class="header-logo">
+          <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M22 9L12 5 2 9l10 4 10-4v6"/>
+            <path d="M6 10.6V16a6 3 0 0 0 12 0v-5.4"/>
+          </svg>
+        </span>
+        <p class="header-school">그린대학교 전자출결</p>
+      </div>
+      <p class="header-user">{{ majorName }} · {{ userName }}</p>
+    </header>
+
     <!-- 메인 영역 -->
     <main class="main-area">
 
@@ -45,22 +59,11 @@
 
     </main>
 
-    <!-- 하단: 학생 정보 + 로그아웃 -->
+    <!-- 하단: 로그아웃 -->
     <footer class="bottom-bar">
-      <div class="header-left">
-        <div class="header-title">
-          <span class="header-logo">
-            <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M22 9L12 5 2 9l10 4 10-4v6"/>
-              <path d="M6 10.6V16a6 3 0 0 0 12 0v-5.4"/>
-            </svg>
-          </span>
-          <p class="header-school">그린대학교 전자출결</p>
-        </div>
-        <p class="header-user">{{ majorName }} · {{ userName }}</p>
-      </div>
-      <button class="btn-logout" @click="doLogOut" aria-label="로그아웃">로그아웃
-        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <button class="btn-logout" @click="doLogOut" aria-label="로그아웃">
+        로그아웃
+        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
           <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
           <polyline points="16 17 21 12 16 7"/>
           <line x1="21" y1="12" x2="9" y2="12"/>
@@ -104,38 +107,21 @@ function goToQrScan()   { router.push('/student/attendances/scan') }
   display: flex;
   flex-direction: column;
   background: $default-bg;
-  padding: calc(env(safe-area-inset-top) + 20px) 16px 20px;
+  padding: 0 0 20px;
   max-width: 480px;
   margin: 0 auto;
   box-sizing: border-box;
   overflow: hidden;
 }
 
-/* ── 헤더 ── */
-.header {
+/* ── 상단 헤더 ── */
+.s-header {
   flex-shrink: 0;
   display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  padding-top: 8px;
-}
-
-.header-left { display: flex; flex-direction: column; gap: 4px; }
-
-.btn-logout {
-  background: none;
-  border: 1px solid $border-color;
-  border-radius: 8px;
-  padding: 6px 10px;
-  color: $font-color-light;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
+  flex-direction: column;
   gap: 4px;
-  font-size: 0.75rem;
-  flex-shrink: 0;
-  &:hover { color: $font-color; border-color: $font-color-light; }
-  &:active { opacity: 0.7; }
+  padding: calc(env(safe-area-inset-top) + 14px) 16px 12px;
+  border-bottom: 1px solid $border-color;
 }
 
 .header-title {
@@ -159,6 +145,7 @@ function goToQrScan()   { router.push('/student/attendances/scan') }
   font-size: 15px;
   font-weight: 600;
   color: $font-color;
+  margin: 0;
 }
 
 .header-user {
@@ -166,16 +153,26 @@ function goToQrScan()   { router.push('/student/attendances/scan') }
   color: $font-color-light;
 }
 
+/* ── 하단 바: 로그아웃 ── */
+.bottom-bar {
+  flex-shrink: 0;
+  display: flex;
+  justify-content: center;
+  padding: 14px 16px calc(env(safe-area-inset-bottom) + 14px);
+  border-top: 1px solid $border-color;
+}
+
 .btn-logout {
   background: none;
   border: 1px solid $border-color;
   border-radius: 8px;
-  padding: 6px 8px;
+  padding: 8px 20px;
   color: $font-color-light;
+  font-size: 0.875rem;
   cursor: pointer;
   display: flex;
   align-items: center;
-  flex-shrink: 0;
+  gap: 6px;
   &:hover { color: $font-color; border-color: $font-color-light; }
   &:active { opacity: 0.7; }
 }
@@ -187,7 +184,7 @@ function goToQrScan()   { router.push('/student/attendances/scan') }
   flex-direction: column;
   justify-content: center;
   gap: 24px;
-  padding: 16px 0;
+  padding: 16px 16px;
 }
 
 /* ── 큰 카드 ── */
@@ -254,14 +251,4 @@ function goToQrScan()   { router.push('/student/attendances/scan') }
   margin-top: 8px;
 }
 
-/* ── 하단 바: 학생 정보 + 로그아웃 ── */
-.bottom-bar {
-  flex-shrink: 0;
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  padding: 16px 0 4px;
-  border-top: 1px solid $border-color;
-  margin-top: 8px;
-}
 </style>

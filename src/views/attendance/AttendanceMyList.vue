@@ -105,6 +105,9 @@ onMounted(async () => {
 <template>
   <div class="my-attend-page">
 
+    <!-- 홈으로 -->
+    <button class="btn-home" @click="router.push('/student/attendances/home')">← 홈으로</button>
+
     <!-- 로딩 -->
     <div v-if="isLoading" class="hint">출석 정보를 불러오는 중...</div>
 
@@ -232,6 +235,18 @@ onMounted(async () => {
   max-width: 480px;
   margin: 0 auto;
   padding: 20px $size-df;
+}
+
+.btn-home {
+  display: inline-flex;
+  align-items: center;
+  background: none;
+  border: none;
+  font-size: 0.875rem;
+  color: $green-600;
+  cursor: pointer;
+  padding: 0 0 16px;
+  font-weight: 600;
 }
 
 .page-title {
