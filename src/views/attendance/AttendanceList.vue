@@ -207,11 +207,11 @@ function today() {
           class="tbl-row pointer"
           :class="{ 'row--sample': !isCurrent(lec) }"
           @click="openRoster(lec)">
-          <div class="tal">{{ lec.lectureName }}</div>
+          <div>{{ lec.lectureName }}</div>
           <div>{{ typeLabel(lec.lectureType) }}</div>
           <div>{{ lec.year }}년 {{ lec.semester }}학기</div>
           <div>{{ lec.credit }}학점 / {{ lec.academicYear }}학년</div>
-          <div class="tal pre-line">{{ scheduleText(lec.schedules) }}</div>
+          <div class="pre-line">{{ scheduleText(lec.schedules) }}</div>
         </article>
       </DataTable>
     </template>
@@ -346,7 +346,7 @@ function today() {
 }
 
 /* 수정 모드 라디오 — 전역 radio-group 사용, 테이블 셀 내 크기만 override */
-.radio-group { font-size: $fs-xs; flex-wrap: wrap; }
+.radio-group { font-size: $fs-xs; flex-wrap: wrap; justify-content: center; }
 /* 출석 상태별 선택 시 텍스트 색상 — modifier 클래스 기반 */
 .radio-label {
   &:has(input:checked)             { color: $green-600; }

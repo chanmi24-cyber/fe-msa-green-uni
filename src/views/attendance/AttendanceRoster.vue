@@ -298,7 +298,7 @@ function today() {
 }
 
 /* 수정 모드 라디오 — 전역 _form.scss radio-label과 충돌하여 scoped 유지 */
-.radio-group { display: flex; gap: 14px; font-size: $fs-xs; flex-wrap: wrap; justify-content: flex-start; }
+.radio-group { display: flex; gap: 14px; font-size: $fs-xs; flex-wrap: wrap; justify-content: center; }
 .radio-label {
   cursor: pointer; display: flex; align-items: center; gap: 4px;
   padding-left: 0;

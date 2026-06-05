@@ -166,7 +166,7 @@ onMounted(async () => {
                 v-for="(d, idx) in activeLecture.details"
                 :key="idx"
               >
-                <td class="col-no">{{ idx + 1 }}</td>
+                <td class="col-no">{{ activeLecture.details.length - idx }}</td>
                 <td class="col-date">{{ d.attendDate }}</td>
                 <td class="col-time">{{ d.attendedAt ?? '-' }}</td>
                 <td class="col-status">

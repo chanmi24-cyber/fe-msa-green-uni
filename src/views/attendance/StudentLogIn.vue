@@ -39,6 +39,7 @@ const login = async () => {
     router.push('/student/attendances/home')
   } catch (e) {
     console.error(e)
+  } finally {
     isLoading.value = false
   }
 }

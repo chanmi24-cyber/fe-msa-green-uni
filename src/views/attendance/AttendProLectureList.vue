@@ -60,7 +60,7 @@ onMounted(async () => {
         :key="lecture.lectureId"
         class="tbl-row"
         :class="{ 'row--sample': !isCurrent(lecture) }">
-        <div class="tal">{{ lecture.lectureName }}</div>
+        <div>{{ lecture.lectureName }}</div>
         <div>{{ typeLabel(lecture.lectureType) }}</div>
         <div>{{ lecture.year }}년</div>
         <div>{{ lecture.semester }}학기</div>

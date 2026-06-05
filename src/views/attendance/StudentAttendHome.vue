@@ -163,7 +163,7 @@ function goToQrScan()   { router.push('/student/attendances/scan') }
   display: flex;
   flex-direction: column;
   background: $default-bg;
-  padding: 20px 16px;
+  padding: calc(env(safe-area-inset-top) + 20px) 16px 20px;
   max-width: 480px;
   margin: 0 auto;
   box-sizing: border-box;
