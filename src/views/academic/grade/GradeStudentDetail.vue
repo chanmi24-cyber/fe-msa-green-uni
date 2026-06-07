@@ -183,7 +183,7 @@ onMounted(async () => {
 
 
             <div class="page-footer">
-                <button class="btn btn-default" @click="router.push('/grades')">← 목록으로</button>
+                <button class="btn btn-default" @click="router.push('/grades')"><font-awesome-icon icon="fa-solid fa-list" /> 목록</button>
             </div>
 
         </template>

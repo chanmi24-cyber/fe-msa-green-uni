@@ -21,7 +21,7 @@
         {{ isTodayCompleted ? '오늘 출석이 이미 완료되었습니다.' : '출석 시작 버튼을 누르면 QR이 활성화됩니다.' }}
       </p>
       <div class="page-footer">
-        <button class="btn btn-default" @click="goToLectureList">← 목록으로</button>
+        <button class="btn btn-default" @click="goToLectureList"><font-awesome-icon icon="fa-solid fa-list" /> 목록</button>
         <div class="action-group">
           <template v-if="isTodayCompleted">
             <button class="btn btn-default" disabled>출석완료</button>
@@ -54,7 +54,7 @@
         <p class="empty-text" style="padding: 0;">{{ countdown }}초 후 QR이 자동으로 갱신됩니다</p>
       </div>
       <div class="page-footer">
-        <button class="btn btn-default" @click="goToLectureList">← 목록으로</button>
+        <button class="btn btn-default" @click="goToLectureList"><font-awesome-icon icon="fa-solid fa-list" /> 목록</button>
         <p class="notice-caution" style="text-align: center">종료 시 미스캔 학생은 자동으로 결석 처리됩니다.</p>
         <button class="btn btn-submit" @click="handleEndSession" :disabled="isLoading">
           {{ isLoading ? '처리 중...' : '출석 종료' }}
@@ -72,7 +72,7 @@
         <p class="empty-text" style="padding: 0">미스캔 학생은 결석 처리되었습니다. 수동 수정이 필요한 경우 출석 페이지를 이용해주세요.</p>
       </div>
       <div class="page-footer">
-        <button class="btn btn-default" @click="goToLectureList">← 목록으로</button>
+        <button class="btn btn-default" @click="goToLectureList"><font-awesome-icon icon="fa-solid fa-list" /> 목록</button>
         <button class="btn btn-submit" @click="goToList">출석 현황</button>
       </div>
     </template>
@@ -84,7 +84,7 @@
         <p class="empty-text" style="padding: 0">수강 학생 전원의 출석 상태가 휴강으로 등록됩니다.</p>
       </div>
         <div class="page-footer">
-          <button class="btn btn-default" @click="goToLectureList">← 목록으로</button>
+          <button class="btn btn-default" @click="goToLectureList"><font-awesome-icon icon="fa-solid fa-list" /> 목록</button>
           <button class="btn btn-submit" @click="goToList">출석 현황 보기</button>
         </div>
     </template>

@@ -282,14 +282,14 @@ onMounted(fetchData);
 
     <div class="page-footer">
       <button class="btn btn-default" @click="router.back()">
-        <font-awesome-icon icon="fa-solid fa-chevron-left" /> 목록으로
+        <font-awesome-icon icon="fa-solid fa-list" /> 목록
       </button>
       <div class="action-group">
         <button
           v-if="role === 'STUDENT' && evalStatus === 'active' && detail?.hasGrade && detail?.score == null"
           class="btn btn-submit"
           @click="submitEval"
-        >제출</button>
+        ><font-awesome-icon icon="fa-solid fa-circle-check" /> 제출</button>
       </div>
     </div>
   </div>
