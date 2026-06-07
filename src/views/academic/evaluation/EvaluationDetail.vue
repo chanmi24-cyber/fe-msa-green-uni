@@ -289,7 +289,7 @@ onMounted(fetchData);
           v-if="role === 'STUDENT' && evalStatus === 'active' && detail?.hasGrade && detail?.score == null"
           class="btn btn-submit"
           @click="submitEval"
-        >제출</button>
+        ><font-awesome-icon icon="fa-solid fa-circle-check" /> 제출</button>
       </div>
     </div>
   </div>

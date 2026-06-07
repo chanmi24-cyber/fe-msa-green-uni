@@ -280,7 +280,7 @@ function today() {
         <button v-if="!isEditMode && isCurrentLecture" class="btn btn-default" @click="isEditMode = true">수정</button>
         <template v-else>
           <button class="btn btn-default" @click="cancelEditMode">취소</button>
-          <button class="btn btn-submit" :disabled="isSaving" @click="saveAttendance">저장</button>
+          <button class="btn btn-submit" :disabled="isSaving" @click="saveAttendance"><font-awesome-icon icon="fa-solid fa-circle-check" /> 저장</button>
         </template>
       </div>
     </div>

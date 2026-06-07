@@ -128,7 +128,7 @@ const handleSubmit = async () => {
             <div class="page-footer">
                 <button class="btn btn-default" @click="router.back()"><font-awesome-icon icon="fa-solid fa-arrow-left" /> 돌아가기</button>
                 <button class="btn btn-submit" :disabled="isSubmitting" @click="handleSubmit">
-                    {{ isSubmitting ? '신청 중...' : '신청하기' }}
+                    <font-awesome-icon icon="fa-solid fa-circle-check" /> {{ isSubmitting ? '신청 중...' : '신청' }}
                 </button>
             </div>
 
