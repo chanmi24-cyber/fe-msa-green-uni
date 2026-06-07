@@ -275,7 +275,7 @@ function today() {
 
     <!-- 하단 버튼 -->
     <div class="page-footer">
-      <button class="btn btn-default" @click="router.push('/attendances/roster')">← 강의 목록</button>
+      <button class="btn btn-default" @click="router.push('/attendances/roster')"><font-awesome-icon icon="fa-solid fa-list" /> 목록</button>
       <div class="action-group" v-if="roster.length > 0 && !isSelectedDateCancelled">
         <button v-if="!isEditMode && isCurrentLecture" class="btn btn-default" @click="isEditMode = true">수정</button>
         <template v-else>
