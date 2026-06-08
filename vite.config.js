@@ -44,11 +44,11 @@ export default defineConfig(({ mode }) => {
       VitePWA({
         // 새 버전 배포 시 사용자 개입 없이 서비스 워커 자동 갱신
         registerType: 'autoUpdate',
-        // dev 서버에서 SW 활성화 — 모바일 PWA 주소창 숨김 동작 확인용
+        // dev 서버에서 SW 활성화 — iOS 16.4+: SW 없으면 웹클립으로 간주 → 주소창 표시
+        // production 빌드(npm run build)는 devOptions 무관하게 항상 SW 포함
         // 캐시 문제 발생 시 브라우저에서 Ctrl+Shift+R(강력 새로고침) 사용
-        // PR시에 false로 수정하여 PR
         devOptions: {
-          enabled: true,
+          enabled: true,            // iOS 16.4+: SW 없으면 웹클립으로 인식 → 주소창 표시
           type: 'module',           // Vite HMR과 충돌 방지
           navigateFallback: 'index.html', // SPA 딥링크 정상 동작
         },
@@ -68,7 +68,7 @@ export default defineConfig(({ mode }) => {
           orientation: 'portrait',        // 세로 고정
           scope: '/',
           // [수정] 홈 화면으로 변경 — 출석 현황·QR 출석 선택 진입점
-          start_url: '/student/attendances/home',
+          start_url: '/student/login',
           icons: [
             {
               // iOS 홈화면 아이콘
