@@ -1,5 +1,5 @@
 <script setup>
-import { reactive, onMounted, computed, ref } from 'vue';
+import { reactive, onMounted, computed, ref, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { useAuthStore } from '@/stores/authentication';
 import evaluationService from '@/services/evaluationService';
@@ -36,7 +36,7 @@ const state = reactive({
   isLoading: false,
 });
 
-const maxPage = computed(() => Math.ceil(state.totalCount / PAGE_SIZE) || 1);
+const maxPage = ref(1);
 
 const tableCols = computed(() =>
   role.value === 'STUDENT'
@@ -67,14 +67,23 @@ const fetchList = async () => {
     const params = {
       year: filter.year || undefined,
       semester: filter.semester || undefined,
-      page: state.currentPage,
-      size: PAGE_SIZE,
     };
-    const res = role.value === 'STUDENT'
-      ? await evaluationService.getStudentEvalList(params)
-      : await evaluationService.getProfessorEvalList(params);
-    state.list = res.data ?? [];
-    state.totalCount = state.list.length;
+    if (role.value === 'STUDENT') {
+      const res = await evaluationService.getStudentEvalList({
+        ...params,
+        page: state.currentPage,
+        size: PAGE_SIZE,
+      });
+      const page = res.data ?? {};
+      state.list = page.content ?? [];
+      state.totalCount = Number(page.totalElements ?? 0);
+      maxPage.value = page.totalPages ?? 1;
+    } else {
+      const res = await evaluationService.getProfessorEvalList(params);
+      state.list = res.data ?? [];
+      state.totalCount = state.list.length;
+      maxPage.value = 1;
+    }
   } catch (e) {
     console.error(e);
     state.list = [];
